@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do List | MyMemory</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #003087;
+      --primary-light: #0070ba;
+      --secondary: #ff5a5f;
+      --dark: #2d3748;
+      --light: #f5f7fa;
+      --gray: #e2e8f0;
+      --success: #38a169;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--light);
+      min-height: 100vh;
+      margin: 0;
+    }
+    
+    /* Header Styles */
+    .header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo img {
+      height: 40px;
+    }
+    
+    .logo h1 {
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    /* Main Container */
+    .container {
+      display: flex;
+      min-height: calc(100vh - 72px);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: white;
+      padding: 2rem 1rem;
+      border-right: 1px solid var(--gray);
+    }
+    
+    .sidebar-menu {
+      list-style: none;
+    }
+    
+    .sidebar-menu li {
+      margin-bottom: 5px;
+    }
+    
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      color: var(--dark);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-menu a:hover, .sidebar-menu a.active {
+      background-color: var(--light);
+      color: var(--primary);
+    }
+    
+    .sidebar-menu i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .page-title {
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+    
+    /* Todo List Styles */
+    .todo-container {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .todo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .todo-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 8px 15px;
+      background-color: var(--primary);
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-light);
+    }
+    
+    .btn-outline:hover {
+      background: var(--light);
+    }
+    
+    .todo-filter {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .filter-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: transparent;
+      border: 1px solid var(--gray);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .todo-list {
+      list-style: none;
+    }
+    
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+      background: var(--light);
+    }
+    
+    .todo-item:hover {
+      background: #e6f0fa;
+    }
+    
+    .todo-checkbox {
+      margin-right: 15px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    
+    .todo-content {
+      flex: 1;
+    }
+    
+    .todo-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    
+    .todo-due {
+      font-size: 0.85rem;
+      color: #718096;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .todo-completed .todo-title {
+      text-decoration: line-through;
+      color: #718096;
+    }
+    
+    .todo-completed .todo-due {
+      color: #cbd5e0;
+    }
+    
+    .todo-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .todo-actions button {
+      background: none;
+      border: none;
+      color: #718096;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .todo-actions button:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--primary);
+    }
+    
+    /* Priority Indicators */
+    .priority-high {
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .priority-medium {
+      border-left: 4px solid #f6ad55;
+    }
+    
+    .priority-low {
+      border-left: 4px solid var(--success);
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--gray);
+      border-radius: 6px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    .priority-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    
+    .priority-option {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid var(--gray);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .priority-option.selected {
+      border-color: var(--primary);
+      background: var(--light);
+    }
+    
+    .priority-option.high {
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .priority-option.medium {
+      border-left: 4px solid #f6ad55;
+    }
+    
+    .priority-option.low {
+      border-left: 4px solid var(--success);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--gray);
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .todo-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="IT Consultation Logo">
+      <h1>MyMemory</h1>
+    </div>
+    <div class="user-menu">
+      <div class="user-avatar" id="user-avatar">JS</div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="Dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="To do list.html" class="active"><i class="fas fa-tasks"></i> To-Do List</a></li>
+        <li><a href="Password Manager.html"><i class="fas fa-lock"></i> Password Manager</a></li>
+        <li><a href="Documents.html"><i class="fas fa-file-contract"></i> Documents</a></li>
+        <li><a href="Settings"><i class="fas fa-cog"></i> Settings</a></li>
+        <li><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h2 class="page-title">My To-Do List</h2>
+        <div class="todo-actions">
+          <button class="btn" id="add-todo-btn">
+            <i class="fas fa-plus"></i> Add Task
+          </button>
+        </div>
+      </div>
+      
+      <div class="todo-filter">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="today">Today</button>
+        <button class="filter-btn" data-filter="week">This Week</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </div>
+      
+      <div class="todo-container">
+        <ul class="todo-list" id="todo-list">
+          <li class="todo-item priority-high" data-due="2023-07-20" data-completed="false">
+            <input type="checkbox" class="todo-checkbox">
+            <div class="todo-content">
+              <div class="todo-title">Fix critical server issue</div>
+              <div class="todo-due">
+                <i class="far fa-calendar-alt"></i> Due today
+              </div>
+            </div>
+            <div class="todo-actions">
+              <button title="Edit"><i class="fas fa-edit"></i></button>
+              <button title="Delete"><i class="fas fa-trash"></i></button>
+              <button title="Priority"><i class="fas fa-flag"></i></button>
+            </div>
+          </li>
+          
+          <li class="todo-item priority-medium todo-completed" data-due="2023-07-19" data-completed="true">
+            <input type="checkbox" class="todo-checkbox" checked>
+            <div class="todo-content">
+              <div class="todo-title">Client meeting preparation</div>
+              <div class="todo-due">
+                <i class="far fa-calendar-alt"></i> Due yesterday
+              </div>
+            </div>
+            <div class="todo-actions">
+              <button title="Edit"><i class="fas fa-edit"></i></button>
+              <button title="Delete"><i class="fas fa-trash"></i></button>
+              <button title="Priority"><i class="fas fa-flag"></i></button>
+            </div>
+          </li>
+          
+          <li class="todo-item priority-low" data-due="2023-07-23" data-completed="false">
+            <input type="checkbox" class="todo-checkbox">
+            <div class="todo-content">
+              <div class="todo-title">Update project documentation</div>
+              <div class="todo-due">
+                <i class="far fa-calendar-alt"></i> Due in 3 days
+              </div>
+            </div>
+            <div class="todo-actions">
+              <button title="Edit"><i class="fas fa-edit"></i></button>
+              <button title="Delete"><i class="fas fa-trash"></i></button>
+              <button title="Priority"><i class="fas fa-flag"></i></button>
+            </div>
+          </li>
+          
+          <li class="todo-item" data-due="2023-07-27" data-completed="false">
+            <input type="checkbox" class="todo-checkbox">
+            <div class="todo-content">
+              <div class="todo-title">Review team performance</div>
+              <div class="todo-due">
+                <i class="far fa-calendar-alt"></i> Due next week
+              </div>
+            </div>
+            <div class="todo-actions">
+              <button title="Edit"><i class="fas fa-edit"></i></button>
+              <button title="Delete"><i class="fas fa-trash"></i></button>
+              <button title="Priority"><i class="fas fa-flag"></i></button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Todo Modal -->
+  <div class="modal" id="todo-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Add New Task</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="todo-form">
+        <input type="hidden" id="todo-id">
+        
+        <div class="form-group">
+          <label for="todo-title">Task Title</label>
+          <input type="text" id="todo-title" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="todo-description">Description (Optional)</label>
+          <textarea id="todo-description" class="form-control" rows="3"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="todo-due">Due Date</label>
+            <input type="date" id="todo-due" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="todo-time">Time (Optional)</label>
+            <input type="time" id="todo-time" class="form-control">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Priority</label>
+          <div class="priority-selector">
+            <div class="priority-option high" data-priority="high">
+              High
+            </div>
+            <div class="priority-option medium selected" data-priority="medium">
+              Medium
+            </div>
+            <div class="priority-option low" data-priority="low">
+              Low
+            </div>
+          </div>
+          <input type="hidden" id="todo-priority" value="medium">
+        </div>
+        
+        <button type="submit" class="btn">
+          <i class="fas fa-save"></i> Save Task
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Get user data from localStorage or default
+    const userData = JSON.parse(localStorage.getItem('userData')) || {
+      name: 'John Smith',
+      email: 'john.smith@example.com',
+      avatarInitials: 'JS'
+    };
+
+    // Initialize todos from localStorage or use default ones
+    let todos = JSON.parse(localStorage.getItem('todos')) || [
+      {
+        id: '1',
+        title: 'Fix critical server issue',
+        description: '',
+        dueDate: '2023-07-20',
+        time: '',
+        priority: 'high',
+        completed: false
+      },
+      {
+        id: '2',
+        title: 'Client meeting preparation',
+        description: '',
+        dueDate: '2023-07-19',
+        time: '',
+        priority: 'medium',
+        completed: true
+      },
+      {
+        id: '3',
+        title: 'Update project documentation',
+        description: '',
+        dueDate: '2023-07-23',
+        time: '',
+        priority: 'low',
+        completed: false
+      },
+      {
+        id: '4',
+        title: 'Review team performance',
+        description: '',
+        dueDate: '2023-07-27',
+        time: '',
+        priority: 'medium',
+        completed: false
+      }
+    ];
+
+    // Set user info on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('user-avatar').textContent = userData.avatarInitials;
+      
+      // Initialize todos
+      renderTodos();
+      
+      // Set up modal
+      setupModal('add-todo-btn', 'todo-modal');
+      
+      // Priority selection
+      document.querySelectorAll('.priority-option').forEach(option => {
+        option.addEventListener('click', function() {
+          document.querySelectorAll('.priority-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          this.classList.add('selected');
+          document.getElementById('todo-priority').value = this.dataset.priority;
+        });
+      });
+      
+      // Form submission
+      document.getElementById('todo-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveTodoItem();
+        closeModal('todo-modal');
+      });
+      
+      // Filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active');
+          });
+          this.classList.add('active');
+          filterTodos(this.dataset.filter);
+        });
+      });
+    });
+
+    // Render todos from the array
+    function renderTodos() {
+      const todoList = document.getElementById('todo-list');
+      todoList.innerHTML = '';
+      
+      todos.forEach(todo => {
+        const todoItem = createTodoElement(todo);
+        todoList.appendChild(todoItem);
+      });
+      
+      // Save to localStorage
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+    
+    // Create a todo element from todo data
+    function createTodoElement(todo) {
+      const todoItem = document.createElement('li');
+      todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
+      todoItem.dataset.id = todo.id;
+      todoItem.dataset.due = todo.dueDate;
+      todoItem.dataset.completed = todo.completed;
+      
+      // Format due date display
+      const dueText = formatDueDate(todo.dueDate);
+      
+      todoItem.innerHTML = `
+        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+        <div class="todo-content">
+          <div class="todo-title">${todo.title}</div>
+          <div class="todo-due">
+            <i class="far fa-calendar-alt"></i> ${dueText}
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button title="Edit"><i class="fas fa-edit"></i></button>
+          <button title="Delete"><i class="fas fa-trash"></i></button>
+          <button title="Priority"><i class="fas fa-flag"></i></button>
+        </div>
+      `;
+      
+      // Add event listeners
+      addTodoEventListeners(todoItem);
+      
+      return todoItem;
+    }
+    
+    // Format due date for display
+    function formatDueDate(dueDate) {
+      if (!dueDate) return 'No due date';
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(dueDate);
+      due.setHours(0, 0, 0, 0);
+      
+      const diffTime = due - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) return 'Due today';
+      if (diffDays === 1) return 'Due tomorrow';
+      if (diffDays === -1) return 'Due yesterday';
+      if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
+      if (diffDays <= 7) return `Due in ${diffDays} days`;
+      
+      return `Due on ${due.toLocaleDateString()}`;
+    }
+    
+    // Filter todos based on selected filter
+    function filterTodos(filterType) {
+      const todoItems = document.querySelectorAll('.todo-item');
+      
+      todoItems.forEach(item => {
+        const dueDate = item.dataset.due;
+        const isCompleted = item.dataset.completed === 'true';
+        let shouldShow = true;
+        
+        switch(filterType) {
+          case 'today':
+            const today = new Date().toISOString().split('T')[0];
+            shouldShow = dueDate === today && !isCompleted;
+            break;
+          case 'week':
+            const todayObj = new Date();
+            const nextWeek = new Date(todayObj.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const dueDateObj = new Date(dueDate);
+            shouldShow = dueDateObj >= todayObj && dueDateObj <= nextWeek && !isCompleted;
+            break;
+          case 'completed':
+            shouldShow = isCompleted;
+            break;
+          case 'all':
+          default:
+            shouldShow = true;
+        }
+        
+        item.style.display = shouldShow ? 'flex' : 'none';
+      });
+    }
+    
+    // Add event listeners to todo items
+    function addTodoEventListeners(item) {
+      const checkbox = item.querySelector('.todo-checkbox');
+      const editBtn = item.querySelector('.fa-edit').parentNode;
+      const deleteBtn = item.querySelector('.fa-trash').parentNode;
+      
+      checkbox.addEventListener('change', function() {
+        const todoId = item.dataset.id;
+        const todo = todos.find(t => t.id === todoId);
+        
+        if (todo) {
+          todo.completed = this.checked;
+          item.dataset.completed = this.checked;
+          
+          if (this.checked) {
+            item.classList.add('todo-completed');
+          } else {
+            item.classList.remove('todo-completed');
+          }
+          
+          // Save to localStorage
+          localStorage.setItem('todos', JSON.stringify(todos));
+        }
+      });
+      
+      editBtn.addEventListener('click', function() {
+        openEditModal(item);
+      });
+      
+      deleteBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to delete this task?')) {
+          const todoId = item.dataset.id;
+          todos = todos.filter(t => t.id !== todoId);
+          item.remove();
+          
+          // Save to localStorage
+          localStorage.setItem('todos', JSON.stringify(todos));
+        }
+      });
+    }
+
+    // Modal functions
+    function setupModal(openBtnId, modalId) {
+      const openBtn = document.getElementById(openBtnId);
+      const modal = document.getElementById(modalId);
+      const closeBtn = modal.querySelector('.modal-close');
+      
+      openBtn?.addEventListener('click', function() {
+        document.getElementById('modal-title').textContent = 'Add New Task';
+        document.getElementById('todo-form').reset();
+        document.getElementById('todo-id').value = '';
+        document.getElementById('todo-priority').value = 'medium';
+        document.querySelectorAll('.priority-option').forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.priority === 'medium') {
+            opt.classList.add('selected');
+          }
+        });
+        modal.style.display = 'flex';
+      });
+      
+      closeBtn?.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+      
+      window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    function openEditModal(item) {
+      const modal = document.getElementById('todo-modal');
+      const todoId = item.dataset.id;
+      const todo = todos.find(t => t.id === todoId);
+      
+      if (!todo) return;
+      
+      document.getElementById('modal-title').textContent = 'Edit Task';
+      document.getElementById('todo-id').value = todo.id;
+      document.getElementById('todo-title').value = todo.title;
+      document.getElementById('todo-description').value = todo.description || '';
+      document.getElementById('todo-due').value = todo.dueDate || '';
+      document.getElementById('todo-time').value = todo.time || '';
+      
+      // Set priority
+      document.getElementById('todo-priority').value = todo.priority;
+      document.querySelectorAll('.priority-option').forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.dataset.priority === todo.priority) {
+          opt.classList.add('selected');
+        }
+      });
+      
+      modal.style.display = 'flex';
+    }
+
+    // Save todo item
+    function saveTodoItem() {
+      const id = document.getElementById('todo-id').value;
+      const title = document.getElementById('todo-title').value;
+      const description = document.getElementById('todo-description').value;
+      const dueDate = document.getElementById('todo-due').value;
+      const time = document.getElementById('todo-time').value;
+      const priority = document.getElementById('todo-priority').value;
+      
+      if (id) {
+        // Update existing todo
+        const index = todos.findIndex(t => t.id === id);
+        if (index !== -1) {
+          todos[index] = {
+            ...todos[index],
+            title,
+            description,
+            dueDate,
+            time,
+            priority
+          };
+        }
+      } else {
+        // Create new todo
+        const newTodo = {
+          id: Date.now().toString(),
+          title,
+          description,
+          dueDate,
+          time,
+          priority,
+          completed: false
+        };
+        todos.unshift(newTodo);
+      }
+      
+      // Re-render todos
+      renderTodos();
+    }
+  </script>
+</body>
+</html>
