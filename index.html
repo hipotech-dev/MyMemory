@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MyMemory - Your Personal Productivity App</title>
-  <script defer src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -591,14 +590,6 @@
       text-decoration: underline;
     }
     
-    .error-message {
-      display: none;
-      color: var(--secondary);
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-    
     /* Animation for form switch */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -609,173 +600,176 @@
       animation: fadeIn 0.3s ease-out;
     }
     
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      
-      .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        top: 0;
-        border-right: none;
-        border-bottom: 1px solid var(--gray);
-        padding: 1rem;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      
-      .sidebar-menu {
-        display: flex;
-        gap: 10px;
-        padding-bottom: 10px;
-      }
-      
-      .sidebar-menu li {
-        margin-bottom: 0;
-      }
-      
-      .sidebar-menu a {
-        padding: 8px 12px;
-        display: inline-flex;
-      }
-      
-      .dashboard-cards {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-      
-      .main-content {
-        padding: 1.25rem;
-      }
-      
-      .welcome-banner {
-        padding: 1.25rem;
-      }
-      
-      .auth-container {
-        margin: 10px;
-        padding: 1.5rem;
-      }
-      
-      .modal-content {
-        margin: 10px;
-        padding: 1.5rem;
-      }
-      
-      .header {
-        padding: 0.75rem 1rem;
-      }
-      
-      .logo h1 {
-        font-size: 1.3rem;
-      }
-      
-      input[type="email"],
-      input[type="password"],
-      input[type="text"],
-      input[type="date"],
-      input[type="url"],
-      select {
-        padding: 12px 12px 12px 40px;
-        font-size: 16px;
-      }
-      
-      .btn {
-        padding: 12px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .auth-container {
-        padding: 1.25rem;
-      }
-      
-      h2 {
-        font-size: 1.4rem;
-      }
-      
-      .welcome-banner h2 {
-        font-size: 1.5rem;
-      }
-      
-      .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      
-      .card-header h3 {
-        font-size: 1.2rem;
-      }
-      
-      .card-header .btn {
-        width: 100%;
-      }
-      
-      .password-actions {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-      }
-      
-      .remember-me {
-        margin-bottom: 5px;
-      }
-      
-      .social-login {
-        gap: 0.75rem;
-      }
-      
-      .social-btn {
-        width: 40px;
-        height: 40px;
-      }
-      
-      .todo-actions {
-        gap: 3px;
-      }
-      
-      .edit-todo-form {
-        flex-direction: column;
-        gap: 8px;
-      }
-      
-      .edit-todo-form input {
-        margin-right: 0;
-        margin-bottom: 5px;
-      }
-    }
-    
-    /* Prevent horizontal scrolling */
-    html, body {
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-    
-    /* Improved mobile viewport handling */
-    @viewport {
-      width: device-width;
-      zoom: 1.0;
-    }
-    
-    /* Better touch targets for mobile */
-    button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
-      touch-action: manipulation;
-    }
-    
-    /* Adjust font sizes for better mobile readability */
-    @media (max-width: 768px) {
-      body {
-        font-size: 15px;
-      }
-      
-      .card {
-        padding: 1.25rem;
-      }
-    }
+    /* Updated Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    top: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--gray);
+    padding: 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 10px;
+  }
+  
+  .sidebar-menu li {
+    margin-bottom: 0;
+  }
+  
+  .sidebar-menu a {
+    padding: 8px 12px;
+    display: inline-flex;
+  }
+  
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .main-content {
+    padding: 1.25rem;
+  }
+  
+  .welcome-banner {
+    padding: 1.25rem;
+  }
+  
+  .auth-container {
+    margin: 10px;
+    padding: 1.5rem;
+  }
+  
+  /* Modal adjustments */
+  .modal-content {
+    margin: 10px;
+    padding: 1.5rem;
+  }
+  
+  /* Header adjustments */
+  .header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.3rem;
+  }
+  
+  /* Form input adjustments */
+  input[type="email"],
+  input[type="password"],
+  input[type="text"],
+  input[type="date"],
+  input[type="url"],
+  select {
+    padding: 12px 12px 12px 40px;
+    font-size: 16px;
+  }
+  
+  .btn {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 1.25rem;
+  }
+  
+  h2 {
+    font-size: 1.4rem;
+  }
+  
+  .welcome-banner h2 {
+    font-size: 1.5rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .card-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .card-header .btn {
+    width: 100%;
+  }
+  
+  .password-actions {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .remember-me {
+    margin-bottom: 5px;
+  }
+  
+  .social-login {
+    gap: 0.75rem;
+  }
+  
+  .social-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .todo-actions {
+    gap: 3px;
+  }
+  
+  .edit-todo-form {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .edit-todo-form input {
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+}
+
+/* Prevent horizontal scrolling */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Improved mobile viewport handling */
+@viewport {
+  width: device-width;
+  zoom: 1.0;
+}
+
+/* Better touch targets for mobile */
+button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
+  touch-action: manipulation;
+}
+
+/* Adjust font sizes for better mobile readability */
+@media (max-width: 768px) {
+  body {
+    font-size: 15px;
+  }
+  
+  .card {
+    padding: 1.25rem;
+  }
+}
   </style>
 </head>
 <body>
@@ -786,43 +780,48 @@
         <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
-      <div class="error-message" id="login-error"></div>
-      <form id="login" role="form" aria-label="Login Form">
+      <form id="login">
         <div class="form-group">
           <label for="email">Email Address</label>
           <i class="fas fa-envelope input-icon"></i>
-          <input type="email" id="email" placeholder="you@example.com" required aria-required="true" />
+          <input type="email" id="email" placeholder="you@example.com" required />
         </div>
         
         <div class="form-group">
           <label for="password">Password</label>
           <i class="fas fa-lock input-icon"></i>
-          <input type="password" id="password" placeholder="••••••••" required aria-required="true" />
+          <input type="password" id="password" placeholder="••••••••" required />
           <div class="password-actions">
             <div class="remember-me">
-              <input type="checkbox" id="remember" aria-label="Remember me">
+              <input type="checkbox" id="remember">
               <label for="remember">Remember me</label>
             </div>
             <div class="forgot-password">
-              <a href="#" id="forgot-password" aria-label="Forgot your password?">Forgot password?</a>
+              <a href="#" id="forgot-password">Forgot password?</a>
             </div>
           </div>
         </div>
         
-        <button type="submit" class="btn" aria-label="Log In">Log In</button>
+        <button type="submit" class="btn">Log In</button>
       </form>
       
       <div class="divider">or continue with</div>
       
       <div class="social-login">
-        <button class="social-btn" aria-label="Sign in with Google"><i class="fab fa-google"></i></button>
-        <button class="social-btn" aria-label="Sign in with Microsoft"><i class="fab fa-microsoft"></i></button>
-        <button class="social-btn" aria-label="Sign in with Apple"><i class="fab fa-apple"></i></button>
+        <div class="social-btn">
+          <i class="fab fa-google"></i>
+        </div>
+        <div class="social-btn">
+          <i class="fab fa-microsoft"></i>
+        </div>
+        <div class="social-btn">
+          <i class="fab fa-apple"></i>
+        </div>
       </div>
       
       <div class="switch">
         Don't have an account?
-        <a href="#" onclick="toggleForms()" aria-label="Switch to Sign Up">Sign Up</a>
+        <a href="#" onclick="toggleForms()">Sign Up</a>
       </div>
     </div>
 
@@ -831,31 +830,32 @@
         <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
+      
       <h2>Create Account</h2>
-      <div class="error-message" id="signup-error"></div>
-      <form id="signup" role="form" aria-label="Sign Up Form">
+      
+      <form id="signup">
         <div class="form-group">
           <label for="name">Full Name</label>
           <i class="fas fa-user input-icon"></i>
-          <input type="text" id="name" placeholder="John Doe" required aria-required="true" />
+          <input type="text" id="name" placeholder="John Doe" required />
         </div>
         
         <div class="form-group">
           <label for="email-signup">Email Address</label>
           <i class="fas fa-envelope input-icon"></i>
-          <input type="email" id="email-signup" placeholder="you@example.com" required aria-required="true" />
+          <input type="email" id="email-signup" placeholder="you@example.com" required />
         </div>
         
         <div class="form-group">
           <label for="password-signup">Password</label>
           <i class="fas fa-lock input-icon"></i>
-          <input type="password" id="password-signup" placeholder="Create a password" required aria-required="true" />
+          <input type="password" id="password-signup" placeholder="Create a password" required />
           <div class="password-strength">
             <div class="strength-meter" id="strength-meter"></div>
           </div>
         </div>
         
-        <button type="submit" class="btn" aria-label="Sign Up">Sign Up</button>
+        <button type="submit" class="btn">Sign Up</button>
       </form>
       
       <div class="terms">
@@ -864,7 +864,7 @@
       
       <div class="switch">
         Already have an account?
-        <a href="#" onclick="toggleForms()" aria-label="Switch to Log In">Log In</a>
+        <a href="#" onclick="toggleForms()">Log In</a>
       </div>
     </div>
   </div>
@@ -875,10 +875,10 @@
     <header class="header">
       <div class="logo">
         <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="MyMemory Logo">
-        <h1>MyMemory</h1>
+        <br><br><h1>MyMemory</h1>
       </div>
       <div class="user-menu">
-        <div class="user-avatar" id="user-avatar" role="button" aria-label="User Profile">JS</div>
+        <div class="user-avatar" id="user-avatar">JS</div>
       </div>
     </header>
 
@@ -887,12 +887,12 @@
       <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
-          <li><a href="index.html" class="active" id="dashboard-link" aria-label="Dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="To do list.html" id="todo-link" aria-label="To-Do List"><i class="fas fa-tasks"></i> To-Do List</a></li>
-          <li><a href="Password Manager.html" id="password-link" aria-label="Password Manager"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="Documents.html" id="documents-link" aria-label="Documents"><i class="fas fa-file-contract"></i> Documents</a></li>
-          <li><a href="Settings.html" id="settings-link" aria-label="Settings"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="login.html" id="logout-link" aria-label="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          <li><a href="index.html" class="active" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
+          <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
+          <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+          <li><a href="login.html" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
@@ -908,13 +908,50 @@
         <div class="dashboard-cards">
           <!-- To-Do List Card -->
           <div class="card">
-            <div class="error-message" id="todo-error"></div>
             <div class="card-header">
               <h3>To-Do List</h3>
-              <button class="btn" id="add-todo-btn" aria-label="Add New Task">Add Item</button>
+              <button class="btn" id="add-todo-btn">Add Item</button>
             </div>
             <div class="todo-list" id="todo-list">
-              <!-- To-do items will be populated dynamically -->
+              <div class="todo-item">
+                <input type="checkbox" class="todo-checkbox">
+                <div class="todo-text">Complete project proposal</div>
+                <div class="todo-actions">
+                  <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
+                  <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="edit-todo-form">
+                  <input type="text" class="edit-todo-input" value="Complete project proposal">
+                  <button class="save-edit-btn">Save</button>
+                  <button class="cancel-edit-btn">Cancel</button>
+                </div>
+              </div>
+              <div class="todo-item todo-completed">
+                <input type="checkbox" class="todo-checkbox" checked>
+                <div class="todo-text">Meeting with client</div>
+                <div class="todo-actions">
+                  <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
+                  <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="edit-todo-form">
+                  <input type="text" class="edit-todo-input" value="Meeting with client">
+                  <button class="save-edit-btn">Save</button>
+                  <button class="cancel-edit-btn">Cancel</button>
+                </div>
+              </div>
+              <div class="todo-item">
+                <input type="checkbox" class="todo-checkbox">
+                <div class="todo-text">Review contract documents</div>
+                <div class="todo-actions">
+                  <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
+                  <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="edit-todo-form">
+                  <input type="text" class="edit-todo-input" value="Review contract documents">
+                  <button class="save-edit-btn">Save</button>
+                  <button class="cancel-edit-btn">Cancel</button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -922,7 +959,7 @@
           <div class="card">
             <div class="card-header">
               <h3>Password Manager</h3>
-              <button class="btn" id="add-password-btn" aria-label="Add New Password">Add Password</button>
+              <button class="btn" id="add-password-btn">Add Password</button>
             </div>
             <div class="password-list" id="password-list">
               <div class="password-item">
@@ -930,7 +967,7 @@
                 <div class="password-details">
                   <span class="password-username">john.smith@example.com</span>
                   <span class="password-value" style="display: none;">emailPassword123</span>
-                  <button class="toggle-password-btn" aria-label="Toggle Password Visibility"><i class="fas fa-eye"></i></button>
+                  <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
                 </div>
               </div>
               <div class="password-item">
@@ -938,7 +975,7 @@
                 <div class="password-details">
                   <span class="password-username">*******1234</span>
                   <span class="password-value" style="display: none;">bankPassword456</span>
-                  <button class="toggle-password-btn" aria-label="Toggle Password Visibility"><i class="fas fa-eye"></i></button>
+                  <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
                 </div>
               </div>
               <div class="password-item">
@@ -946,7 +983,7 @@
                 <div class="password-details">
                   <span class="password-username">admin@server</span>
                   <span class="password-value" style="display: none;">serverPassword789</span>
-                  <button class="toggle-password-btn" aria-label="Toggle Password Visibility"><i class="fas fa-eye"></i></button>
+                  <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
                 </div>
               </div>
             </div>
@@ -956,7 +993,7 @@
           <div class="card">
             <div class="card-header">
               <h3>Recent Documents</h3>
-              <button class="btn" id="upload-doc-btn" aria-label="Upload Document">Upload</button>
+              <button class="btn" id="upload-doc-btn">Upload</button>
             </div>
             <div class="document-list" id="document-list">
               <div class="document-item">
@@ -965,7 +1002,7 @@
                   <div class="document-name">Client Contract.pdf</div>
                   <div class="document-meta">Uploaded 2 days ago • 2.4 MB</div>
                 </div>
-                <button aria-label="Document Options"><i class="fas fa-ellipsis-v"></i></button>
+                <button><i class="fas fa-ellipsis-v"></i></button>
               </div>
               <div class="document-item">
                 <i class="fas fa-file-word document-icon"></i>
@@ -973,7 +1010,7 @@
                   <div class="document-name">Project Proposal.docx</div>
                   <div class="document-meta">Uploaded 1 week ago • 1.1 MB</div>
                 </div>
-                <button aria-label="Document Options"><i class="fas fa-ellipsis-v"></i></button>
+                <button><i class="fas fa-ellipsis-v"></i></button>
               </div>
               <div class="document-item">
                 <i class="fas fa-file-excel document-icon"></i>
@@ -981,7 +1018,7 @@
                   <div class="document-name">Financial Report.xlsx</div>
                   <div class="document-meta">Uploaded 3 weeks ago • 3.7 MB</div>
                 </div>
-                <button aria-label="Document Options"><i class="fas fa-ellipsis-v"></i></button>
+                <button><i class="fas fa-ellipsis-v"></i></button>
               </div>
             </div>
           </div>
@@ -990,575 +1027,527 @@
     </div>
 
     <!-- Add Todo Modal -->
-    <div class="modal" id="todo-modal" role="dialog" aria-labelledby="todo-modal-title">
+    <div class="modal" id="todo-modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="todo-modal-title">Add New Task</h3>
-          <button class="modal-close" aria-label="Close Modal">×</button>
+          <h3>Add New Task</h3>
+          <button class="modal-close">×</button>
         </div>
-        <div class="error-message" id="todo-modal-error"></div>
-        <form id="todo-form" role="form" aria-label="Add Task Form">
+        <form id="todo-form">
           <div class="form-group">
             <label for="todo-title">Task Description</label>
-            <input type="text" id="todo-title" class="form-control" required aria-required="true">
+            <input type="text" id="todo-title" class="form-control" required>
           </div>
           <div class="form-group">
             <label for="todo-due">Due Date</label>
             <input type="date" id="todo-due" class="form-control">
           </div>
-          <button type="submit" class="btn" aria-label="Save Task">Save Task</button>
+          <button type="submit" class="btn">Save Task</button>
         </form>
       </div>
     </div>
 
     <!-- Add Password Modal -->
-    <div class="modal" id="password-modal" role="dialog" aria-labelledby="password-modal-title">
+    <div class="modal" id="password-modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="password-modal-title">Add New Password</h3>
-          <button class="modal-close" aria-label="Close Modal">×</button>
+          <h3>Add New Password</h3>
+          <button class="modal-close">×</button>
         </div>
-        <form id="password-form" role="form" aria-label="Add Password Form">
+        <form id="password-form">
           <div class="form-group">
             <label for="password-title">Title</label>
-            <input type="text" id="password-title" class="form-control" required aria-required="true">
+            <input type="text" id="password-title" class="form-control" required>
           </div>
           <div class="form-group">
             <label for="password-username">Username/Email</label>
-            <input type="text" id="password-username" class="form-control" required aria-required="true">
+            <input type="text" id="password-username" class="form-control" required>
           </div>
           <div class="form-group">
             <label for="password-value">Password</label>
-            <input type="password" id="password-value" class="form-control" required aria-required="true">
+            <input type="password" id="password-value" class="form-control" required>
           </div>
           <div class="form-group">
             <label for="password-url">Website URL</label>
             <input type="url" id="password-url" class="form-control">
           </div>
-          <button type="submit" class="btn" aria-label="Save Password">Save Password</button>
+          <button type="submit" class="btn">Save Password</button>
         </form>
       </div>
     </div>
 
     <!-- Upload Document Modal -->
-    <div class="modal" id="document-modal" role="dialog" aria-labelledby="document-modal-title">
+    <div class="modal" id="document-modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="document-modal-title">Upload Document</h3>
-          <button class="modal-close" aria-label="Close Modal">×</button>
+          <h3>Upload Document</h3>
+          <button class="modal-close">×</button>
         </div>
-        <form id="document-form" role="form" aria-label="Upload Document Form">
+        <form id="document-form">
           <div class="form-group">
             <label for="document-name">Document Name</label>
-            <input type="text" id="document-name" class="form-control" required aria-required="true">
+            <input type="text" id="document-name" class="form-control" required>
           </div>
           <div class="form-group">
             <label for="document-file">Select File</label>
-            <input type="file" id="document-file" class="form-control" required aria-required="true">
+            <input type="file" id="document-file" class="form-control" required>
           </div>
           <div class="form-group">
             <label for="document-category">Category</label>
-            <select id="document-category" class="form-control" aria-label="Document Category">
+            <select id="document-category" class="form-control">
               <option value="contract">Contract</option>
               <option value="proposal">Proposal</option>
               <option value="report">Report</option>
               <option value="other">Other</option>
             </select>
           </div>
-          <button type="submit" class="btn" aria-label="Upload Document">Upload Document</button>
+          <button type="submit" class="btn">Upload Document</button>
         </form>
       </div>
     </div>
   </div>
 
-  <script>
-    // Firebase configuration (REPLACE WITH SECURE ENVIRONMENT VARIABLES IN PRODUCTION)
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY_HERE",
-      authDomain: "mymemory-ddc21.firebaseapp.com",
-      projectId: "mymemory-ddc21",
-      storageBucket: "mymemory-ddc21.firebasestorage.app",
-      messagingSenderId: "875926928384",
-      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-      measurementId: "G-8XZZNJB0QD"
-    };
+ <script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+    authDomain: "mymemory-ddc21.firebaseapp.com",
+    projectId: "mymemory-ddc21",
+    storageBucket: "mymemory-ddc21.firebasestorage.app",
+    messagingSenderId: "875926928384",
+    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+    measurementId: "G-8XZZNJB0QD"
+  };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  
+  // Enable email verification
+  auth.useDeviceLanguage();
 
-    // Enable email verification
-    auth.useDeviceLanguage();
-
-    // Helper function to display error messages
-    function showError(elementId, message) {
-      const errorElement = document.getElementById(elementId);
-      errorElement.textContent = message;
-      errorElement.style.display = 'block';
-      setTimeout(() => {
-        errorElement.style.display = 'none';
-        errorElement.textContent = '';
-      }, 5000);
-    }
-
-    // Authentication Functions
-    function toggleForms() {
-      const loginForm = document.getElementById('login-form');
-      const signupForm = document.getElementById('signup-form');
-      
-      if (loginForm.style.display === 'none') {
-        loginForm.style.display = 'block';
-        signupForm.style.display = 'none';
-      } else {
-        loginForm.style.display = 'none';
-        signupForm.style.display = 'block';
-      }
-      
-      const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
-      activeForm.classList.add('fade-in');
-      setTimeout(() => activeForm.classList.remove('fade-in'), 300);
+  // Authentication Functions
+  function toggleForms() {
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    
+    if (loginForm.style.display === 'none') {
+      loginForm.style.display = 'block';
+      signupForm.style.display = 'none';
+    } else {
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'block';
     }
     
-    // Password strength indicator and validation
-    const passwordInput = document.getElementById('password-signup');
-    const strengthMeter = document.getElementById('strength-meter');
-    
-    if (passwordInput && strengthMeter) {
-      passwordInput.addEventListener('input', function() {
-        const password = this.value;
-        let strength = 0;
-        
-        if (password.length >= 8) strength += 25;
-        if (password.length >= 12) strength += 25;
-        if (/[A-Z]/.test(password)) strength += 15;
-        if (/[0-9]/.test(password)) strength += 15;
-        if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-        
-        strengthMeter.style.width = strength + '%';
-        strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' : 
-                                            strength < 75 ? '#f6ad55' : '#38a169';
-      });
-    }
-    
-    // Form submission handlers
-    document.getElementById('login')?.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
+    activeForm.classList.add('fade-in');
+    setTimeout(() => activeForm.classList.remove('fade-in'), 300);
+  }
+  
+  // Password strength indicator
+  const passwordInput = document.getElementById('password-signup');
+  const strengthMeter = document.getElementById('strength-meter');
+  
+  if (passwordInput && strengthMeter) {
+    passwordInput.addEventListener('input', function() {
+      const password = this.value;
+      let strength = 0;
       
-      auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          if (!user.emailVerified) {
-            showError('login-error', 'Please verify your email before logging in.');
-            auth.signOut();
-            return;
-          }
-          
-          const userData = {
-            name: user.displayName || email.split('@')[0],
-            email: user.email,
-            avatarInitials: (user.displayName || email).substring(0, 2).toUpperCase()
-          };
-          
-          localStorage.setItem('userData', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-          
-          document.getElementById('auth-page').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'block';
-          
-          initializeDashboard(userData);
-        })
-        .catch((error) => {
-          showError('login-error', error.message);
-        });
+      if (password.length >= 8) strength += 25;
+      if (password.length >= 12) strength += 25;
+      if (/[A-Z]/.test(password)) strength += 15;
+      if (/[0-9]/.test(password)) strength += 15;
+      if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+      
+      strengthMeter.style.width = strength + '%';
+      strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' : 
+                                          strength < 75 ? '#f6ad55' : '#38a169';
     });
-
-    document.getElementById('signup')?.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email-signup').value;
-      const password = document.getElementById('password-signup').value;
-      
-      // Validate password complexity
-      if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-        showError('signup-error', 'Password must be at least 8 characters long and include an uppercase letter, a number, and a special character.');
-        return;
-      }
-      
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          
-          return user.updateProfile({
-            displayName: name
-          }).then(() => {
-            return user.sendEmailVerification({
-              url: window.location.href
-            }).then(() => {
-              showError('signup-error', 'A verification email has been sent. Please verify your email before logging in.');
-              auth.signOut().then(() => {
-                localStorage.removeItem('isAuthenticated');
-                localStorage.removeItem('userData');
-                document.getElementById('auth-page').style.display = 'flex';
-                document.getElementById('login-form').style.display = 'block';
-                document.getElementById('signup-form').style.display = 'none';
-                document.getElementById('signup').reset();
-                strengthMeter.style.width = '0%';
-              });
-            });
-          });
-        })
-        .catch((error) => {
-          showError('signup-error', error.message);
-        });
-    });
-
-    document.getElementById('forgot-password')?.addEventListener('click', function(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      
-      if (!email) {
-        showError('login-error', 'Please enter your email address first.');
-        return;
-      }
-      
-      auth.sendPasswordResetEmail(email)
-        .then(() => {
-          showError('login-error', 'Password reset email sent. Please check your inbox.');
-        })
-        .catch((error) => {
-          if (error.code === 'auth/user-not-found') {
-            showError('login-error', 'This email is not registered. Please sign up or use a different email.');
-          } else {
-            showError('login-error', error.message);
-          }
-        });
-    });
-
-    document.getElementById('logout-link').addEventListener('click', function(e) {
-      e.preventDefault();
-      auth.signOut().then(() => {
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('userData');
-        document.getElementById('dashboard').style.display = 'none';
-        document.getElementById('auth-page').style.display = 'flex';
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('signup-form').style.display = 'none';
-        document.getElementById('login').reset();
-      }).catch((error) => {
-        showError('login-error', error.message);
-      });
-    });
-
-    // Dashboard Functions
-    function initializeDashboard(userData) {
-      document.getElementById('user-name').textContent = userData.name;
-      document.getElementById('user-avatar').textContent = userData.avatarInitials;
-      
-      setupModal('add-todo-btn', 'todo-modal');
-      setupModal('add-password-btn', 'password-modal');
-      setupModal('upload-doc-btn', 'document-modal');
-      
-      document.getElementById('todo-form')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        addTodoItem();
-        closeModal('todo-modal');
-      });
-      
-      document.getElementById('password-form')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        addPasswordItem();
-        closeModal('password-modal');
-      });
-      
-      document.getElementById('document-form')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        addDocumentItem();
-        closeModal('document-modal');
-      });
-      
-      document.querySelectorAll('.toggle-password-btn').forEach(button => {
-        button.addEventListener('click', function() {
-          togglePasswordVisibility(this);
-        });
-      });
-      
-      loadTodoItems();
-    }
+  }
+  
+  // Form submission handlers
+  document.getElementById('login')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
     
-    // Toggle password visibility
-    function togglePasswordVisibility(button) {
-      const passwordDetails = button.closest('.password-details');
-      const username = passwordDetails.querySelector('.password-username');
-      const password = passwordDetails.querySelector('.password-value');
-      const icon = button.querySelector('i');
-      
-      if (password.style.display === 'none') {
-        username.style.display = 'none';
-        password.style.display = 'inline';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-        button.setAttribute('aria-label', 'Hide Password');
-      } else {
-        username.style.display = 'inline';
-        password.style.display = 'none';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-        button.setAttribute('aria-label', 'Show Password');
-      }
-    }
-    
-    // Modal helper functions
-    function setupModal(openBtnId, modalId) {
-      const openBtn = document.getElementById(openBtnId);
-      const modal = document.getElementById(modalId);
-      const closeBtn = modal.querySelector('.modal-close');
-      
-      openBtn?.addEventListener('click', function() {
-        modal.style.display = 'flex';
-      });
-      
-      closeBtn?.addEventListener('click', function() {
-        modal.style.display = 'none';
-      });
-      
-      window.addEventListener('click', function(e) {
-        if (e.target === modal) {
-          modal.style.display = 'none';
-        }
-      });
-    }
-    
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
-    }
-    
-    // Firestore To-Do Management
-    function addTodoItem() {
-      const title = document.getElementById('todo-title').value;
-      const dueDate = document.getElementById('todo-due').value;
-      
-      if (!title.trim()) {
-        showError('todo-modal-error', 'Task description cannot be empty.');
-        return;
-      }
-      
-      const user = auth.currentUser;
-      if (user) {
-        db.collection('todos').doc(user.uid).collection('items').add({
-          title: title,
-          dueDate: dueDate || null,
-          completed: false,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-          document.getElementById('todo-form').reset();
-          loadTodoItems();
-        }).catch((error) => {
-          showError('todo-modal-error', 'Failed to add task: ' + error.message);
-        });
-      }
-    }
-    
-    function loadTodoItems() {
-      const user = auth.currentUser;
-      if (user) {
-        db.collection('todos').doc(user.uid).collection('items')
-          .orderBy('createdAt', 'desc')
-          .onSnapshot((snapshot) => {
-            const todoList = document.getElementById('todo-list');
-            todoList.innerHTML = '';
-            
-            snapshot.forEach((doc) => {
-              const todo = doc.data();
-              const todoItem = document.createElement('div');
-              todoItem.className = `todo-item ${todo.completed ? 'todo-completed' : ''}`;
-              todoItem.innerHTML = `
-                <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} aria-label="Mark task as ${todo.completed ? 'incomplete' : 'complete'}">
-                <div class="todo-text">${todo.title}</div>
-                <div class="todo-actions">
-                  <button class="edit-todo-btn" aria-label="Edit Task"><i class="fas fa-edit"></i></button>
-                  <button class="delete-todo-btn" aria-label="Delete Task"><i class="fas fa-trash"></i></button>
-                </div>
-                <div class="edit-todo-form">
-                  <input type="text" class="edit-todo-input" value="${todo.title}" aria-label="Edit task description">
-                  <button class="save-edit-btn" aria-label="Save Edit">Save</button>
-                  <button class="cancel-edit-btn" aria-label="Cancel Edit">Cancel</button>
-                </div>
-              `;
-              
-              todoList.appendChild(todoItem);
-              addTodoEventListeners(todoItem, doc.id);
-            });
-          }, (error) => {
-            showError('todo-error', 'Failed to load tasks: ' + error.message);
-          });
-      }
-    }
-    
-    function addTodoEventListeners(todoItem, docId) {
-      const checkbox = todoItem.querySelector('.todo-checkbox');
-      const deleteBtn = todoItem.querySelector('.delete-todo-btn');
-      const editBtn = todoItem.querySelector('.edit-todo-btn');
-      const editForm = todoItem.querySelector('.edit-todo-form');
-      const editInput = todoItem.querySelector('.edit-todo-input');
-      const saveEditBtn = todoItem.querySelector('.save-edit-btn');
-      const cancelEditBtn = todoItem.querySelector('.cancel-edit-btn');
-      const todoText = todoItem.querySelector('.todo-text');
-      
-      checkbox.addEventListener('change', function() {
-        const user = auth.currentUser;
-        if (user) {
-          db.collection('todos').doc(user.uid).collection('items').doc(docId).update({
-            completed: this.checked
-          }).then(() => {
-            if (this.checked) {
-              todoItem.classList.add('todo-completed');
-            } else {
-              todoItem.classList.remove('todo-completed');
-            }
-          }).catch((error) => {
-            showError('todo-error', 'Failed to update task: ' + error.message);
-          });
-        }
-      });
-      
-      deleteBtn.addEventListener('click', function() {
-        const user = auth.currentUser;
-        if (user) {
-          db.collection('todos').doc(user.uid).collection('items').doc(docId).delete()
-            .catch((error) => {
-              showError('todo-error', 'Failed to delete task: ' + error.message);
-            });
-        }
-      });
-      
-      editBtn.addEventListener('click', function() {
-        editInput.value = todoText.textContent;
-        editForm.style.display = 'block';
-      });
-      
-      saveEditBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const newTitle = editInput.value.trim();
-        if (!newTitle) {
-          showError('todo-error', 'Task description cannot be empty.');
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        if (!user.emailVerified) {
+          alert('Please verify your email before logging in.');
+          auth.signOut();
           return;
         }
-        const user = auth.currentUser;
-        if (user) {
-          db.collection('todos').doc(user.uid).collection('items').doc(docId).update({
-            title: newTitle
-          }).then(() => {
-            editForm.style.display = 'none';
-          }).catch((error) => {
-            showError('todo-error', 'Failed to update task: ' + error.message);
+        
+        const userData = {
+          name: user.displayName || email.split('@')[0],
+          email: user.email,
+          avatarInitials: (user.displayName || email).substring(0, 2).toUpperCase()
+        };
+        
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('isAuthenticated', 'true');
+        
+        // Show dashboard
+        document.getElementById('auth-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        
+        // Initialize dashboard with user data
+        initializeDashboard(userData);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorMessage);
+      });
+  });
+
+  document.getElementById('signup')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email-signup').value;
+    const password = document.getElementById('password-signup').value;
+    
+    // Check if email is already registered
+    auth.fetchSignInMethodsForEmail(email)
+      .then((signInMethods) => {
+        if (signInMethods.length > 0) {
+          alert('This email is already registered. Please log in or use a different email.');
+          return;
+        }
+        
+        // Create new user
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // Update user profile with name
+            return user.updateProfile({
+              displayName: name
+            }).then(() => {
+              // Send verification email
+              return user.sendEmailVerification({
+                url: window.location.href // Redirect back to the same page after verification
+              }).then(() => {
+                alert('A verification email has been sent. Please verify your email before logging in.');
+                // Sign out the user and show login form
+                auth.signOut().then(() => {
+                  localStorage.removeItem('isAuthenticated');
+                  localStorage.removeItem('userData');
+                  document.getElementById('auth-page').style.display = 'flex';
+                  document.getElementById('login-form').style.display = 'block';
+                  document.getElementById('signup-form').style.display = 'none';
+                  document.getElementById('signup').reset();
+                });
+              });
+            });
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(errorMessage);
           });
-        }
+      })
+      .catch((error) => {
+        alert(error.message);
       });
-      
-      cancelEditBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        editForm.style.display = 'none';
-      });
-      
-      editInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          saveEditBtn.click();
-        }
-      });
+  });
+
+  document.getElementById('forgot-password')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    
+    if (!email) {
+      alert('Please enter your email address first');
+      return;
     }
     
-    // Client-side Password and Document Management
-    function addPasswordItem() {
-      const title = document.getElementById('password-title').value;
-      const username = document.getElementById('password-username').value;
-      const password = document.getElementById('password-value').value;
-      
-      if (!title.trim() || !username.trim() || !password.trim()) {
-        showError('password-error', 'All fields are required.');
-        return;
-      }
-      
-      const passwordItem = document.createElement('div');
-      passwordItem.className = 'password-item';
-      passwordItem.innerHTML = `
-        <div class="password-title">${title}</div>
-        <div class="password-details">
-          <span class="password-username">${username}</span>
-          <span class="password-value" style="display: none;">${password}</span>
-          <button class="toggle-password-btn" aria-label="Show Password"><i class="fas fa-eye"></i></button>
-        </div>
-      `;
-      
-      document.getElementById('password-list').prepend(passwordItem);
-      document.getElementById('password-form').reset();
-      
-      const toggleBtn = passwordItem.querySelector('.toggle-password-btn');
-      toggleBtn.addEventListener('click', function() {
+    // Check if email exists
+    auth.fetchSignInMethodsForEmail(email)
+      .then((signInMethods) => {
+        if (signInMethods.length === 0) {
+          alert('This email is not registered. Please sign up or use a different email.');
+          return;
+        }
+        
+        // Send password reset email
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            alert('Password reset email sent. Please check your inbox.');
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  });
+
+  document.getElementById('logout-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    auth.signOut().then(() => {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('userData');
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('auth-page').style.display = 'flex';
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('signup-form').style.display = 'none';
+    }).catch((error) => {
+      alert(error.message);
+    });
+  });
+
+  // Dashboard Functions
+  function initializeDashboard(userData) {
+    // Set user info
+    document.getElementById('user-name').textContent = userData.name;
+    document.getElementById('user-avatar').textContent = userData.avatarInitials;
+    
+    // Set up modal toggle functionality
+    setupModal('add-todo-btn', 'todo-modal');
+    setupModal('add-password-btn', 'password-modal');
+    setupModal('upload-doc-btn', 'document-modal');
+    
+    // Form submission handlers
+    document.getElementById('todo-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      addTodoItem();
+      closeModal('todo-modal');
+    });
+    
+    document.getElementById('password-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      addPasswordItem();
+      closeModal('password-modal');
+    });
+    
+    document.getElementById('document-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      addDocumentItem();
+      closeModal('document-modal');
+    });
+    
+    // Add event listeners for existing password items
+    document.querySelectorAll('.toggle-password-btn').forEach(button => {
+      button.addEventListener('click', function() {
         togglePasswordVisibility(this);
       });
-    }
-    
-    function addDocumentItem() {
-      const name = document.getElementById('document-name').value;
-      const category = document.getElementById('document-category').value;
-      const fileInput = document.getElementById('document-file');
-      const fileName = fileInput.files[0]?.name || 'Unknown';
-      
-      if (!name.trim() || !fileInput.files[0]) {
-        showError('document-error', 'Document name and file are required.');
-        return;
-      }
-      
-      let iconClass = 'fa-file';
-      if (fileName.endsWith('.pdf')) iconClass = 'fa-file-pdf';
-      if (fileName.endsWith('.docx')) iconClass = 'fa-file-word';
-      if (fileName.endsWith('.xlsx')) iconClass = 'fa-file-excel';
-      
-      const documentItem = document.createElement('div');
-      documentItem.className = 'document-item';
-      documentItem.innerHTML = `
-        <i class="fas ${iconClass} document-icon"></i>
-        <div class="document-info">
-          <div class="document-name">${name}</div>
-          <div class="document-meta">Uploaded just now • ${category}</div>
-        </div>
-        <button aria-label="Document Options"><i class="fas fa-ellipsis-v"></i></button>
-      `;
-      
-      document.getElementById('document-list').prepend(documentItem);
-      document.getElementById('document-form').reset();
-    }
-    
-    // Check authentication state on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      auth.onAuthStateChanged((user) => {
-        if (user && user.emailVerified) {
-          const userData = {
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
-            avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
-          };
-          
-          localStorage.setItem('userData', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-          
-          document.getElementById('auth-page').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'block';
-          initializeDashboard(userData);
-        } else {
-          document.getElementById('auth-page').style.display = 'flex';
-          document.getElementById('dashboard').style.display = 'none';
-          if (user && !user.emailVerified) {
-            showError('login-error', 'Please verify your email before logging in.');
-            auth.signOut();
-          }
-        }
-      });
     });
-  </script>
+    
+    // Initialize event listeners for existing todo items
+    document.querySelectorAll('.todo-item').forEach(item => {
+      addTodoEventListeners(item);
+    });
+  }
+  
+  // Toggle password visibility
+  function togglePasswordVisibility(button) {
+    const passwordDetails = button.closest('.password-details');
+    const username = passwordDetails.querySelector('.password-username');
+    const password = passwordDetails.querySelector('.password-value');
+    const icon = button.querySelector('i');
+    
+    if (password.style.display === 'none') {
+      // Show password
+      username.style.display = 'none';
+      password.style.display = 'inline';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      // Hide password
+      username.style.display = 'inline';
+      password.style.display = 'none';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  }
+  
+  // Modal helper functions
+  function setupModal(openBtnId, modalId) {
+    const openBtn = document.getElementById(openBtnId);
+    const modal = document.getElementById(modalId);
+    const closeBtn = modal.querySelector('.modal-close');
+    
+    openBtn?.addEventListener('click', function() {
+      modal.style.display = 'flex';
+    });
+    
+    closeBtn?.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+    
+    window.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  }
+  
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+  
+  // Dashboard item management functions
+  function addTodoItem() {
+    const title = document.getElementById('todo-title').value;
+    const dueDate = document.getElementById('todo-due').value;
+    
+    const todoItem = document.createElement('div');
+    todoItem.className = 'todo-item';
+    todoItem.innerHTML = `
+      <input type="checkbox" class="todo-checkbox">
+      <div class="todo-text">${title}</div>
+      <div class="todo-actions">
+        <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
+        <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
+      </div>
+      <div class="edit-todo-form">
+        <input type="text" class="edit-todo-input" value="${title}">
+        <button class="save-edit-btn">Save</button>
+        <button class="cancel-edit-btn">Cancel</button>
+      </div>
+    `;
+    
+    document.getElementById('todo-list').prepend(todoItem);
+    document.getElementById('todo-form').reset();
+    addTodoEventListeners(todoItem);
+  }
+  
+  function addPasswordItem() {
+    const title = document.getElementById('password-title').value;
+    const username = document.getElementById('password-username').value;
+    const password = document.getElementById('password-value').value;
+    
+    const passwordItem = document.createElement('div');
+    passwordItem.className = 'password-item';
+    passwordItem.innerHTML = `
+      <div class="password-title">${title}</div>
+      <div class="password-details">
+        <span class="password-username">${username}</span>
+        <span class="password-value" style="display: none;">${password}</span>
+        <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
+      </div>
+    `;
+    
+    document.getElementById('password-list').prepend(passwordItem);
+    document.getElementById('password-form').reset();
+    
+    // Add event listener for the toggle button
+    const toggleBtn = passwordItem.querySelector('.toggle-password-btn');
+    toggleBtn.addEventListener('click', function() {
+      togglePasswordVisibility(this);
+    });
+  }
+  
+  function addDocumentItem() {
+    const name = document.getElementById('document-name').value;
+    const category = document.getElementById('document-category').value;
+    const fileInput = document.getElementById('document-file');
+    const fileName = fileInput.files[0]?.name || 'Unknown';
+    
+    let iconClass = 'fa-file';
+    if (fileName.endsWith('.pdf')) iconClass = 'fa-file-pdf';
+    if (fileName.endsWith('.docx')) iconClass = 'fa-file-word';
+    if (fileName.endsWith('.xlsx')) iconClass = 'fa-file-excel';
+    
+    const documentItem = document.createElement('div');
+    documentItem.className = 'document-item';
+    documentItem.innerHTML = `
+      <i class="fas ${iconClass} document-icon"></i>
+      <div class="document-info">
+        <div class="document-name">${name}</div>
+        <div class="document-meta">Uploaded just now • ${category}</div>
+      </div>
+      <button><i class="fas fa-ellipsis-v"></i></button>
+    `;
+    
+    document.getElementById('document-list').prepend(documentItem);
+    document.getElementById('document-form').reset();
+  }
+  
+  function addTodoEventListeners(todoItem) {
+    const checkbox = todoItem.querySelector('.todo-checkbox');
+    const deleteBtn = todoItem.querySelector('.delete-todo-btn');
+    const editBtn = todoItem.querySelector('.edit-todo-btn');
+    const editForm = todoItem.querySelector('.edit-todo-form');
+    const editInput = todoItem.querySelector('.edit-todo-input');
+    const saveEditBtn = todoItem.querySelector('.save-edit-btn');
+    const cancelEditBtn = todoItem.querySelector('.cancel-edit-btn');
+    const todoText = todoItem.querySelector('.todo-text');
+    
+    // Toggle completed state
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        todoItem.classList.add('todo-completed');
+      } else {
+        todoItem.classList.remove('todo-completed');
+      }
+    });
+    
+    // Delete todo item
+    deleteBtn.addEventListener('click', function() {
+      todoItem.remove();
+    });
+    
+    // Show edit form
+    editBtn.addEventListener('click', function() {
+      editInput.value = todoText.textContent;
+      editForm.style.display = 'block';
+    });
+    
+    // Save edited todo
+    saveEditBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      todoText.textContent = editInput.value;
+      editForm.style.display = 'none';
+    });
+    
+    // Cancel edit
+    cancelEditBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      editForm.style.display = 'none';
+    });
+    
+    // Handle Enter key in edit input
+    editInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        todoText.textContent = editInput.value;
+        editForm.style.display = 'none';
+      }
+    });
+  }
+  
+  // Check authentication state on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    auth.onAuthStateChanged((user) => {
+      if (user && user.emailVerified) {
+        // User is signed in and email is verified
+        const userData = {
+          name: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
+        };
+        
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('isAuthenticated', 'true');
+        
+        document.getElementById('auth-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        initializeDashboard(userData);
+      } else {
+        // User is signed out or email not verified
+        document.getElementById('auth-page').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+        if (user && !user.emailVerified) {
+          alert('Please verify your email before logging in.');
+          auth.signOut();
+        }
+      }
+    });
+  });
+</script>
 </body>
 </html>
