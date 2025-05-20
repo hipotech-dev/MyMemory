@@ -21,6 +21,8 @@
       --light: #f5f7fa;
       --gray: #e2e8f0;
       --success: #38a169;
+      --white: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
     
     * {
@@ -34,28 +36,34 @@
       margin: 0;
       padding: 0;
       min-height: 100vh;
+      background: var(--light);
     }
 
     /* Authentication Page Styles */
     .auth-page {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 1rem;
     }
     
     .auth-container {
-      background: white;
-      padding: 2.5rem;
+      background: var(--white);
+      padding: 2rem;
       width: 100%;
-      max-width: 420px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      max-width: 400px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
-      margin: 20px;
+      margin: 1rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .auth-container:hover {
+      transform: translateY(-5px);
     }
     
     .auth-container::before {
@@ -64,35 +72,56 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 6px;
+      height: 8px;
       background: linear-gradient(to right, var(--primary), var(--primary-light));
+    }
+    
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .logo img {
+      height: 60px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+    
+    .logo h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
     
     /* Message Styles */
     .message {
       display: none;
-      padding: 10px;
+      padding: 0.75rem;
       margin-bottom: 1rem;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.9rem;
       text-align: center;
+      animation: slideIn 0.3s ease;
     }
     
     .message.success {
       background: var(--success);
-      color: white;
+      color: var(--white);
     }
     
     .message.error {
       background: var(--secondary);
-      color: white;
+      color: var(--white);
     }
     
     /* Form Validation Error */
     .error-text {
       color: var(--secondary);
-      font-size: 0.85rem;
-      margin-top: 5px;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
       display: none;
     }
     
@@ -104,215 +133,65 @@
       display: block;
     }
 
-    /* Dashboard Styles */
-    .dashboard {
-      display: none;
-      min-height: 100vh;
-      background: var(--light);
-    }
-    
-    /* Header Styles */
-    .header {
-      background: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .logo img {
-      height: 40px;
-    }
-    
-    .logo h1 {
-      color: var(--primary);
-      font-size: 1.5rem;
-      margin: 0;
-    }
-    
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: var(--primary-light);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    
-    /* Main Container */
-    .container {
-      display: flex;
-      min-height: calc(100vh - 72px);
-    }
-    
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background: white;
-      padding: 1.5rem 1rem;
-      border-right: 1px solid var(--gray);
-      position: sticky;
-      top: 72px;
-      height: calc(100vh - 72px);
-      overflow-y: auto;
-    }
-    
-    .sidebar-menu {
-      list-style: none;
-    }
-    
-    .sidebar-menu li {
-      margin-bottom: 5px;
-    }
-    
-    .sidebar-menu a {
-      display: flex;
-      align-items: center;
-      padding: 10px 15px;
-      color: var(--dark);
-      text-decoration: none;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-    
-    .sidebar-menu a:hover, 
-    .sidebar-menu a.active {
-      background-color: var(--light);
-      color: var(--primary);
-    }
-    
-    .sidebar-menu i {
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-    }
-    
-    /* Main Content Area */
-    .main-content {
-      flex: 1;
-      padding: 2rem;
-      overflow-y: auto;
-    }
-    
-    .welcome-banner {
-      background: linear-gradient(to right, var(--primary), var(--primary-light));
-      color: white;
-      padding: 2rem;
-      border-radius: 10px;
-      margin-bottom: 2rem;
-    }
-    
-    .welcome-banner h2 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .dashboard-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      margin-bottom: 2rem;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--gray);
-    }
-    
-    .card-header h3 {
-      color: var(--primary);
-      margin: 0;
-    }
-    
     /* Form Elements */
     .form-group {
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
       position: relative;
     }
     
     label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
       font-weight: 600;
       color: var(--dark);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     
     .input-icon {
       position: absolute;
-      left: 12px;
-      top: 38px;
-      color: #718096;
+      left: 1rem;
+      top: 2.5rem;
+      color: #6b7280;
+      font-size: 1.1rem;
     }
     
     input[type="email"],
     input[type="password"],
-    input[type="text"],
-    input[type="date"],
-    input[type="url"],
-    select {
+    input[type="text"] {
       width: 100%;
-      padding: 10px 12px 10px 40px;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
       border: 1px solid var(--gray);
-      border-radius: 8px;
-      font-size: 15px;
-      transition: all 0.3s;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
     }
     
-    input:focus,
-    select:focus {
+    input:focus {
       outline: none;
       border-color: var(--primary-light);
       box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      background: var(--white);
     }
     
     /* Buttons */
     .btn {
-      padding: 12px;
-      background-color: var(--primary);
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
       border: none;
-      color: white;
-      font-size: 16px;
+      color: var(--white);
+      font-size: 1rem;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
       margin-top: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
     .btn:hover {
-      background-color: var(--primary-light);
+      background: var(--primary-light);
       transform: translateY(-2px);
     }
     
@@ -320,185 +199,76 @@
       transform: translateY(0);
     }
     
-    /* Todo List Styles */
-    .todo-item {
+    /* Social Login */
+    .social-login {
       display: flex;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--gray);
-    }
-    
-    .todo-item:last-child {
-      border-bottom: none;
-    }
-    
-    .todo-checkbox {
-      margin-right: 10px;
-    }
-    
-    .todo-text {
-      flex: 1;
-    }
-    
-    .todo-completed .todo-text {
-      text-decoration: line-through;
-      color: #718096;
-    }
-    
-    .todo-actions {
-      display: flex;
-      gap: 5px;
-    }
-    
-    .todo-actions button {
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      transition: all 0.2s;
-      padding: 5px;
-    }
-    
-    .todo-actions button:hover {
-      color: var(--primary);
-    }
-    
-    /* Password Manager Styles */
-    .password-item {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--gray);
-    }
-    
-    .password-item:last-child {
-      border-bottom: none;
-    }
-    
-    .password-title {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    
-    .password-details {
-      display: flex;
-      justify-content: space-between;
-      color: #718096;
-      font-size: 0.9rem;
-    }
-    
-    .password-value {
-      font-family: monospace;
-      color: var(--primary);
-      font-weight: bold;
-    }
-    
-    .toggle-password-btn {
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      padding: 0 5px;
-      transition: all 0.2s;
-    }
-    
-    .toggle-password-btn:hover {
-      color: var(--primary);
-    }
-    
-    /* Documents Section */
-    .document-item {
-      display: flex;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--gray);
-    }
-    
-    .document-icon {
-      margin-right: 10px;
-      color: var(--primary);
-      font-size: 1.2rem;
-    }
-    
-    .document-info {
-      flex: 1;
-    }
-    
-    .document-name {
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
-    
-    .document-meta {
-      color: #718096;
-      font-size: 0.8rem;
-    }
-    
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
       justify-content: center;
-      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
     }
     
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 500px;
-      margin: 20px;
-    }
-    
-    .modal-header {
+    .social-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      justify-content: center;
+      background: var(--white);
+      border: 1px solid var(--gray);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
+    .social-btn:hover {
+      background: var(--light);
+      transform: scale(1.1);
+    }
+    
+    .social-btn i {
+      font-size: 1.3rem;
       color: var(--dark);
     }
     
-    /* Edit Todo Form */
-    .edit-todo-form {
-      display: none;
-      margin-top: 10px;
-      padding: 10px;
-      background: var(--light);
-      border-radius: 6px;
+    /* Password Actions */
+    .password-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
     }
     
-    .edit-todo-form input {
-      padding: 8px 12px;
-      margin-right: 5px;
+    .remember-me {
+      display: flex;
+      align-items: center;
+      color: var(--dark);
     }
     
-    .edit-todo-form button {
-      padding: 8px 12px;
-      background-color: var(--success);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    .remember-me input {
+      margin-right: 0.5rem;
+      width: 1.2rem;
+      height: 1.2rem;
     }
     
-    /* Utility Classes */
+    .forgot-password a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Divider */
     .divider {
       display: flex;
       align-items: center;
       margin: 1.5rem 0;
-      color: #718096;
+      color: #6b7280;
       font-size: 0.9rem;
     }
     
@@ -517,88 +287,29 @@
       margin-left: 1rem;
     }
     
-    .social-login {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+    /* Switch Link */
+    .switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--dark);
     }
     
-    .social-btn {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      border: 1px solid var(--gray);
-      cursor: pointer;
+    .switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
       transition: all 0.3s;
     }
     
-    .social-btn:hover {
-      background: var(--light);
-      transform: translateY(-2px);
-    }
-    
-    .social-btn i {
-      font-size: 1.2rem;
-      color: #4a5568;
-    }
-    
-    .password-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    .remember-me {
-      display: flex;
-      align-items: center;
-      font-size: 0.9rem;
-      color: #4a5568;
-    }
-    
-    .remember-me input {
-      margin-right: 8px;
-    }
-    
-    .forgot-password {
-      font-size: 0.85rem;
-    }
-    
-    .forgot-password a {
-      color: #718096;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    
-    .forgot-password a:hover {
-      color: var(--primary);
+    .switch a:hover {
       text-decoration: underline;
     }
     
-    .password-strength {
-      height: 4px;
-      background: var(--gray);
-      border-radius: 2px;
-      margin-top: 8px;
-      overflow: hidden;
-    }
-    
-    .strength-meter {
-      height: 100%;
-      width: 0%;
-      background: var(--secondary);
-      transition: all 0.3s;
-    }
-    
+    /* Terms */
     .terms {
       font-size: 0.85rem;
-      color: #718096;
+      color: #6b7280;
       margin-top: 1.5rem;
       text-align: center;
     }
@@ -612,152 +323,92 @@
       text-decoration: underline;
     }
     
-    .switch {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.95rem;
-      color: #4a5568;
-    }
-    
-    .switch a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-      margin-left: 5px;
-      transition: all 0.2s;
-    }
-    
-    .switch a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Animation for form switch */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+    /* Animations */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
     
     .fade-in {
-      animation: fadeIn 0.3s ease-out;
+      animation: slideIn 0.3s ease-out;
     }
     
-    /* Updated Responsive Adjustments */
+    /* Mobile-Specific Styles */
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      
-      .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        top: 0;
-        border-right: none;
-        border-bottom: 1px solid var(--gray);
+      .auth-page {
         padding: 1rem;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      
-      .sidebar-menu {
-        display: flex;
-        gap: 10px;
-        padding-bottom: 10px;
-      }
-      
-      .sidebar-menu li {
-        margin-bottom: 0;
-      }
-      
-      .sidebar-menu a {
-        padding: 8px 12px;
-        display: inline-flex;
-      }
-      
-      .dashboard-cards {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-      
-      .main-content {
-        padding: 1.25rem;
-      }
-      
-      .welcome-banner {
-        padding: 1.25rem;
       }
       
       .auth-container {
-        margin: 10px;
+        max-width: 95%;
         padding: 1.5rem;
+        border-radius: 16px;
       }
       
-      /* Modal adjustments */
-      .modal-content {
-        margin: 10px;
-        padding: 1.5rem;
+      .logo img {
+        height: 50px;
       }
       
-      /* Header adjustments */
-      .header {
-        padding: 0.75rem 1rem;
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+      
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+        font-size: 0.95rem;
+      }
+      
+      .input-icon {
+        top: 2.4rem;
+      }
+      
+      .btn {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+      }
+      
+      .social-btn {
+        width: 45px;
+        height: 45px;
+      }
+      
+      .social-btn i {
+        font-size: 1.2rem;
+      }
+      
+      .password-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 1.25rem;
+      }
+      
+      .logo img {
+        height: 45px;
       }
       
       .logo h1 {
         font-size: 1.3rem;
       }
       
-      /* Form input adjustments */
-      input[type="email"],
-      input[type="password"],
-      input[type="text"],
-      input[type="date"],
-      input[type="url"],
-      select {
-        padding: 12px 12px 12px 40px;
-        font-size: 16px;
+      .form-group {
+        margin-bottom: 1rem;
       }
       
       .btn {
-        padding: 12px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .auth-container {
-        padding: 1.25rem;
-      }
-      
-      h2 {
-        font-size: 1.4rem;
-      }
-      
-      .welcome-banner h2 {
-        font-size: 1.5rem;
-      }
-      
-      .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      
-      .card-header h3 {
-        font-size: 1.2rem;
-      }
-      
-      .card-header .btn {
-        width: 100%;
-      }
-      
-      .password-actions {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-      }
-      
-      .remember-me {
-        margin-bottom: 5px;
+        padding: 0.8rem;
+        font-size: 0.9rem;
       }
       
       .social-login {
@@ -769,18 +420,20 @@
         height: 40px;
       }
       
-      .todo-actions {
-        gap: 3px;
+      .social-btn i {
+        font-size: 1.1rem;
       }
       
-      .edit-todo-form {
-        flex-direction: column;
-        gap: 8px;
+      .divider {
+        font-size: 0.85rem;
       }
       
-      .edit-todo-form input {
-        margin-right: 0;
-        margin-bottom: 5px;
+      .switch {
+        font-size: 0.9rem;
+      }
+      
+      .terms {
+        font-size: 0.8rem;
       }
     }
 
@@ -790,26 +443,9 @@
       overflow-x: hidden;
     }
 
-    /* Improved mobile viewport handling */
-    @viewport {
-      width: device-width;
-      zoom: 1.0;
-    }
-
     /* Better touch targets for mobile */
-    button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
+    button, a, input[type="checkbox"] {
       touch-action: manipulation;
-    }
-
-    /* Adjust font sizes for better mobile readability */
-    @media (max-width: 768px) {
-      body {
-        font-size: 15px;
-      }
-      
-      .card {
-        padding: 1.25rem;
-      }
     }
   </style>
 </head>
@@ -917,9 +553,9 @@
     </div>
   </div>
 
-  <!-- Dashboard Page (hidden by default) -->
-  <div class="dashboard" id="dashboard">
-    <!-- Header -->
+  <!-- Rest of the dashboard content remains unchanged -->
+  <div class="dashboard" id="dashboard" style="display: none;">
+    <!-- Original dashboard content -->
     <header class="header">
       <div class="logo">
         <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="MyMemory Logo">
@@ -930,9 +566,7 @@
       </div>
     </header>
 
-    <!-- Main Container -->
     <div class="container">
-      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
           <li><a href="index.html" class="active" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -944,17 +578,13 @@
         </ul>
       </aside>
 
-      <!-- Main Content -->
       <main class="main-content">
-        <!-- Welcome Banner -->
         <div class="welcome-banner">
           <h2>Welcome back, <span id="user-name">John Smith</span>!</h2>
           <p>Here's what's happening with your account today.</p>
         </div>
 
-        <!-- Dashboard Cards -->
         <div class="dashboard-cards">
-          <!-- To-Do List Card -->
           <div class="card">
             <div class="card-header">
               <h3>To-Do List</h3>
@@ -1003,7 +633,6 @@
             </div>
           </div>
 
-          <!-- Password Manager Card -->
           <div class="card">
             <div class="card-header">
               <h3>Password Manager</h3>
@@ -1037,7 +666,6 @@
             </div>
           </div>
 
-          <!-- Documents Card -->
           <div class="card">
             <div class="card-header">
               <h3>Recent Documents</h3>
@@ -1384,7 +1012,6 @@
       const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
   
-      // Set persistence based on "Remember me"
       const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
       auth.setPersistence(persistence)
         .then(() => {
@@ -1537,7 +1164,6 @@
         addTodoEventListeners(item);
       });
 
-      // Initialize secure navigation
       secureNavigation();
     }
   
@@ -1707,13 +1333,12 @@
       });
     }
   
-    // Secure navigation for sidebar links
     function secureNavigation() {
-      let isCheckingAuth = false; // Prevent multiple simultaneous checks
+      let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
         if (link.id !== 'logout-link') {
           link.addEventListener('click', async function(e) {
-            e.preventDefault(); // Prevent default navigation
+            e.preventDefault();
             const targetUrl = this.getAttribute('href');
             console.log(`Navigation attempt to ${targetUrl}`);
 
@@ -1724,17 +1349,16 @@
             isCheckingAuth = true;
 
             try {
-              // Wait for Firebase auth state to resolve
               const user = await new Promise((resolve, reject) => {
                 const unsubscribe = auth.onAuthStateChanged(user => {
-                  unsubscribe(); // Unsubscribe immediately after getting state
+                  unsubscribe();
                   resolve(user);
                 }, reject);
               });
 
               if (user && user.emailVerified && localStorage.getItem('isAuthenticated') === 'true') {
                 console.log('Navigation allowed, user authenticated:', user.email);
-                window.location.href = targetUrl; // Proceed to target page
+                window.location.href = targetUrl;
               } else {
                 console.log('Navigation blocked, user not authenticated or email not verified');
                 showMessage('login-message', 'Please log in to access this page.', 'error');
@@ -1751,14 +1375,13 @@
               localStorage.clear();
               window.location.replace('index.html');
             } finally {
-              isCheckingAuth = false; // Reset flag
+              isCheckingAuth = false;
             }
           });
         }
       });
     }
   
-    // Check authentication state
     function checkAuthState(eventType) {
       console.log(`Checking auth state on ${eventType}`);
       const remember = localStorage.getItem('rememberMe') === 'true';
@@ -1794,7 +1417,6 @@
       });
     }
   
-    // Handle page load and bfcache restore
     document.addEventListener('DOMContentLoaded', function() {
       checkAuthState('DOMContentLoaded');
     });
