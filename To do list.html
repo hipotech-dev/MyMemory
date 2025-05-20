@@ -8,6 +8,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="-1" />
+  <meta http-equiv="Vary" content="*" />
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -775,16 +776,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Prevent back button cache
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
-          localStorage.clear();
-          window.location.replace('index.html');
-        }
-      }
-    });
-
     // Show message
     function showMessage(message, type = 'error') {
       const messageElement = document.getElementById('auth-message');
@@ -797,21 +788,62 @@
       }, 5000);
     }
 
-    // Authentication check
-    document.addEventListener('DOMContentLoaded', function () {
-      // Immediate check for authentication
-      if (!localStorage.getItem('isAuthenticated') || localStorage.getItem('isAuthenticated') !== 'true') {
-        localStorage.clear();
-        window.location.replace('index.html');
-        return;
-      }
+    // Secure sidebar navigation
+    function secureNavigation() {
+      let isCheckingAuth = false; // Prevent multiple simultaneous checks
+      document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        if (link.id !== 'logout-link') {
+          link.addEventListener('click', async function(e) {
+            e.preventDefault(); // Prevent default navigation
+            const targetUrl = this.getAttribute('href');
+            console.log(`Navigation attempt to ${targetUrl}`);
+
+            if (isCheckingAuth) {
+              console.log('Auth check already in progress, skipping');
+              return;
+            }
+            isCheckingAuth = true;
+
+            try {
+              // Wait for Firebase auth state to resolve
+              const user = await new Promise((resolve, reject) => {
+                const unsubscribe = auth.onAuthStateChanged(user => {
+                  unsubscribe(); // Unsubscribe immediately after getting state
+                  resolve(user);
+                }, reject);
+              });
+
+              if (user && user.emailVerified && localStorage.getItem('isAuthenticated') === 'true') {
+                console.log('Navigation allowed, user authenticated:', user.email);
+                window.location.href = targetUrl; // Proceed to target page
+              } else {
+                console.log('Navigation blocked, user not authenticated or email not verified');
+                showMessage('Please log in to access this page.', 'error');
+                localStorage.clear();
+                window.location.replace('index.html');
+              }
+            } catch (error) {
+              console.error('Error checking auth state for navigation:', error);
+              showMessage('Error verifying authentication. Please log in again.', 'error');
+              localStorage.clear();
+              window.location.replace('index.html');
+            } finally {
+              isCheckingAuth = false; // Reset flag
+            }
+          });
+        }
+      });
+    }
+
+    // Check authentication state
+    function checkAuthState(eventType) {
+      console.log(`Checking auth state on ${eventType}`);
+      const loadingElement = document.getElementById('loading');
+      const appContentElement = document.getElementById('app-content');
 
       auth.onAuthStateChanged((user) => {
-        const loadingElement = document.getElementById('loading');
-        const appContentElement = document.getElementById('app-content');
-
         if (user && user.emailVerified) {
-          // User is authenticated and email is verified
+          console.log('User authenticated:', user.email);
           const userData = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -826,45 +858,49 @@
 
           initializePage(userData, user);
         } else {
-          // User is not authenticated or email not verified
-          localStorage.clear();
+          console.log('User not authenticated or email not verified, redirecting to login');
+          loadingElement.style.display = 'none';
           if (user && !user.emailVerified) {
             showMessage('Please verify your email before accessing this page.', 'error');
             auth.signOut();
           }
-          loadingElement.style.display = 'none';
+          localStorage.clear();
           window.location.replace('index.html');
         }
-      });
-    });
-
-    // Secure sidebar navigation
-    function secureNavigation() {
-      document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        if (link.id !== 'logout-link') {
-          link.addEventListener('click', function (e) {
-            if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
-              e.preventDefault();
-              showMessage('Please log in to access this page.', 'error');
-              localStorage.clear();
-              window.location.replace('index.html');
-            }
-          });
-        }
+      }, error => {
+        console.error('Error checking auth state:', error);
+        loadingElement.style.display = 'none';
+        showMessage('Error verifying authentication. Please log in again.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
       });
     }
+
+    // Handle page load and bfcache restore
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState('DOMContentLoaded');
+    });
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log('Page restored from bfcache, checking auth');
+        checkAuthState('pageshow');
+      }
+    });
 
     // Initialize page after authentication
     function initializePage(userData, user) {
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
 
       // Logout handler
-      document.getElementById('logout-link').addEventListener('click', function (e) {
+      document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
+        console.log('Logging out, redirecting to login');
         auth.signOut().then(() => {
           localStorage.clear();
           window.location.replace('index.html');
         }).catch((error) => {
+          console.error('Logout error:', error);
           showMessage('Error logging out: ' + error.message, 'error');
         });
       });
