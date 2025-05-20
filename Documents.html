@@ -4,407 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Documents | MyMemory</title>
-  <!-- Add Firebase scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #003087;
-      --primary-light: #0070ba;
-      --secondary: #ff5a5f;
-      --dark: #2d3748;
-      --light: #f5f7fa;
-      --gray: #e2e8f0;
-      --success: #38a169;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--light);
-      min-height: 100vh;
-      margin: 0;
-    }
-    
-    /* Fixed Header Styles */
-    .header {
-      background: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 0 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 60px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-    }
-
-    .logo img {
-      height: 36px;
-      width: auto;
-      object-fit: contain;
-      vertical-align: middle;
-    }
-
-    .logo h1 {
-      color: var(--primary);
-      font-size: 1.5rem;
-      margin: 0;
-      line-height: 1;
-      vertical-align: middle;
-    }
-
-    .user-menu {
-      display: flex;
-      align-items: center;
-      height: 100%;
-    }
-
-    .user-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background-color: var(--primary-light);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      margin: 0;
-      vertical-align: middle;
-    }
-    
-    /* Main Container */
-    .container {
-      display: flex;
-      min-height: calc(100vh - 60px); /* Adjusted for fixed header height */
-    }
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background: white;
-      padding: 2rem 1rem;
-      border-right: 1px solid var(--gray);
-    }
-    
-    .sidebar-menu {
-      list-style: none;
-    }
-    
-    .sidebar-menu li {
-      margin-bottom: 5px;
-    }
-    
-    .sidebar-menu a {
-      display: flex;
-      align-items: center;
-      padding: 10px 15px;
-      color: var(--dark);
-      text-decoration: none;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-    
-    .sidebar-menu a:hover, .sidebar-menu a.active {
-      background-color: var(--light);
-      color: var(--primary);
-    }
-    
-    .sidebar-menu i {
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-    }
-    
-    /* Main Content Area */
-    .main-content {
-      flex: 1;
-      padding: 2rem;
-    }
-    
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    
-    .page-title {
-      color: var(--primary);
-      font-size: 1.8rem;
-    }
-    
-    /* Documents Manager Styles */
-    .documents-container {
-      background: white;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    
-    .documents-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    
-    .documents-actions {
-      display: flex;
-      gap: 10px;
-    }
-    
-    .btn {
-      padding: 8px 15px;
-      background-color: var(--primary);
-      border: none;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-    }
-    
-    .btn:hover {
-      background-color: var(--primary-light);
-    }
-    
-    .btn-outline:hover {
-      background: var(--light);
-    }
-    
-    .search-bar {
-      display: flex;
-      margin-bottom: 1.5rem;
-    }
-    
-    .search-bar input {
-      flex: 1;
-      padding: 10px 15px;
-      border: 1px solid var(--gray);
-      border-radius: 6px 0 0 6px;
-      font-size: 14px;
-    }
-    
-    .search-bar button {
-      padding: 0 15px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 0 6px 6px 0;
-      cursor: pointer;
-    }
-    
-    .category-filter {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    
-    .category-btn {
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: transparent;
-      border: 1px solid var(--gray);
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.85rem;
-    }
-    
-    .category-btn.active, .category-btn:hover {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    
-    /* Documents Table */
-    .documents-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    .documents-table th {
-      text-align: left;
-      padding: 12px 15px;
-      background: var(--light);
-      color: var(--dark);
-      font-weight: 600;
-      border-bottom: 2px solid var(--gray);
-    }
-    
-    .documents-table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid var(--gray);
-      vertical-align: middle;
-    }
-    
-    .document-row:hover {
-      background: rgba(0, 112, 186, 0.05);
-    }
-    
-    .document-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: var(--light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      font-size: 1.2rem;
-    }
-    
-    .document-info {
-      margin-left: 10px;
-    }
-    
-    .document-name {
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
-    
-    .document-meta {
-      color: #718096;
-      font-size: 0.85rem;
-      display: flex;
-      gap: 15px;
-    }
-    
-    .document-meta span {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .document-actions {
-      display: flex;
-      gap: 10px;
-    }
-    
-    .document-actions button {
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    
-    .document-actions button:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--primary);
-    }
-    
-    /* Folder View */
-    .folder-view {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-    
-    .folder-item {
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid var(--gray);
-    }
-    
-    .folder-item:hover {
-      border-color: var(--primary-light);
-      box-shadow: 0 2px 8px rgba(0, 112, 186, 0.1);
-    }
-    
-    .folder-icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 10px;
-      background: var(--light);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      font-size: 1.5rem;
-    }
-    
-    .folder-name {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    
-    .folder-meta {
-      color: #718096;
-      font-size: 0.85rem;
-    }
-    
-    /* View Toggle */
-    .view-toggle {
-      display: flex;
-      margin-bottom: 1.5rem;
-      background:Official Response from Grok, Created by xAI
-
-I understand you want to secure other pages in the folder (like `Documents.html`, `To do list.html`, `Password Manager.html`, and `Settings.html`) so that users must log in via the dashboard (`index.html`) before accessing them. Since your application uses Firebase Authentication, we can implement authentication checks on each page to ensure only authenticated users with verified emails can access them. Below, I'll provide a modified version of `Documents.html` with authentication checks integrated, along with instructions to apply similar security to other pages. I'll also address maintaining consistency with the dashboard and securing navigation.
-
----
-
-### Solution Overview
-
-To secure all pages, we'll:
-1. **Add Firebase Authentication Checks**:
-   - Include Firebase scripts in each page and use `firebase.auth().onAuthStateChanged` to verify user authentication and email verification status.
-   - Redirect unauthenticated or unverified users to `index.html`.
-2. **Reuse User Data**:
-   - Use `localStorage.getItem('userData')` to display user information (e.g., avatar initials) consistently with the dashboard.
-3. **Centralize Authentication Logic**:
-   - Create a reusable authentication function to minimize code duplication across pages.
-4. **Secure Navigation**:
-   - Ensure sidebar links redirect to `index.html` if the user is not authenticated.
-   - Optionally, consider converting the app to a single-page application (SPA) to simplify security checks.
-5. **Handle Logout**:
-   - Ensure the logout link signs out the user, clears `localStorage`, and redirects to `index.html`.
-
----
-
-### Modified `Documents.html` with Authentication
-
-Below is the updated `Documents.html` with Firebase Authentication checks and security enhancements. The changes are primarily in the `<head>` and `<script>` sections to include Firebase and authentication logic. The HTML and CSS remain largely unchanged except for minor consistency adjustments (e.g., title updated to "MyMemory" for branding consistency).
-
-<xaiArtifact artifact_id="071c1d09-c361-4455-a6f8-57b9f466f736" artifact_version_id="683234fb-f5f2-4fa8-84f1-74d174645143" title="Documents.html" contentType="text/html">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Documents | MyMemory</title>
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -489,7 +88,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
     /* Main Container */
     .container {
       display: flex;
-      min-height: calc(100vh - 60px); /* Adjusted for fixed header height */
+      min-height: calc(100vh - 60px);
     }
     /* Sidebar */
     .sidebar {
@@ -1175,7 +774,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
       <h1>MyMemory</h1>
     </div>
     <div class="user-menu">
-      <div class="user-avatar" id="user-avatar">JS</div>
+      <div class="user-avatar" id="user-avatar"></div>
     </div>
   </header>
 
@@ -1385,7 +984,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
   </div>
 
   <script>
-    // Firebase configuration (same as index.html)
+    // Firebase configuration (matching index.html)
     const firebaseConfig = {
       apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
       authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1422,29 +1021,39 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
             avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
           };
           localStorage.setItem('userData', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-
-          // Initialize page with user data
           initializePage(userData);
         } else {
           // User is not authenticated or email not verified
-          localStorage.removeItem('isAuthenticated');
           localStorage.removeItem('userData');
           if (user && !user.emailVerified) {
             showMessage('Please verify your email before accessing this page.');
             auth.signOut();
           }
-          // Redirect to index.html
           window.location.href = 'index.html';
         }
       });
     });
 
+    // Secure sidebar navigation
+    function secureNavigation() {
+      document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        if (link.id !== 'logout-link') {
+          link.addEventListener('click', function(e) {
+            if (!auth.currentUser) {
+              e.preventDefault();
+              showMessage('Please log in to access this page.');
+              window.location.href = 'index.html';
+            }
+          });
+        }
+      });
+    }
+
     // Initialize page after authentication
     function initializePage(userData) {
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
 
-      // Existing document and folder data
+      // Document and folder data
       let documents = [
         {
           id: 'doc1',
@@ -1453,7 +1062,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
           category: 'contract',
           folder: '',
           size: 2400000,
-          modified: Date.now() - 172800000, // 2 days ago
+          modified: Date.now() - 172800000,
           owner: userData.name,
           shared: false
         },
@@ -1464,7 +1073,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
           category: 'proposal',
           folder: '',
           size: 1100000,
-          modified: Date.now() - 604800000, // 1 week ago
+          modified: Date.now() - 604800000,
           owner: userData.name,
           shared: false
         },
@@ -1475,7 +1084,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
           category: 'report',
           folder: 'Financial',
           size: 3700000,
-          modified: Date.now() - 1814400000, // 3 weeks ago
+          modified: Date.now() - 1814400000,
           owner: userData.name,
           shared: false
         },
@@ -1486,7 +1095,7 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
           category: 'presentation',
           folder: '',
           size: 5200000,
-          modified: Date.now() - 2592000000, // 1 month ago
+          modified: Date.now() - 2592000000,
           owner: userData.name,
           shared: true
         }
@@ -1524,6 +1133,9 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
       let currentCategory = 'all';
       let currentSearchQuery = '';
       let currentDocumentToShare = null;
+
+      // Secure navigation
+      secureNavigation();
 
       // Initialize the documents and folders
       renderDocuments();
@@ -1655,371 +1267,370 @@ Below is the updated `Documents.html` with Firebase Authentication checks and se
       document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
         auth.signOut().then(() => {
-          localStorage.removeItem('isAuthenticated');
           localStorage.removeItem('userData');
           window.location.href = 'index.html';
         }).catch((error) => {
           showMessage('Error logging out: ' + error.message);
         });
       });
-    }
 
-    // Render documents in table view
-    function renderDocuments() {
-      const tbody = document.getElementById('documents-table-body');
-      tbody.innerHTML = '';
-      
-      documents.forEach(doc => {
-        const iconClass = getFileIconClass(doc.type);
-        const formattedSize = formatFileSize(doc.size);
-        const formattedDate = formatDate(doc.modified);
+      // Render documents in table view
+      function renderDocuments() {
+        const tbody = document.getElementById('documents-table-body');
+        tbody.innerHTML = '';
         
-        const row = document.createElement('tr');
-        row.className = 'document-row';
-        row.dataset.id = doc.id;
-        row.dataset.category = doc.category;
-        row.dataset.folder = doc.folder;
-        row.innerHTML = `
-          <td>
-            <div style="display: flex; align-items: center;">
-              <div class="document-icon">
-                <i class="fas ${iconClass}"></i>
-              </div>
-              <div class="document-info">
-                <div class="document-name">${doc.name}.${doc.type}</div>
-                <div class="document-meta">
-                  <span><i class="far fa-user"></i> ${doc.owner}</span>
+        documents.forEach(doc => {
+          const iconClass = getFileIconClass(doc.type);
+          const formattedSize = formatFileSize(doc.size);
+          const formattedDate = formatDate(doc.modified);
+          
+          const row = document.createElement('tr');
+          row.className = 'document-row';
+          row.dataset.id = doc.id;
+          row.dataset.category = doc.category;
+          row.dataset.folder = doc.folder;
+          row.innerHTML = `
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="document-icon">
+                  <i class="fas ${iconClass}"></i>
+                </div>
+                <div class="document-info">
+                  <div class="document-name">${doc.name}.${doc.type}</div>
+                  <div class="document-meta">
+                    <span><i class="far fa-user"></i> ${doc.owner}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </td>
-          <td>${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)}</td>
-          <td>${formattedDate}</td>
-          <td>${formattedSize}</td>
-          <td>
-            <div class="document-actions">
-              <button title="Download" data-action="download" data-id="${doc.id}"><i class="fas fa-download"></i></button>
-              <button title="Share" data-action="share" data-id="${doc.id}"><i class="fas fa-share-alt"></i></button>
-              <button title="Delete" data-action="delete" data-id="${doc.id}"><i class="fas fa-trash"></i></button>
-            </div>
-          </td>
-        `;
-        
-        tbody.appendChild(row);
-      });
-      
-      addDocumentEventListeners();
-    }
-    
-    // Render folders in folder view
-    function renderFolders() {
-      const folderView = document.getElementById('folder-view');
-      folderView.innerHTML = '';
-      
-      folders.forEach(folder => {
-        const folderItem = document.createElement('div');
-        folderItem.className = 'folder-item';
-        folderItem.dataset.id = folder.id;
-        folderItem.innerHTML = `
-          <div class="folder-icon" style="background: ${folder.color}20; color: ${folder.color}">
-            <i class="fas fa-folder"></i>
-          </div>
-          <div class="folder-name">${folder.name}</div>
-          <div class="folder-meta">${folder.files} ${folder.files === 1 ? 'file' : 'files'}</div>
-        `;
-        
-        folderItem.addEventListener('click', function() {
-          currentCategory = 'all';
-          document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.remove('active');
-          });
-          document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+            </td>
+            <td>${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)}</td>
+            <td>${formattedDate}</td>
+            <td>${formattedSize}</td>
+            <td>
+              <div class="document-actions">
+                <button title="Download" data-action="download" data-id="${doc.id}"><i class="fas fa-download"></i></button>
+                <button title="Share" data-action="share" data-id="${doc.id}"><i class="fas fa-share-alt"></i></button>
+                <button title="Delete" data-action="delete" data-id="${doc.id}"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          `;
           
-          currentSearchQuery = '';
-          document.getElementById('search-input').value = '';
-          
-          currentView = 'table';
-          document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.classList.remove('active');
-          });
-          document.querySelector('.view-btn[data-view="table"]').classList.add('active');
-          
-          document.getElementById('table-view').style.display = 'block';
-          document.getElementById('folder-view').style.display = 'none';
-          
-          filterDocuments(folder.name);
+          tbody.appendChild(row);
         });
         
-        folderView.appendChild(folderItem);
-      });
-    }
-    
-    // Populate folder dropdown in upload modal
-    function populateFolderDropdown() {
-      const select = document.getElementById('document-folder');
-      select.innerHTML = '<option value="">None</option>';
-      
-      folders.forEach(folder => {
-        const option = document.createElement('option');
-        option.value = folder.name;
-        option.textContent = folder.name;
-        select.appendChild(option);
-      });
-    }
-    
-    // Filter documents based on current filters
-    function filterDocuments(folderFilter = '') {
-      const filteredDocs = documents.filter(doc => {
-        if (currentCategory !== 'all' && doc.category !== currentCategory) {
-          return false;
-        }
-        
-        if (currentSearchQuery && !doc.name.toLowerCase().includes(currentSearchQuery)) {
-          return false;
-        }
-        
-        if (folderFilter && doc.folder !== folderFilter) {
-          return false;
-        }
-        
-        return true;
-      });
-      
-      const tbody = document.getElementById('documents-table-body');
-      const rows = tbody.querySelectorAll('tr');
-      
-      rows.forEach(row => {
-        const docId = row.dataset.id;
-        const doc = documents.find(d => d.id === docId);
-        const matchesCategory = currentCategory === 'all' || doc.category === currentCategory;
-        const matchesSearch = !currentSearchQuery || doc.name.toLowerCase().includes(currentSearchQuery);
-        const matchesFolder = !folderFilter || doc.folder === folderFilter;
-        
-        if (matchesCategory && matchesSearch && matchesFolder) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-    }
-    
-    // Upload document function
-    function uploadDocument() {
-      const name = document.getElementById('document-name').
-      const category = document.getElementById('document-category').value;
-      const folder = document.getElementById('document-folder').value;
-      const fileInput = document.getElementById('document-file');
-      
-      if (fileInput.files.length === 0) {
-        alert('Please select a file to upload');
-        return;
+        addDocumentEventListeners();
       }
       
-      const file = fileInput.files[0];
-      const fileType = file.name.split('.').pop().toLowerCase();
-      
-      const newDoc = {
-        id: 'doc' + (documents.length + 1),
-        name: name,
-        type: fileType,
-        category: category,
-        folder: folder,
-        size: file.size,
-        modified: Date.now(),
-        owner: userData.name,
-        shared: false
-      };
-      
-      documents.unshift(newDoc);
-      
-      if (folder) {
-        const folderObj = folders.find(f => f.name === folder);
-        if (folderObj) {
-          folderObj.files++;
-        }
+      // Render folders in folder view
+      function renderFolders() {
+        const folderView = document.getElementById('folder-view');
+        folderView.innerHTML = '';
+        
+        folders.forEach(folder => {
+          const folderItem = document.createElement('div');
+          folderItem.className = 'folder-item';
+          folderItem.dataset.id = folder.id;
+          folderItem.innerHTML = `
+            <div class="folder-icon" style="background: ${folder.color}20; color: ${folder.color}">
+              <i class="fas fa-folder"></i>
+            </div>
+            <div class="folder-name">${folder.name}</div>
+            <div class="folder-meta">${folder.files} ${folder.files === 1 ? 'file' : 'files'}</div>
+          `;
+          
+          folderItem.addEventListener('click', function() {
+            currentCategory = 'all';
+            document.querySelectorAll('.category-btn').forEach(btn => {
+              btn.classList.remove('active');
+            });
+            document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+            
+            currentSearchQuery = '';
+            document.getElementById('search-input').value = '';
+            
+            currentView = 'table';
+            document.querySelectorAll('.view-btn').forEach(btn => {
+              btn.classList.remove('active');
+            });
+            document.querySelector('.view-btn[data-view="table"]').classList.add('active');
+            
+            document.getElementById('table-view').style.display = 'block';
+            document.getElementById('folder-view').style.display = 'none';
+            
+            filterDocuments(folder.name);
+          });
+          
+          folderView.appendChild(folderItem);
+        });
       }
       
-      renderDocuments();
-      renderFolders();
-      
-      document.getElementById('upload-form').reset();
-    }
-    
-    // Create new folder function
-    function createFolder() {
-      const name = document.getElementById('folder-name').value;
-      const color = document.getElementById('folder-color').value;
-      
-      const newFolder = {
-        id: 'folder' + (folders.length + 1),
-        name: name,
-        color: color,
-        files: 0
-      };
-      
-      folders.push(newFolder);
-      
-      renderFolders();
-      populateFolderDropdown();
-      
-      document.getElementById('folder-form').reset();
-    }
-    
-    // Add event listeners to document action buttons
-    function addDocumentEventListeners() {
-      document.querySelectorAll('[data-action="download"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const docId = this.dataset.id;
-          downloadDocument(docId);
+      // Populate folder dropdown in upload modal
+      function populateFolderDropdown() {
+        const select = document.getElementById('document-folder');
+        select.innerHTML = '<option value="">None</option>';
+        
+        folders.forEach(folder => {
+          const option = document.createElement('option');
+          option.value = folder.name;
+          option.textContent = folder.name;
+          select.appendChild(option);
         });
-      });
+      }
       
-      document.querySelectorAll('[data-action="share"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const docId = this.dataset.id;
-          shareDocument(docId);
+      // Filter documents based on current filters
+      function filterDocuments(folderFilter = '') {
+        const filteredDocs = documents.filter(doc => {
+          if (currentCategory !== 'all' && doc.category !== currentCategory) {
+            return false;
+          }
+          
+          if (currentSearchQuery && !doc.name.toLowerCase().includes(currentSearchQuery)) {
+            return false;
+          }
+          
+          if (folderFilter && doc.folder !== folderFilter) {
+            return false;
+          }
+          
+          return true;
         });
-      });
-      
-      document.querySelectorAll('[data-action="delete"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const docId = this.dataset.id;
-          deleteDocument(docId);
+        
+        const tbody = document.getElementById('documents-table-body');
+        const rows = tbody.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          const docId = row.dataset.id;
+          const doc = documents.find(d => d.id === docId);
+          const matchesCategory = currentCategory === 'all' || doc.category === currentCategory;
+          const matchesSearch = !currentSearchQuery || doc.name.toLowerCase().includes(currentSearchQuery);
+          const matchesFolder = !folderFilter || doc.folder === folderFilter;
+          
+          if (matchesCategory && matchesSearch && matchesFolder) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
         });
-      });
-    }
-    
-    // Download document function
-    function downloadDocument(docId) {
-      const doc = documents.find(d => d.id === docId);
-      if (!doc) return;
+      }
       
-      alert(`Downloading ${doc.name}.${doc.type}`);
-      
-      const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${doc.name}.${doc.type}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-    
-    // Share document function
-    function shareDocument(docId) {
-      currentDocumentToShare = docId;
-      openModal('share-modal');
-      
-      document.getElementById('share-link-container').style.display = 'none';
-    }
-    
-    // Delete document function
-    function deleteDocument(docId) {
-      if (!confirm('Are you sure you want to delete this document?')) return;
-      
-      const docIndex = documents.findIndex(d => d.id === docId);
-      if (docIndex === -1) return;
-      
-      const doc = documents[docIndex];
-      
-      if (doc.folder) {
-        const folder = folders.find(f => f.name === doc.folder);
+      // Upload document function
+      function uploadDocument() {
+        const name = document.getElementById('document-name').value;
+        const category = document.getElementById('document-category').value;
+        const folder = document.getElementById('document-folder').value;
+        const fileInput = document.getElementById('document-file');
+        
+        if (fileInput.files.length === 0) {
+          alert('Please select a file to upload');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        const fileType = file.name.split('.').pop().toLowerCase();
+        
+        const newDoc = {
+          id: 'doc' + (documents.length + 1),
+          name: name,
+          type: fileType,
+          category: category,
+          folder: folder,
+          size: file.size,
+          modified: Date.now(),
+          owner: userData.name,
+          shared: false
+        };
+        
+        documents.unshift(newDoc);
+        
         if (folder) {
-          folder.files = Math.max(0, folder.files - 1);
+          const folderObj = folders.find(f => f.name === folder);
+          if (folderObj) {
+            folderObj.files++;
+          }
+        }
+        
+        renderDocuments();
+        renderFolders();
+        
+        document.getElementById('upload-form').reset();
+      }
+      
+      // Create new folder function
+      function createFolder() {
+        const name = document.getElementById('folder-name').value;
+        const color = document.getElementById('folder-color').value;
+        
+        const newFolder = {
+          id: 'folder' + (folders.length + 1),
+          name: name,
+          color: color,
+          files: 0
+        };
+        
+        folders.push(newFolder);
+        
+        renderFolders();
+        populateFolderDropdown();
+        
+        document.getElementById('folder-form').reset();
+      }
+      
+      // Add event listeners to document action buttons
+      function addDocumentEventListeners() {
+        document.querySelectorAll('[data-action="download"]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const docId = this.dataset.id;
+            downloadDocument(docId);
+          });
+        });
+        
+        document.querySelectorAll('[data-action="share"]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const docId = this.dataset.id;
+            shareDocument(docId);
+          });
+        });
+        
+        document.querySelectorAll('[data-action="delete"]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const docId = this.dataset.id;
+            deleteDocument(docId);
+          });
+        });
+      }
+      
+      // Download document function
+      function downloadDocument(docId) {
+        const doc = documents.find(d => d.id === docId);
+        if (!doc) return;
+        
+        alert(`Downloading ${doc.name}.${doc.type}`);
+        
+        const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${doc.name}.${doc.type}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      // Share document function
+      function shareDocument(docId) {
+        currentDocumentToShare = docId;
+        openModal('share-modal');
+        
+        document.getElementById('share-link-container').style.display = 'none';
+      }
+      
+      // Delete document function
+      function deleteDocument(docId) {
+        if (!confirm('Are you sure you want to delete this document?')) return;
+        
+        const docIndex = documents.findIndex(d => d.id === docId);
+        if (docIndex === -1) return;
+        
+        const doc = documents[docIndex];
+        
+        if (doc.folder) {
+          const folder = folders.find(f => f.name === doc.folder);
+          if (folder) {
+            folder.files = Math.max(0, folder.files - 1);
+          }
+        }
+        
+        documents.splice(docIndex, 1);
+        
+        renderDocuments();
+        renderFolders();
+      }
+      
+      // Get appropriate icon class for file type
+      function getFileIconClass(fileType) {
+        switch(fileType) {
+          case 'pdf': return 'fa-file-pdf';
+          case 'doc':
+          case 'docx': return 'fa-file-word';
+          case 'xls':
+          case 'xlsx': return 'fa-file-excel';
+          case 'ppt':
+          case 'pptx': return 'fa-file-powerpoint';
+          case 'jpg':
+          case 'jpeg':
+          case 'png':
+          case 'gif': return 'fa-file-image';
+          case 'zip':
+          case 'rar': return 'fa-file-archive';
+          case 'txt': return 'fa-file-alt';
+          case 'mp3':
+          case 'wav': return 'fa-file-audio';
+          case 'mp4':
+          case 'mov': return 'fa-file-video';
+          default: return 'fa-file';
         }
       }
       
-      documents.splice(docIndex, 1);
-      
-      renderDocuments();
-      renderFolders();
-    }
-    
-    // Get appropriate icon class for file type
-    function getFileIconClass(fileType) {
-      switch(fileType) {
-        case 'pdf': return 'fa-file-pdf';
-        case 'doc':
-        case 'docx': return 'fa-file-word';
-        case 'xls':
-        case 'xlsx': return 'fa-file-excel';
-        case 'ppt':
-        case 'pptx': return 'fa-file-powerpoint';
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-        case 'gif': return 'fa-file-image';
-        case 'zip':
-        case 'rar': return 'fa-file-archive';
-        case 'txt': return 'fa-file-alt';
-        case 'mp3':
-        case 'wav': return 'fa-file-audio';
-        case 'mp4':
-        case 'mov': return 'fa-file-video';
-        default: return 'fa-file';
+      // Format file size
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
       }
-    }
-    
-    // Format file size
-    function formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
-    
-    // Format date as relative time
-    function formatDate(timestamp) {
-      const now = Date.now();
-      const diff = now - timestamp;
       
-      const minute = 60000;
-      const hour = minute * 60;
-      const day = hour * 24;
-      const week = day * 7;
-      const month = day * 30;
-      const year = day * 365;
+      // Format date as relative time
+      function formatDate(timestamp) {
+        const now = Date.now();
+        const diff = now - timestamp;
+        
+        const minute = 60000;
+        const hour = minute * 60;
+        const day = hour * 24;
+        const week = day * 7;
+        const month = day * 30;
+        const year = day * 365;
+        
+        if (diff < minute) return 'Just now';
+        if (diff < hour) return Math.floor(diff / minute) + ' minutes ago';
+        if (diff < day) return Math.floor(diff / hour) + ' hours ago';
+        if (diff < week) return Math.floor(diff / day) + ' days ago';
+        if (diff < month) return Math.floor(diff / week) + ' weeks ago';
+        if (diff < year) return Math.floor(diff / month) + ' months ago';
+        return Math.floor(diff / year) + ' years ago';
+      }
       
-      if (diff < minute) return 'Just now';
-      if (diff < hour) return Math.floor(diff / minute) + ' minutes ago';
-      if (diff < day) return Math.floor(diff / hour) + ' hours ago';
-      if (diff < week) return Math.floor(diff / day) + ' days ago';
-      if (diff < month) return Math.floor(diff / week) + ' weeks ago';
-      if (diff < year) return Math.floor(diff / month) + ' months ago';
-      return Math.floor(diff / year) + ' years ago';
-    }
-    
-    // Modal functions
-    function setupModal(openBtnId, modalId) {
-      const openBtn = document.getElementById(openBtnId);
-      const modal = document.getElementById(modalId);
-      const closeBtn = modal.querySelector('.modal-close');
-      
-      openBtn?.addEventListener('click', function() {
-        modal.style.display = 'flex';
-      });
-      
-      closeBtn?.addEventListener('click', function() {
-        modal.style.display = 'none';
-      });
-      
-      window.addEventListener('click', function(e) {
-        if (e.target === modal) {
+      // Modal functions
+      function setupModal(openBtnId, modalId) {
+        const openBtn = document.getElementById(openBtnId);
+        const modal = document.getElementById(modalId);
+        const closeBtn = modal.querySelector('.modal-close');
+        
+        openBtn?.addEventListener('click', function() {
+          modal.style.display = 'flex';
+        });
+        
+        closeBtn?.addEventListener('click', function() {
           modal.style.display = 'none';
-        }
-      });
-    }
-    
-    function openModal(modalId) {
-      document.getElementById(modalId).style.display = 'flex';
-    }
-    
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+      }
+      
+      function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+      }
+      
+      function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+      }
     }
   </script>
 </body>
