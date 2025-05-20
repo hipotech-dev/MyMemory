@@ -1254,7 +1254,7 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
       });
   });
 
-  document.getElementById('forgot-password')?.addEventListener('click', function(e) {
+ document.getElementById('forgot-password')?.addEventListener('click', function(e) {
   e.preventDefault();
   const email = document.getElementById('email').value;
   
@@ -1262,6 +1262,43 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
     alert('Please enter your email address first');
     return;
   }
+
+  // Show loading state
+  const forgotLink = e.target;
+  const originalText = forgotLink.textContent;
+  forgotLink.textContent = 'Sending...';
+  forgotLink.style.pointerEvents = 'none';
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      // Show success message
+      forgotLink.textContent = 'Email sent! Check your inbox';
+      setTimeout(() => {
+        forgotLink.textContent = originalText;
+        forgotLink.style.pointerEvents = 'auto';
+      }, 5000);
+    })
+    .catch((error) => {
+      // Reset button state
+      forgotLink.textContent = originalText;
+      forgotLink.style.pointerEvents = 'auto';
+      
+      // User-friendly error messages
+      let errorMessage = 'Error sending reset email';
+      switch(error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many attempts. Please try again later';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Please enter a valid email address';
+          break;
+      }
+      alert(errorMessage);
+    });
+});
   
   // Directly send password reset email - Firebase will handle the check
   auth.sendPasswordResetEmail(email)
