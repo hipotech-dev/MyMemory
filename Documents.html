@@ -7,7 +7,8 @@
   <!-- Prevent Caching -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <meta http-equiv="Expires" content="-1" />
+  <meta http-equiv="Vary" content="*" />
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -1033,21 +1034,24 @@
       }, 5000);
     }
 
-    // Authentication check
-    document.addEventListener('DOMContentLoaded', function () {
+    // Check authentication state
+    function checkAuthState(eventType) {
+      console.log(`Checking auth state on ${eventType}`);
+      const loadingElement = document.getElementById('loading');
+      const appContentElement = document.getElementById('app-content');
+
       // Immediate check for user data
-      const userData = localStorage.getItem('userData');
-      if (!userData || localStorage.getItem('isAuthenticated') !== 'true') {
-        window.location.href = 'index.html';
+      if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
+        console.log('No authenticated user, redirecting to login');
+        localStorage.clear();
+        loadingElement.style.display = 'none';
+        window.location.replace('index.html');
         return;
       }
 
       auth.onAuthStateChanged((user) => {
-        const loadingElement = document.getElementById('loading');
-        const appContentElement = document.getElementById('app-content');
-
         if (user && user.emailVerified) {
-          // User is authenticated and email is verified
+          console.log('User authenticated:', user.email);
           const userData = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -1062,17 +1066,28 @@
 
           initializePage(userData);
         } else {
-          // User is not authenticated or email not verified
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isAuthenticated');
+          console.log('User not authenticated or email not verified, redirecting to login');
           if (user && !user.emailVerified) {
             showMessage('Please verify your email before accessing this page.', 'error');
             auth.signOut();
           }
+          localStorage.clear();
           loadingElement.style.display = 'none';
-          window.location.href = 'index.html';
+          window.location.replace('index.html');
         }
       });
+    }
+
+    // Handle page load and bfcache restore
+    document.addEventListener('DOMContentLoaded', function () {
+      checkAuthState('DOMContentLoaded');
+    });
+
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log('Page restored from bfcache, checking auth');
+        checkAuthState('pageshow');
+      }
     });
 
     // Secure sidebar navigation
@@ -1083,7 +1098,8 @@
             if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
               e.preventDefault();
               showMessage('Please log in to access this page.', 'error');
-              window.location.href = 'index.html';
+              localStorage.clear();
+              window.location.replace('index.html');
             }
           });
         }
@@ -1093,6 +1109,18 @@
     // Initialize page after authentication
     function initializePage(userData) {
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
+
+      // Logout handler
+      document.getElementById('logout-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        auth.signOut().then(() => {
+          console.log('Logged out, redirecting');
+          localStorage.clear();
+          window.location.replace('index.html');
+        }).catch((error) => {
+          showMessage('Error logging out: ' + error.message, 'error');
+        });
+      });
 
       // Document and folder data
       let documents = [
@@ -1302,18 +1330,6 @@
       
       document.getElementById('share-team').addEventListener('click', function () {
         alert('Team sharing functionality would be implemented here');
-      });
-
-      // Logout handler
-      document.getElementById('logout-link').addEventListener('click', function (e) {
-        e.preventDefault();
-        auth.signOut().then(() => {
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isAuthenticated');
-          window.location.href = 'index.html';
-        }).catch((error) => {
-          showMessage('Error logging out: ' + error.message, 'error');
-        });
       });
 
       // Render documents in table view
