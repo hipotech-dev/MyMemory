@@ -997,10 +997,58 @@
       const messageElement = document.getElementById('auth-message');
       messageElement.textContent = message;
       messageElement.className = `message ${type}`;
+      messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
       messageElement.style.display = 'block';
       setTimeout(() => {
         messageElement.style.display = 'none';
       }, 5000);
+    }
+
+    // Secure sidebar navigation
+    function secureNavigation() {
+      let isCheckingAuth = false; // Prevent multiple simultaneous checks
+      document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        if (link.id !== 'logout-link') {
+          link.addEventListener('click', async function(e) {
+            e.preventDefault(); // Prevent default navigation
+            const targetUrl = this.getAttribute('href');
+            console.log(`Navigation attempt to ${targetUrl}`);
+
+            if (isCheckingAuth) {
+              console.log('Auth check already in progress, skipping');
+              return;
+            }
+            isCheckingAuth = true;
+
+            try {
+              // Wait for Firebase auth state to resolve
+              const user = await new Promise((resolve, reject) => {
+                const unsubscribe = auth.onAuthStateChanged(user => {
+                  unsubscribe(); // Unsubscribe immediately after getting state
+                  resolve(user);
+                }, reject);
+              });
+
+              if (user && user.emailVerified && localStorage.getItem('isAuthenticated') === 'true') {
+                console.log('Navigation allowed, user authenticated:', user.email);
+                window.location.href = targetUrl; // Proceed to target page
+              } else {
+                console.log('Navigation blocked, user not authenticated or email not verified');
+                showMessage('Please log in to access this page.', 'error');
+                localStorage.clear();
+                window.location.replace('index.html');
+              }
+            } catch (error) {
+              console.error('Error checking auth state for navigation:', error);
+              showMessage('Error verifying authentication. Please log in again.', 'error');
+              localStorage.clear();
+              window.location.replace('index.html');
+            } finally {
+              isCheckingAuth = false; // Reset flag
+            }
+          });
+        }
+      });
     }
 
     // Check authentication state
@@ -1008,15 +1056,6 @@
       console.log(`Checking auth state on ${eventType}`);
       const loadingElement = document.getElementById('loading');
       const appContentElement = document.getElementById('app-content');
-
-      // Immediate check for user data
-      if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
-        console.log('No authenticated user, redirecting to login');
-        localStorage.clear();
-        loadingElement.style.display = 'none';
-        window.location.replace('index.html');
-        return;
-      }
 
       auth.onAuthStateChanged((user) => {
         if (user && user.emailVerified) {
@@ -1036,44 +1075,34 @@
           initializePage(userData, user);
         } else {
           console.log('User not authenticated or email not verified, redirecting to login');
+          loadingElement.style.display = 'none';
           if (user && !user.emailVerified) {
             showMessage('Please verify your email before accessing this page.', 'error');
             auth.signOut();
           }
           localStorage.clear();
-          loadingElement.style.display = 'none';
           window.location.replace('index.html');
         }
+      }, error => {
+        console.error('Error checking auth state:', error);
+        loadingElement.style.display = 'none';
+        showMessage('Error verifying authentication. Please log in again.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
       });
     }
 
     // Handle page load and bfcache restore
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       checkAuthState('DOMContentLoaded');
     });
 
-    window.addEventListener('pageshow', function (event) {
+    window.addEventListener('pageshow', function(event) {
       if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
         console.log('Page restored from bfcache, checking auth');
         checkAuthState('pageshow');
       }
     });
-
-    // Secure sidebar navigation
-    function secureNavigation() {
-      document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        if (link.id !== 'logout-link') {
-          link.addEventListener('click', function (e) {
-            if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
-              e.preventDefault();
-              showMessage('Please log in to access this page.', 'error');
-              localStorage.clear();
-              window.location.replace('index.html');
-            }
-          });
-        }
-      });
-    }
 
     // Initialize page after authentication
     function initializePage(userData, user) {
@@ -1084,14 +1113,42 @@
       document.getElementById('first-name').value = userData.name.split(' ')[0] || '';
       document.getElementById('last-name').value = userData.name.split(' ')[1] || '';
 
+      // Load additional profile data from localStorage
+      const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+      document.getElementById('phone').value = profileData.phone || '';
+      document.getElementById('job-title').value = profileData.jobTitle || '';
+      document.getElementById('bio').value = profileData.bio || '';
+
+      // Load notification preferences
+      const notificationPreferences = JSON.parse(localStorage.getItem('notificationPreferences') || '{}');
+      document.getElementById('email-notifications').checked = notificationPreferences.emailNotifications !== false;
+      document.getElementById('push-notifications').checked = notificationPreferences.pushNotifications !== false;
+      document.getElementById('task-reminders').checked = notificationPreferences.taskReminders !== false;
+      document.getElementById('security-alerts').checked = notificationPreferences.securityAlerts !== false;
+      document.getElementById('promotional-offers').checked = !!notificationPreferences.promotionalOffers;
+      document.getElementById('system-updates').checked = notificationPreferences.systemUpdates !== false;
+
+      // Load privacy settings
+      const privacySettings = JSON.parse(localStorage.getItem('privacySettings') || '{}');
+      document.getElementById('activity-tracking').checked = privacySettings.activityTracking !== false;
+      document.getElementById('personalized-recommendations').checked = !!privacySettings.personalizedRecommendations;
+      document.getElementById('data-sharing').checked = !!privacySettings.dataSharing;
+
+      // Update switch labels
+      document.querySelectorAll('.switch input').forEach(input => {
+        const span = input.closest('.switch-container').querySelector('span');
+        span.textContent = input.checked ? 'Enabled' : 'Disabled';
+      });
+
       // Logout handler
-      document.getElementById('logout-link').addEventListener('click', function (e) {
+      document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
+        console.log('Logging out, redirecting to login');
         auth.signOut().then(() => {
-          console.log('Logged out, redirecting');
           localStorage.clear();
           window.location.replace('index.html');
         }).catch((error) => {
+          console.error('Logout error:', error);
           showMessage('Error logging out: ' + error.message, 'error');
         });
       });
@@ -1101,12 +1158,10 @@
 
       // Tab switching functionality
       document.querySelectorAll('.tab-btn').forEach(tab => {
-        tab.addEventListener('click', function () {
-          // Remove active class from all tabs and panels
+        tab.addEventListener('click', function() {
+          console.log(`Switching to tab: ${this.dataset.tab}`);
           document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
           document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-          
-          // Add active class to clicked tab and corresponding panel
           this.classList.add('active');
           const panelId = this.dataset.tab + '-panel';
           document.getElementById(panelId).classList.add('active');
@@ -1114,7 +1169,7 @@
       });
 
       // Profile form submission
-      document.getElementById('profile-form').addEventListener('submit', function (e) {
+      document.getElementById('profile-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const firstName = document.getElementById('first-name').value.trim();
         const lastName = document.getElementById('last-name').value.trim();
@@ -1122,7 +1177,14 @@
         const jobTitle = document.getElementById('job-title').value.trim();
         const bio = document.getElementById('bio').value.trim();
 
+        if (!firstName || !lastName) {
+          showMessage('First and last name are required.', 'error');
+          return;
+        }
+
         const fullName = `${firstName} ${lastName}`.trim();
+
+        console.log('Updating profile:', { fullName, phone, jobTitle, bio });
 
         // Update Firebase user profile
         user.updateProfile({
@@ -1138,18 +1200,19 @@
           localStorage.setItem('userData', JSON.stringify(updatedUserData));
           document.getElementById('user-avatar').textContent = updatedUserData.avatarInitials;
 
-          // Save additional profile data to localStorage (in a real app, use Firestore)
+          // Save additional profile data to localStorage
           const profileData = { phone, jobTitle, bio };
           localStorage.setItem('profileData', JSON.stringify(profileData));
 
           showMessage('Profile updated successfully!', 'success');
         }).catch((error) => {
+          console.error('Error updating profile:', error);
           showMessage('Error updating profile: ' + error.message, 'error');
         });
       });
 
       // Security form submission
-      document.getElementById('security-form').addEventListener('submit', function (e) {
+      document.getElementById('security-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const currentPassword = document.getElementById('current-password').value;
         const newPassword = document.getElementById('new-password').value;
@@ -1165,6 +1228,8 @@
           return;
         }
 
+        console.log('Attempting to update password');
+
         // Re-authenticate user
         const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
         user.reauthenticateWithCredential(credential).then(() => {
@@ -1172,16 +1237,19 @@
           user.updatePassword(newPassword).then(() => {
             showMessage('Password updated successfully!', 'success');
             document.getElementById('security-form').reset();
+            document.getElementById('two-factor-status').textContent = 'Disabled';
           }).catch((error) => {
+            console.error('Error updating password:', error);
             showMessage('Error updating password: ' + error.message, 'error');
           });
         }).catch((error) => {
+          console.error('Re-authentication failed:', error);
           showMessage('Current password is incorrect.', 'error');
         });
       });
 
       // Notification form submission
-      document.getElementById('notifications-form').addEventListener('submit', function (e) {
+      document.getElementById('notifications-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const preferences = {
           emailNotifications: document.getElementById('email-notifications').checked,
@@ -1192,13 +1260,15 @@
           systemUpdates: document.getElementById('system-updates').checked
         };
 
-        // Save to localStorage (in a real app, save to Firestore)
+        console.log('Updating notification preferences:', preferences);
+
+        // Save to localStorage
         localStorage.setItem('notificationPreferences', JSON.stringify(preferences));
         showMessage('Notification preferences updated!', 'success');
       });
 
       // Privacy form submission
-      document.getElementById('privacy-form').addEventListener('submit', function (e) {
+      document.getElementById('privacy-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const privacySettings = {
           activityTracking: document.getElementById('activity-tracking').checked,
@@ -1206,14 +1276,17 @@
           dataSharing: document.getElementById('data-sharing').checked
         };
 
-        // Save to localStorage (in a real app, save to Firestore)
+        console.log('Updating privacy settings:', privacySettings);
+
+        // Save to localStorage
         localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
         showMessage('Privacy settings updated!', 'success');
       });
 
       // Delete account button
-      document.getElementById('delete-account').addEventListener('click', function () {
+      document.getElementById('delete-account').addEventListener('click', function() {
         if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+          console.log('Attempting to delete account');
           user.delete().then(() => {
             localStorage.clear();
             showMessage('Account deleted successfully.', 'success');
@@ -1221,13 +1294,15 @@
               window.location.replace('index.html');
             }, 2000);
           }).catch((error) => {
+            console.error('Error deleting account:', error);
             showMessage('Error deleting account: ' + error.message + '. You may need to re-authenticate.', 'error');
           });
         }
       });
 
       // Export data button
-      document.getElementById('export-data').addEventListener('click', function () {
+      document.getElementById('export-data').addEventListener('click', function() {
+        console.log('Exporting user data');
         const data = {
           user: userData,
           profile: JSON.parse(localStorage.getItem('profileData') || '{}'),
@@ -1247,10 +1322,11 @@
         showMessage('Data exported successfully!', 'success');
       });
 
-      // Sign out device buttons (placeholder, requires backend session management)
+      // Sign out device buttons (placeholder)
       document.querySelectorAll('.sign-out-device').forEach(btn => {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', function() {
           if (confirm('Sign out this device?')) {
+            console.log('Signing out device (placeholder)');
             this.closest('.device-card').remove();
             showMessage('Device signed out (placeholder action).', 'success');
           }
@@ -1259,7 +1335,7 @@
 
       // Update switch labels dynamically
       document.querySelectorAll('.switch input').forEach(input => {
-        input.addEventListener('change', function () {
+        input.addEventListener('change', function() {
           const span = this.closest('.switch-container').querySelector('span');
           span.textContent = this.checked ? 'Enabled' : 'Disabled';
         });
