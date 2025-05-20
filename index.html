@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Prevent Caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="-1" />
   <title>MyMemory - Your Personal Productivity App</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -935,7 +939,7 @@
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
           <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="login.html" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
@@ -1319,7 +1323,7 @@
       return timeSinceLast > RATE_LIMIT_MS;
     }
   
-    // Fixed Forgot Password handler
+    // Forgot Password handler
     document.getElementById('forgot-password')?.addEventListener('click', function(e) {
       e.preventDefault();
       
@@ -1345,7 +1349,6 @@
         return;
       }
   
-      // Directly send password reset email (Firebase will handle if email exists)
       auth.sendPasswordResetEmail(email, {
         url: window.location.href
       })
@@ -1363,7 +1366,6 @@
             errorMessage = 'Invalid email address';
             break;
           case 'auth/user-not-found':
-            // Don't reveal if email exists or not (security best practice)
             errorMessage = 'If an account exists with this email, a password reset link has been sent.';
             break;
         }
@@ -1481,17 +1483,18 @@
         });
     });
   
+    // Logout handler
     document.getElementById('logout-link')?.addEventListener('click', function(e) {
       e.preventDefault();
       auth.signOut().then(() => {
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('userData');
+        localStorage.clear();
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('auth-page').style.display = 'flex';
         document.getElementById('login-form').style.display = 'block';
         document.getElementById('signup-form').style.display = 'none';
+        window.location.replace('index.html');
       }).catch((error) => {
-        showMessage('login-message', 'Error logging out', 'error');
+        showMessage('login-message', 'Error logging out: ' + error.message, 'error');
       });
     });
   
@@ -1699,13 +1702,41 @@
       });
     }
   
-    // Check authentication state and remember me on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    // Secure navigation for sidebar links
+    function secureNavigation() {
+      document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        if (link.id !== 'logout-link') {
+          link.addEventListener('click', function(e) {
+            if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
+              e.preventDefault();
+              showMessage('login-message', 'Please log in to access this page.', 'error');
+              localStorage.clear();
+              window.location.replace('index.html');
+            }
+          });
+        }
+      });
+    }
+  
+    // Check authentication state
+    function checkAuthState(eventType) {
+      console.log(`Checking auth state on ${eventType}`);
       const remember = localStorage.getItem('rememberMe') === 'true';
       document.getElementById('remember').checked = remember;
   
+      if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
+        console.log('No authenticated user, redirecting to login');
+        localStorage.clear();
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('auth-page').style.display = 'flex';
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('signup-form').style.display = 'none';
+        return;
+      }
+  
       auth.onAuthStateChanged((user) => {
         if (user && user.emailVerified) {
+          console.log('User authenticated:', user.email);
           const userData = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -1718,16 +1749,32 @@
           document.getElementById('auth-page').style.display = 'none';
           document.getElementById('dashboard').style.display = 'block';
           initializeDashboard(userData);
+          secureNavigation();
         } else {
+          console.log('User not authenticated or email not verified, redirecting to login');
           document.getElementById('auth-page').style.display = 'flex';
           document.getElementById('dashboard').style.display = 'none';
           if (user && !user.emailVerified) {
             showMessage('login-message', 'Please verify your email before logging in.', 'error');
             auth.signOut();
           }
+          localStorage.clear();
+          window.location.replace('index.html');
         }
       });
+    }
+  
+    // Handle page load and bfcache restore
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState('DOMContentLoaded');
     });
-    </script>
+  
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log('Page restored from bfcache, checking auth');
+        checkAuthState('pageshow');
+      }
+    });
+  </script>
 </body>
 </html>
