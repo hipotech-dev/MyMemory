@@ -10,7 +10,7 @@
   <meta http-equiv="Vary" content="*" />
   <title>MyMemory - Your Personal Productivity App</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/ajax/libs/firebase/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -1513,8 +1513,18 @@
           case 'auth/user-not-found':
             errorMessage = 'If an account exists with this email, a password reset link has been sent.';
             break;
+          default:
+            errorMessage = 'Network or server error. Please try again.';
         }
         showMessage('login-message', errorMessage, 'error');
+      });
+    });
+  
+    // Social Login Placeholder
+    // TODO: Implement Google, Microsoft, Apple sign-in with Firebase providers
+    document.querySelectorAll('.social-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showMessage('login-message', 'Social login not implemented yet.', 'error');
       });
     });
   
@@ -1573,12 +1583,14 @@
                 case 'auth/invalid-login-credentials':
                   errorMessage = 'Invalid email or password';
                   break;
+                default:
+                  errorMessage = 'Network or server error. Please try again.';
               }
               showMessage('login-message', errorMessage, 'error');
             });
         })
         .catch((error) => {
-          showMessage('login-message', 'Error setting session persistence', 'error');
+          showMessage('login-message', 'Error setting session persistence: ' + error.message, 'error');
         });
     });
   
@@ -1601,7 +1613,7 @@
             return user.sendEmailVerification({
               url: window.location.href
             }).then(() => {
-              showMessage('signup-message', 'A verification email has been sent. Please verify your email before logging in.');
+              showMessage('signup-message', 'A verification email has been sent. Please verify your email before logging in.', 'success');
               auth.signOut().then(() => {
                 localStorage.removeItem('isAuthenticated');
                 localStorage.removeItem('userData');
@@ -1625,6 +1637,8 @@
             case 'auth/email-already-in-use':
               errorMessage = 'This email is already in use';
               break;
+            default:
+              errorMessage = 'Network or server error. Please try again.';
           }
           showMessage('signup-message', errorMessage, 'error');
         });
@@ -1640,7 +1654,9 @@
         document.getElementById('auth-page').style.display = 'flex';
         document.getElementById('login-form').style.display = 'block';
         document.getElementById('signup-form').style.display = 'none';
-        window.location.replace('index.html');
+        if (window.location.pathname !== '/index.html') {
+          window.location.replace('index.html');
+        }
       }).catch((error) => {
         showMessage('login-message', 'Error logging out: ' + error.message, 'error');
       });
@@ -1886,13 +1902,21 @@
                 document.getElementById('auth-page').style.display = 'flex';
                 document.getElementById('login-form').style.display = 'block';
                 document.getElementById('signup-form').style.display = 'none';
-                window.location.replace('index.html');
+                if (window.location.pathname !== '/index.html') {
+                  window.location.replace('index.html');
+                }
               }
             } catch (error) {
               console.error('Error checking auth state for navigation:', error);
               showMessage('login-message', 'Error verifying authentication. Please log in again.', 'error');
               localStorage.clear();
-              window.location.replace('index.html');
+              document.getElementById('dashboard').style.display = 'none';
+              document.getElementById('auth-page').style.display = 'flex';
+              document.getElementById('login-form').style.display = 'block';
+              document.getElementById('signup-form').style.display = 'none';
+              if (window.location.pathname !== '/index.html') {
+                window.location.replace('index.html');
+              }
             } finally {
               isCheckingAuth = false;
             }
@@ -1933,6 +1957,13 @@
           document.getElementById('login-form').style.display = 'block';
           document.getElementById('signup-form').style.display = 'none';
         }
+      }, (error) => {
+        console.error('Auth state check error:', error);
+        showMessage('login-message', 'Error checking authentication. Please try again.', 'error');
+        document.getElementById('auth-page').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('signup-form').style.display = 'none';
       });
     }
   
