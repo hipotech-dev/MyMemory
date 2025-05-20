@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Documents | MyMemory</title>
+  <!-- Prevent Caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -761,230 +765,249 @@
       background: var(--secondary);
       color: white;
     }
+
+    /* Loading State */
+    #loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-size: 1.2rem;
+    }
+
+    #app-content {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <!-- Message Container for Authentication Errors -->
   <div class="message" id="auth-message"></div>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="logo">
-      <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="MyMemory Logo">
-      <h1>MyMemory</h1>
-    </div>
-    <div class="user-menu">
-      <div class="user-avatar" id="user-avatar"></div>
-    </div>
-  </header>
+  <!-- Loading State -->
+  <div id="loading">Loading...</div>
 
-  <!-- Main Container -->
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <ul class="sidebar-menu">
-        <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="To do list.html"><i class="fas fa-tasks"></i> To-Do List</a></li>
-        <li><a href="Password Manager.html"><i class="fas fa-lock"></i> Password Manager</a></li>
-        <li><a href="Documents.html" class="active"><i class="fas fa-file-contract"></i> Documents</a></li>
-        <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-        <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-      </ul>
-    </aside>
+  <!-- Main App Content (Hidden by Default) -->
+  <div id="app-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/2721/2721287.png" alt="MyMemory Logo">
+        <h1>MyMemory</h1>
+      </div>
+      <div class="user-menu">
+        <div class="user-avatar" id="user-avatar"></div>
+      </div>
+    </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="page-header">
-        <h2 class="page-title">Documents</h2>
-        <div class="documents-actions">
-          <button class="btn" id="upload-doc-btn">
-            <i class="fas fa-upload"></i> Upload
-          </button>
-          <button class="btn btn-outline" id="new-folder-btn">
-            <i class="fas fa-folder-plus"></i> New Folder
-          </button>
-        </div>
-      </div>
-      
-      <div class="search-bar">
-        <input type="text" id="search-input" placeholder="Search documents...">
-        <button id="search-btn"><i class="fas fa-search"></i></button>
-      </div>
-      
-      <div class="view-toggle">
-        <button class="view-btn active" data-view="table">
-          <i class="fas fa-list"></i> List
-        </button>
-        <button class="view-btn" data-view="folder">
-          <i class="fas fa-folder"></i> Folders
-        </button>
-      </div>
-      
-      <div class="category-filter">
-        <button class="category-btn active" data-category="all">All</button>
-        <button class="category-btn" data-category="contract">Contracts</button>
-        <button class="category-btn" data-category="proposal">Proposals</button>
-        <button class="category-btn" data-category="report">Reports</button>
-        <button class="category-btn" data-category="presentation">Presentations</button>
-        <button class="category-btn" data-category="personal">Personal</button>
-      </div>
-      
-      <div class="documents-container">
-        <!-- Table View -->
-        <div class="table-view" id="table-view">
-          <table class="documents-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Modified</th>
-                <th>Size</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="documents-table-body">
-              <!-- Documents will be added dynamically -->
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Folder View (Hidden by default) -->
-        <div class="folder-view" id="folder-view" style="display: none;">
-          <!-- Folders will be added dynamically -->
-        </div>
-      </div>
-    </main>
-  </div>
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <ul class="sidebar-menu">
+          <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
+          <li><a href="Documents.html" class="active" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
+          <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+      </aside>
 
-  <!-- Upload Document Modal -->
-  <div class="modal" id="upload-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Upload Document</h3>
-        <button class="modal-close">×</button>
-      </div>
-      <form id="upload-form">
-        <div class="form-group">
-          <label for="document-name">Document Name</label>
-          <input type="text" id="document-name" class="form-control" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Select File</label>
-          <div class="file-upload" id="file-upload-area">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Drag & drop files here or click to browse</p>
-            <input type="file" id="document-file" required>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="page-header">
+          <h2 class="page-title">Documents</h2>
+          <div class="documents-actions">
+            <button class="btn" id="upload-doc-btn">
+              <i class="fas fa-upload"></i> Upload
+            </button>
+            <button class="btn btn-outline" id="new-folder-btn">
+              <i class="fas fa-folder-plus"></i> New Folder
+            </button>
           </div>
         </div>
         
-        <div class="form-group">
-          <label for="document-category">Category</label>
-          <select id="document-category" class="form-control">
-            <option value="contract">Contract</option>
-            <option value="proposal">Proposal</option>
-            <option value="report">Report</option>
-            <option value="presentation">Presentation</option>
-            <option value="personal">Personal</option>
-            <option value="other">Other</option>
-          </select>
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Search documents...">
+          <button id="search-btn"><i class="fas fa-search"></i></button>
         </div>
         
-        <div class="form-group">
-          <label for="document-folder">Folder (Optional)</label>
-          <select id="document-folder" class="form-control">
-            <option value="">None</option>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="table">
+            <i class="fas fa-list"></i> List
+          </button>
+          <button class="view-btn" data-view="folder">
+            <i class="fas fa-folder"></i> Folders
+          </button>
+        </div>
+        
+        <div class="category-filter">
+          <button class="category-btn active" data-category="all">All</button>
+          <button class="category-btn" data-category="contract">Contracts</button>
+          <button class="category-btn" data-category="proposal">Proposals</button>
+          <button class="category-btn" data-category="report">Reports</button>
+          <button class="category-btn" data-category="presentation">Presentations</button>
+          <button class="category-btn" data-category="personal">Personal</button>
+        </div>
+        
+        <div class="documents-container">
+          <!-- Table View -->
+          <div class="table-view" id="table-view">
+            <table class="documents-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Modified</th>
+                  <th>Size</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documents-table-body">
+                <!-- Documents will be added dynamically -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Folder View (Hidden by default) -->
+          <div class="folder-view" id="folder-view" style="display: none;">
             <!-- Folders will be added dynamically -->
-          </select>
+          </div>
         </div>
-        
-        <div class="form-group">
-          <label for="document-description">Description (Optional)</label>
-          <textarea id="document-description" class="form-control" rows="3"></textarea>
-        </div>
-        
-        <button type="submit" class="btn">
-          <i class="fas fa-upload"></i> Upload Document
-        </button>
-      </form>
+      </main>
     </div>
-  </div>
 
-  <!-- New Folder Modal -->
-  <div class="modal" id="folder-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Create New Folder</h3>
-        <button class="modal-close">×</button>
-      </div>
-      <form id="folder-form">
-        <div class="form-group">
-          <label for="folder-name">Folder Name</label>
-          <input type="text" id="folder-name" class="form-control" required>
+    <!-- Upload Document Modal -->
+    <div class="modal" id="upload-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Upload Document</h3>
+          <button class="modal-close">×</button>
         </div>
-        
-        <div class="form-group">
-          <label for="folder-color">Color</label>
-          <div style="display: flex; gap: 10px;">
-            <div class="color-option selected" data-color="#003087" style="background: #003087;"></div>
-            <div class="color-option" data-color="#0070ba" style="background: #0070ba;"></div>
-            <div class="color-option" data-color="#38a169" style="background: #38a169;"></div>
-            <div class="color-option" data-color="#f6ad55" style="background: #f6ad55;"></div>
-            <div class="color-option" data-color="#ff5a5f" style="background: #ff5a5f;"></div>
+        <form id="upload-form">
+          <div class="form-group">
+            <label for="document-name">Document Name</label>
+            <input type="text" id="document-name" class="form-control" required>
           </div>
-          <input type="hidden" id="folder-color" value="#003087">
-        </div>
-        
-        <button type="submit" class="btn">
-          <i class="fas fa-folder-plus"></i> Create Folder
-        </button>
-      </form>
+          
+          <div class="form-group">
+            <label>Select File</label>
+            <div class="file-upload" id="file-upload-area">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Drag & drop files here or click to browse</p>
+              <input type="file" id="document-file" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="document-category">Category</label>
+            <select id="document-category" class="form-control">
+              <option value="contract">Contract</option>
+              <option value="proposal">Proposal</option>
+              <option value="report">Report</option>
+              <option value="presentation">Presentation</option>
+              <option value="personal">Personal</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="document-folder">Folder (Optional)</label>
+            <select id="document-folder" class="form-control">
+              <option value="">None</option>
+              <!-- Folders will be added dynamically -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="document-description">Description (Optional)</label>
+            <textarea id="document-description" class="form-control" rows="3"></textarea>
+          </div>
+          
+          <button type="submit" class="btn">
+            <i class="fas fa-upload"></i> Upload Document
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <!-- Share Document Modal -->
-  <div class="modal" id="share-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Share Document</h3>
-        <button class="modal-close" id="share-modal-close">×</button>
+    <!-- New Folder Modal -->
+    <div class="modal" id="folder-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create New Folder</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <form id="folder-form">
+          <div class="form-group">
+            <label for="folder-name">Folder Name</label>
+            <input type="text" id="folder-name" class="form-control" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="folder-color">Color</label>
+            <div style="display: flex; gap: 10px;">
+              <div class="color-option selected" data-color="#003087" style="background: #003087;"></div>
+              <div class="color-option" data-color="#0070ba" style="background: #0070ba;"></div>
+              <div class="color-option" data-color="#38a169" style="background: #38a169;"></div>
+              <div class="color-option" data-color="#f6ad55" style="background: #f6ad55;"></div>
+              <div class="color-option" data-color="#ff5a5f" style="background: #ff5a5f;"></div>
+            </div>
+            <input type="hidden" id="folder-color" value="#003087">
+          </div>
+          
+          <button type="submit" class="btn">
+            <i class="fas fa-folder-plus"></i> Create Folder
+          </button>
+        </form>
       </div>
-      <div class="share-options">
-        <div class="share-option email-option" id="share-email">
-          <i class="fas fa-envelope"></i>
-          <div>
-            <h4>Send via Email</h4>
-            <p>Share directly with people via email</p>
+    </div>
+
+    <!-- Share Document Modal -->
+    <div class="modal" id="share-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Share Document</h3>
+          <button class="modal-close" id="share-modal-close">×</button>
+        </div>
+        <div class="share-options">
+          <div class="share-option email-option" id="share-email">
+            <i class="fas fa-envelope"></i>
+            <div>
+              <h4>Send via Email</h4>
+              <p>Share directly with people via email</p>
+            </div>
+          </div>
+          <div class="share-option link-option" id="share-link">
+            <i class="fas fa-link"></i>
+            <div>
+              <h4>Get Shareable Link</h4>
+              <p>Create a link to share with anyone</p>
+            </div>
+          </div>
+          <div class="share-option team-option" id="share-team">
+            <i class="fas fa-users"></i>
+            <div>
+              <h4>Share with Team</h4>
+              <p>Share with members of your team</p>
+            </div>
           </div>
         </div>
-        <div class="share-option link-option" id="share-link">
-          <i class="fas fa-link"></i>
-          <div>
-            <h4>Get Shareable Link</h4>
-            <p>Create a link to share with anyone</p>
+        
+        <div class="share-link-container" id="share-link-container">
+          <p>Copy and share this link:</p>
+          <div class="share-link">
+            <input type="text" id="share-link-input" readonly>
+            <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
           </div>
-        </div>
-        <div class="share-option team-option" id="share-team">
-          <i class="fas fa-users"></i>
-          <div>
-            <h4>Share with Team</h4>
-            <p>Share with members of your team</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="share-link-container" id="share-link-container">
-        <p>Copy and share this link:</p>
-        <div class="share-link">
-          <input type="text" id="share-link-input" readonly>
-          <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Firebase configuration (matching index.html)
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
       authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1011,8 +1034,18 @@
     }
 
     // Authentication check
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
+      // Immediate check for user data
+      const userData = localStorage.getItem('userData');
+      if (!userData || localStorage.getItem('isAuthenticated') !== 'true') {
+        window.location.href = 'index.html';
+        return;
+      }
+
       auth.onAuthStateChanged((user) => {
+        const loadingElement = document.getElementById('loading');
+        const appContentElement = document.getElementById('app-content');
+
         if (user && user.emailVerified) {
           // User is authenticated and email is verified
           const userData = {
@@ -1021,14 +1054,22 @@
             avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
           };
           localStorage.setItem('userData', JSON.stringify(userData));
+          localStorage.setItem('isAuthenticated', 'true');
+
+          // Show the app content and hide loading
+          loadingElement.style.display = 'none';
+          appContentElement.style.display = 'block';
+
           initializePage(userData);
         } else {
           // User is not authenticated or email not verified
           localStorage.removeItem('userData');
+          localStorage.removeItem('isAuthenticated');
           if (user && !user.emailVerified) {
-            showMessage('Please verify your email before accessing this page.');
+            showMessage('Please verify your email before accessing this page.', 'error');
             auth.signOut();
           }
+          loadingElement.style.display = 'none';
           window.location.href = 'index.html';
         }
       });
@@ -1038,10 +1079,10 @@
     function secureNavigation() {
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
         if (link.id !== 'logout-link') {
-          link.addEventListener('click', function(e) {
-            if (!auth.currentUser) {
+          link.addEventListener('click', function (e) {
+            if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
               e.preventDefault();
-              showMessage('Please log in to access this page.');
+              showMessage('Please log in to access this page.', 'error');
               window.location.href = 'index.html';
             }
           });
@@ -1148,12 +1189,12 @@
       setupModal('share-modal-close', 'share-modal');
       
       // File upload area click handler
-      document.getElementById('file-upload-area').addEventListener('click', function() {
+      document.getElementById('file-upload-area').addEventListener('click', function () {
         document.getElementById('document-file').click();
       });
       
       // File input change handler
-      document.getElementById('document-file').addEventListener('change', function() {
+      document.getElementById('document-file').addEventListener('change', function () {
         if (this.files.length > 0) {
           document.getElementById('document-name').value = 
             this.files[0].name.split('.').slice(0, -1).join('.');
@@ -1162,7 +1203,7 @@
       
       // View toggle buttons
       document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
           document.querySelectorAll('.view-btn').forEach(b => {
             b.classList.remove('active');
           });
@@ -1182,7 +1223,7 @@
       
       // Category filter buttons
       document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
           document.querySelectorAll('.category-btn').forEach(b => {
             b.classList.remove('active');
           });
@@ -1195,7 +1236,7 @@
       
       // Color selection for folders
       document.querySelectorAll('.color-option').forEach(option => {
-        option.addEventListener('click', function() {
+        option.addEventListener('click', function () {
           document.querySelectorAll('.color-option').forEach(opt => {
             opt.classList.remove('selected');
           });
@@ -1205,25 +1246,25 @@
       });
       
       // Form submissions
-      document.getElementById('upload-form').addEventListener('submit', function(e) {
+      document.getElementById('upload-form').addEventListener('submit', function (e) {
         e.preventDefault();
         uploadDocument();
         closeModal('upload-modal');
       });
       
-      document.getElementById('folder-form').addEventListener('submit', function(e) {
+      document.getElementById('folder-form').addEventListener('submit', function (e) {
         e.preventDefault();
         createFolder();
         closeModal('folder-modal');
       });
       
       // Search functionality
-      document.getElementById('search-btn').addEventListener('click', function() {
+      document.getElementById('search-btn').addEventListener('click', function () {
         currentSearchQuery = document.getElementById('search-input').value.toLowerCase();
         filterDocuments();
       });
       
-      document.getElementById('search-input').addEventListener('keyup', function(e) {
+      document.getElementById('search-input').addEventListener('keyup', function (e) {
         if (e.key === 'Enter') {
           currentSearchQuery = this.value.toLowerCase();
           filterDocuments();
@@ -1231,11 +1272,11 @@
       });
       
       // Share modal options
-      document.getElementById('share-email').addEventListener('click', function() {
+      document.getElementById('share-email').addEventListener('click', function () {
         alert('Email sharing functionality would be implemented here');
       });
       
-      document.getElementById('share-link').addEventListener('click', function() {
+      document.getElementById('share-link').addEventListener('click', function () {
         const shareLinkContainer = document.getElementById('share-link-container');
         const shareLinkInput = document.getElementById('share-link-input');
         
@@ -1247,7 +1288,7 @@
         shareLinkContainer.style.display = 'block';
       });
       
-      document.getElementById('copy-link-btn').addEventListener('click', function() {
+      document.getElementById('copy-link-btn').addEventListener('click', function () {
         const shareLinkInput = document.getElementById('share-link-input');
         shareLinkInput.select();
         document.execCommand('copy');
@@ -1259,18 +1300,19 @@
         }, 2000);
       });
       
-      document.getElementById('share-team').addEventListener('click', function() {
+      document.getElementById('share-team').addEventListener('click', function () {
         alert('Team sharing functionality would be implemented here');
       });
 
       // Logout handler
-      document.getElementById('logout-link').addEventListener('click', function(e) {
+      document.getElementById('logout-link').addEventListener('click', function (e) {
         e.preventDefault();
         auth.signOut().then(() => {
           localStorage.removeItem('userData');
+          localStorage.removeItem('isAuthenticated');
           window.location.href = 'index.html';
         }).catch((error) => {
-          showMessage('Error logging out: ' + error.message);
+          showMessage('Error logging out: ' + error.message, 'error');
         });
       });
 
@@ -1338,7 +1380,7 @@
             <div class="folder-meta">${folder.files} ${folder.files === 1 ? 'file' : 'files'}</div>
           `;
           
-          folderItem.addEventListener('click', function() {
+          folderItem.addEventListener('click', function () {
             currentCategory = 'all';
             document.querySelectorAll('.category-btn').forEach(btn => {
               btn.classList.remove('active');
@@ -1478,21 +1520,21 @@
       // Add event listeners to document action buttons
       function addDocumentEventListeners() {
         document.querySelectorAll('[data-action="download"]').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const docId = this.dataset.id;
             downloadDocument(docId);
           });
         });
         
         document.querySelectorAll('[data-action="share"]').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const docId = this.dataset.id;
             shareDocument(docId);
           });
         });
         
         document.querySelectorAll('[data-action="delete"]').forEach(btn => {
-          btn.addEventListener('click', function() {
+          btn.addEventListener('click', function () {
             const docId = this.dataset.id;
             deleteDocument(docId);
           });
@@ -1521,7 +1563,7 @@
       // Share document function
       function shareDocument(docId) {
         currentDocumentToShare = docId;
-        openModal('share-modal');
+        document.getElementById('share-modal').style.display = 'flex';
         
         document.getElementById('share-link-container').style.display = 'none';
       }
@@ -1609,15 +1651,15 @@
         const modal = document.getElementById(modalId);
         const closeBtn = modal.querySelector('.modal-close');
         
-        openBtn?.addEventListener('click', function() {
+        openBtn?.addEventListener('click', function () {
           modal.style.display = 'flex';
         });
         
-        closeBtn?.addEventListener('click', function() {
+        closeBtn?.addEventListener('click', function () {
           modal.style.display = 'none';
         });
         
-        window.addEventListener('click', function(e) {
+        window.addEventListener('click', function (e) {
           if (e.target === modal) {
             modal.style.display = 'none';
           }
