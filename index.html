@@ -10,7 +10,7 @@
   <meta http-equiv="Vary" content="*" />
   <title>MyMemory - Your Personal Productivity App</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/ajax/libs/firebase/9.6.0/firebase-auth-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -840,6 +840,23 @@
         width: 100%;
         border-radius: 10px;
         padding: 1rem;
+      }
+      
+      .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        gap: 5px;
+      }
+      
+      .sidebar-menu li {
+        margin-bottom: 0;
+      }
+      
+      .sidebar-menu a {
+        white-space: nowrap;
+        padding: 0.5rem;
+        font-size: 0.9rem;
       }
       
       .main-content {
