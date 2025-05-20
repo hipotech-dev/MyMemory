@@ -417,14 +417,19 @@
         padding: 0.5rem;
         border-right: none;
         border-bottom: 1px solid var(--gray);
-        overflow-x: auto;
-        white-space: nowrap;
       }
       
       .sidebar-menu {
         display: flex;
         gap: 5px;
         padding-bottom: 5px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none; /* Firefox */
+      }
+      
+      .sidebar-menu::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
       }
       
       .sidebar-menu li {
@@ -432,9 +437,10 @@
       }
       
       .sidebar-menu a {
-        padding: 8px 12px;
+        padding: 0.5rem;
         display: inline-flex;
         white-space: nowrap;
+        font-size: 0.9rem;
       }
       
       /* Main Content Adjustments */
@@ -543,7 +549,7 @@
     @media (max-width: 480px) {
       /* Even smaller devices */
       .sidebar-menu a {
-        padding: 8px 10px;
+        padding: 0.5rem;
         font-size: 0.85rem;
       }
       
@@ -804,7 +810,7 @@
                   <button type="button" class="btn-outline" style="padding: 5px 10px;">
                     <i class="fas fa-info-circle"></i>
                   </button>
-                  <button type="button" class="btn-outline sign-out-device" style="padding: 5px 10px;">
+                  <button type="button" class="btn-outline sign-out-device" style=" personally identifiable information redacted style="padding: 5px 10px;">
                     <i class="fas fa-sign-out-alt"></i>
                   </button>
                 </div>
