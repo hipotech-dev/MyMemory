@@ -213,30 +213,45 @@
       gap: 10px;
     }
     
-    .btn {
-      padding: 0.5rem 1rem;
-      background: var(--primary);
-      border: none;
-      color: var(--white);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      min-height: 44px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .btn:hover {
-      background: var(--primary-light);
-      transform: translateY(-2px);
-    }
-    
-    .btn:active {
-      transform: translateY(0);
-    }
+/* Update the button styles */
+.btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  border: none;
+  color: var(--white);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  box-shadow: 0 4px 12px rgba(0, 48, 135, 0.3);
+  font-weight: 600;
+}
+
+.btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 48, 135, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 48, 135, 0.3);
+}
+
+/* Add specific style for the add task button */
+#add-todo-btn {
+  background: var(--secondary);
+  box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+}
+
+#add-todo-btn:hover {
+  background: #ff3b40;
+  box-shadow: 0 6px 16px rgba(255, 90, 95, 0.4);
+}
     
     .btn-outline {
       background: transparent;
@@ -968,10 +983,44 @@
         let todos = [];
         if (todosSnapshot.empty) {
           // Initialize with default todos
-          const today = new Date();
-          const tomorrow = new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000);
-          const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-
+          const defaultTodos = [
+  {
+    title: 'Fix critical server issue',
+    description: '',
+    dueDate: today.toISOString().split('T')[0],
+    time: '',
+    priority: 'high',
+    completed: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  },
+  {
+    title: 'Client meeting preparation',
+    description: '',
+    dueDate: today.toISOString().split('T')[0],
+    time: '',
+    priority: 'medium',
+    completed: true,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  },
+  {
+    title: 'Update project documentation',
+    description: '',
+    dueDate: tomorrow.toISOString().split('T')[0],
+    time: '',
+    priority: 'low',
+    completed: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  },
+  {
+    title: 'Review team performance',
+    description: '',
+    dueDate: nextWeek.toISOString().split('T')[0],
+    time: '',
+    priority: 'medium',
+    completed: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }
+];
           const defaultTodos = [
             {
               title: 'Fix critical server issue',
@@ -1023,26 +1072,32 @@
     }
 
     // Render todos from the array
-    function renderTodos(todos) {
-      const todoList = document.getElementById('todo-list');
-      todoList.innerHTML = '';
+function renderTodos(todos) {
+  const todoList = document.getElementById('todo-list');
+  todoList.innerHTML = '';
 
-      if (todos.length === 0) {
-        todoList.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-tasks"></i>
-            <p>No tasks found. Add a new task to get started!</p>
-          </div>
-        `;
-        return;
-      }
+  if (todos.length === 0) {
+    todoList.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-tasks"></i>
+        <p>No tasks found. Add a new task to get started!</p>
+      </div>
+    `;
+    return;
+  }
 
-      todos.forEach(todo => {
-        const todoItem = createTodoElement(todo);
-        todoList.appendChild(todoItem);
-      });
-    }
+  // Sort todos by creation date (newest first)
+  todos.sort((a, b) => {
+    const dateA = a.createdAt?.toDate() || new Date(0);
+    const dateB = b.createdAt?.toDate() || new Date(0);
+    return dateB - dateA;
+  });
 
+  todos.forEach(todo => {
+    const todoItem = createTodoElement(todo);
+    todoList.appendChild(todoItem);
+  });
+}
     // Create a todo element from todo data
     function createTodoElement(todo) {
       const todoItem = document.createElement('li');
@@ -1254,45 +1309,65 @@
       }
     }
 
-    // Save todo item
-    async function saveTodoItem(uid) {
-      const id = document.getElementById('todo-id').value;
-      const title = document.getElementById('todo-title').value.trim();
-      const description = document.getElementById('todo-description').value.trim();
-      const dueDate = document.getElementById('todo-due').value;
-      const time = document.getElementById('todo-time').value;
-      const priority = document.getElementById('todo-priority').value;
+  async function saveTodoItem(uid) {
+  const id = document.getElementById('todo-id').value;
+  const title = document.getElementById('todo-title').value.trim();
+  const description = document.getElementById('todo-description').value.trim();
+  const dueDate = document.getElementById('todo-due').value;
+  const time = document.getElementById('todo-time').value;
+  const priority = document.getElementById('todo-priority').value;
 
-      if (!title) {
-        showMessage('Task title is required.', 'error');
-        return;
+  if (!title) {
+    showMessage('Task title is required.', 'error');
+    return;
+  }
+
+  const todoData = {
+    title,
+    description,
+    dueDate,
+    time,
+    priority,
+    completed: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp() // Add creation timestamp
+  };
+
+  try {
+    if (id) {
+      // Update existing todo
+      await db.collection('users').doc(uid).collection('todos').doc(id).update(todoData);
+      showMessage('Task updated!', 'success');
+      
+      // Update the existing item in the list
+      const existingItem = document.querySelector(`.todo-item[data-id="${id}"]`);
+      if (existingItem) {
+        const newItem = createTodoElement({ id, ...todoData });
+        existingItem.replaceWith(newItem);
       }
-
-      const todoData = {
-        title,
-        description,
-        dueDate,
-        time,
-        priority,
-        completed: false
-      };
-
-      try {
-        if (id) {
-          // Update existing todo
-          await db.collection('users').doc(uid).collection('todos').doc(id).update(todoData);
-          showMessage('Task updated!', 'success');
-        } else {
-          // Create new todo
-          await db.collection('users').doc(uid).collection('todos').add(todoData);
-          showMessage('Task added!', 'success');
-        }
-        // Reload todos
-        await loadTodos(uid);
-      } catch (error) {
-        showMessage('Error saving task: ' + error.message, 'error');
+    } else {
+      // Create new todo
+      const docRef = await db.collection('users').doc(uid).collection('todos').add(todoData);
+      showMessage('Task added!', 'success');
+      
+      // Add the new item to the top of the list
+      const todoList = document.getElementById('todo-list');
+      
+      // Remove empty state if it exists
+      const emptyState = todoList.querySelector('.empty-state');
+      if (emptyState) {
+        emptyState.remove();
       }
+      
+      const newItem = createTodoElement({ id: docRef.id, ...todoData });
+      todoList.insertBefore(newItem, todoList.firstChild);
     }
+    
+    // Close the modal
+    closeModal('todo-modal');
+  } catch (error) {
+    showMessage('Error saving task: ' + error.message, 'error');
+  }
+}
   </script>
 </body>
 </html>
