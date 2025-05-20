@@ -1031,7 +1031,7 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
       <div class="modal-content">
         <div class="modal-header">
           <h3>Add New Task</h3>
-          <button class="modal-close">&times;</button>
+          <button class="modal-close">×</button>
         </div>
         <form id="todo-form">
           <div class="form-group">
@@ -1052,7 +1052,7 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
       <div class="modal-content">
         <div class="modal-header">
           <h3>Add New Password</h3>
-          <button class="modal-close">&times;</button>
+          <button class="modal-close">×</button>
         </div>
         <form id="password-form">
           <div class="form-group">
@@ -1081,7 +1081,7 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
       <div class="modal-content">
         <div class="modal-header">
           <h3>Upload Document</h3>
-          <button class="modal-close">&times;</button>
+          <button class="modal-close">×</button>
         </div>
         <form id="document-form">
           <div class="form-group">
@@ -1123,6 +1123,9 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   
+  // Enable email verification
+  auth.useDeviceLanguage();
+
   // Authentication Functions
   function toggleForms() {
     const loginForm = document.getElementById('login-form');
@@ -1170,8 +1173,13 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
     
     auth.signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
+        if (!user.emailVerified) {
+          alert('Please verify your email before logging in.');
+          auth.signOut();
+          return;
+        }
+        
         const userData = {
           name: user.displayName || email.split('@')[0],
           email: user.email,
@@ -1201,36 +1209,48 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
     const email = document.getElementById('email-signup').value;
     const password = document.getElementById('password-signup').value;
     
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Signed up
-        const user = userCredential.user;
+    // Check if email is already registered
+    auth.fetchSignInMethodsForEmail(email)
+      .then((signInMethods) => {
+        if (signInMethods.length > 0) {
+          alert('This email is already registered. Please log in or use a different email.');
+          return;
+        }
         
-        // Update user profile with name
-        return user.updateProfile({
-          displayName: name
-        }).then(() => {
-          const userData = {
-            name: name,
-            email: email,
-            avatarInitials: name.substring(0, 2).toUpperCase()
-          };
-          
-          localStorage.setItem('userData', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-          
-          // Show dashboard
-          document.getElementById('auth-page').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'block';
-          
-          // Initialize dashboard with user data
-          initializeDashboard(userData);
-        });
+        // Create new user
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            
+            // Update user profile with name
+            return user.updateProfile({
+              displayName: name
+            }).then(() => {
+              // Send verification email
+              return user.sendEmailVerification({
+                url: window.location.href // Redirect back to the same page after verification
+              }).then(() => {
+                alert('A verification email has been sent. Please verify your email before logging in.');
+                // Sign out the user and show login form
+                auth.signOut().then(() => {
+                  localStorage.removeItem('isAuthenticated');
+                  localStorage.removeItem('userData');
+                  document.getElementById('auth-page').style.display = 'flex';
+                  document.getElementById('login-form').style.display = 'block';
+                  document.getElementById('signup-form').style.display = 'none';
+                  document.getElementById('signup').reset();
+                });
+              });
+            });
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(errorMessage);
+          });
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        alert(errorMessage);
+        alert(error.message);
       });
   });
 
@@ -1243,9 +1263,22 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
       return;
     }
     
-    auth.sendPasswordResetEmail(email)
-      .then(() => {
-        alert('Password reset email sent. Please check your inbox.');
+    // Check if email exists
+    auth.fetchSignInMethodsForEmail(email)
+      .then((signInMethods) => {
+        if (signInMethods.length === 0) {
+          alert('This email is not registered. Please sign up or use a different email.');
+          return;
+        }
+        
+        // Send password reset email
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            alert('Password reset email sent. Please check your inbox.');
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
       })
       .catch((error) => {
         alert(error.message);
@@ -1490,8 +1523,8 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
   // Check authentication state on page load
   document.addEventListener('DOMContentLoaded', function() {
     auth.onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in
+      if (user && user.emailVerified) {
+        // User is signed in and email is verified
         const userData = {
           name: user.displayName || user.email.split('@')[0],
           email: user.email,
@@ -1505,9 +1538,13 @@ button, a, input[type="checkbox"], .todo-item, .password-item, .document-item {
         document.getElementById('dashboard').style.display = 'block';
         initializeDashboard(userData);
       } else {
-        // User is signed out
+        // User is signed out or email not verified
         document.getElementById('auth-page').style.display = 'flex';
         document.getElementById('dashboard').style.display = 'none';
+        if (user && !user.emailVerified) {
+          alert('Please verify your email before logging in.');
+          auth.signOut();
+        }
       }
     });
   });
