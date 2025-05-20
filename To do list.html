@@ -7,8 +7,7 @@
   <!-- Prevent Caching -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="-1" />
-  <meta http-equiv="Vary" content="*" />
+  <meta http-equiv="Expires" content="0" />
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -760,7 +759,7 @@
   </div>
 
   <script>
-    // Enhanced Firebase configuration
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
       authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -772,219 +771,200 @@
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Security: Input sanitization function
-    function sanitizeInput(input) {
-      const div = document.createElement('div');
-      div.textContent = input;
-      return div.innerHTML;
-    }
-
-    // Enhanced showMessage function
+    // Show message
     function showMessage(message, type = 'error') {
       const messageElement = document.getElementById('auth-message');
-      messageElement.textContent = sanitizeInput(message);
+      messageElement.textContent = message;
       messageElement.className = `message ${type}`;
+      messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
       messageElement.style.display = 'block';
-      
       setTimeout(() => {
         messageElement.style.display = 'none';
       }, 5000);
     }
 
-    // Secure navigation with enhanced checks
+    // Authentication check
+    document.addEventListener('DOMContentLoaded', function () {
+      // Immediate check for user data
+      const userData = localStorage.getItem('userData');
+      if (!userData || localStorage.getItem('isAuthenticated') !== 'true') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      auth.onAuthStateChanged((user) => {
+        const loadingElement = document.getElementById('loading');
+        const appContentElement = document.getElementById('app-content');
+
+        if (user && user.emailVerified) {
+          // User is authenticated and email is verified
+          const userData = {
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
+          };
+          localStorage.setItem('userData', JSON.stringify(userData));
+          localStorage.setItem('isAuthenticated', 'true');
+
+          // Show the app content and hide loading
+          loadingElement.style.display = 'none';
+          appContentElement.style.display = 'block';
+
+          initializePage(userData, user);
+        } else {
+          // User is not authenticated or email not verified
+          localStorage.removeItem('userData');
+          localStorage.removeItem('isAuthenticated');
+          if (user && !user.emailVerified) {
+            showMessage('Please verify your email before accessing this page.', 'error');
+            auth.signOut();
+          }
+          loadingElement.style.display = 'none';
+          window.location.href = 'index.html';
+        }
+      });
+    });
+
+    // Secure sidebar navigation
     function secureNavigation() {
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
         if (link.id !== 'logout-link') {
-          link.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const targetUrl = this.getAttribute('href');
-            
-            try {
-              const user = auth.currentUser;
-              if (user && user.emailVerified && localStorage.getItem('isAuthenticated') === 'true') {
-                window.location.href = targetUrl;
-              } else {
-                showMessage('Please log in to access this page.', 'error');
-                localStorage.clear();
-                await auth.signOut();
-                window.location.replace('index.html');
-              }
-            } catch (error) {
-              console.error('Navigation error:', error);
-              showMessage('Authentication error. Please log in again.', 'error');
-              localStorage.clear();
-              window.location.replace('index.html');
+          link.addEventListener('click', function (e) {
+            if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
+              e.preventDefault();
+              showMessage('Please log in to access this page.', 'error');
+              window.location.href = 'index.html';
             }
           });
         }
       });
     }
 
-    // Enhanced auth state check
-    function checkAuthState() {
-      const loadingElement = document.getElementById('loading');
-      const appContentElement = document.getElementById('app-content');
-
-      auth.onAuthStateChanged(async (user) => {
-        try {
-          if (user && user.emailVerified) {
-            const userData = {
-              name: user.displayName || user.email.split('@')[0],
-              email: user.email,
-              avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
-            };
-            
-            localStorage.setItem('userData', JSON.stringify(userData));
-            localStorage.setItem('isAuthenticated', 'true');
-
-            loadingElement.style.display = 'none';
-            appContentElement.style.display = 'block';
-
-            initializePage(userData, user);
-          } else {
-            if (user && !user.emailVerified) {
-              showMessage('Please verify your email before accessing this page.', 'error');
-              await auth.signOut();
-            }
-            localStorage.clear();
-            window.location.replace('index.html');
-          }
-        } catch (error) {
-          console.error('Auth state error:', error);
-          loadingElement.style.display = 'none';
-          showMessage('Authentication error. Please refresh the page.', 'error');
-          localStorage.clear();
-          window.location.replace('index.html');
-        }
-      }, error => {
-        console.error('Auth state listener error:', error);
-        loadingElement.style.display = 'none';
-        showMessage('Fatal authentication error. Please contact support.', 'error');
-        localStorage.clear();
-        window.location.replace('index.html');
-      });
-    }
-
-    // Initialize page with enhanced checks
+    // Initialize page after authentication
     function initializePage(userData, user) {
-      // Set user avatar
-      const avatarElement = document.getElementById('user-avatar');
-      if (avatarElement) {
-        avatarElement.textContent = userData.avatarInitials;
-      }
+      document.getElementById('user-avatar').textContent = userData.avatarInitials;
 
-      // Enhanced logout handler
-      const logoutLink = document.getElementById('logout-link');
-      if (logoutLink) {
-        logoutLink.addEventListener('click', async function(e) {
-          e.preventDefault();
-          try {
-            await auth.signOut();
-            localStorage.clear();
-            window.location.replace('index.html');
-          } catch (error) {
-            console.error('Logout error:', error);
-            showMessage('Error during logout. Please try again.', 'error');
-          }
+      // Logout handler
+      document.getElementById('logout-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        auth.signOut().then(() => {
+          localStorage.removeItem('userData');
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('passwords');
+          window.location.href = 'index.html';
+        }).catch((error) => {
+          showMessage('Error logging out: ' + error.message, 'error');
         });
-      }
+      });
 
+      // Secure navigation
       secureNavigation();
-      setupTodoListener(user.uid);
+
+      // Initialize todos
+      loadTodos(user.uid);
+
+      // Set up modal
       setupModal('add-todo-btn', 'todo-modal');
-      setupPrioritySelector();
-      setupFormSubmitHandler(user.uid);
-      setupFilterButtons();
-    }
 
-    // Enhanced todo listener
-    function setupTodoListener(uid) {
-      let firstLoad = true;
-      
-      const unsubscribe = db.collection('users').doc(uid).collection('todos')
-        .orderBy('dueDate', 'asc')
-        .onSnapshot(snapshot => {
-          if (firstLoad && snapshot.empty) {
-            initializeDefaultTodos(uid);
-            firstLoad = false;
-            return;
-          }
-
-          const todos = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.dueDate) {
-              data.dueDate = new Date(data.dueDate).toISOString().split('T')[0];
-            }
-            todos.push({ id: doc.id, ...data });
+      // Priority selection
+      document.querySelectorAll('.priority-option').forEach(option => {
+        option.addEventListener('click', function() {
+          document.querySelectorAll('.priority-option').forEach(opt => {
+            opt.classList.remove('selected');
           });
-
-          renderTodos(todos);
-          filterTodos(document.querySelector('.filter-btn.active').dataset.filter);
-        }, error => {
-          console.error('Todo listener error:', error);
-          showMessage('Error loading tasks. Please refresh the page.', 'error');
+          this.classList.add('selected');
+          document.getElementById('todo-priority').value = this.dataset.priority;
         });
+      });
 
-      // Store unsubscribe function for cleanup
-      window.todoUnsubscribe = unsubscribe;
+      // Form submission
+      document.getElementById('todo-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveTodoItem(user.uid);
+        closeModal('todo-modal');
+      });
+
+      // Filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active');
+          });
+          this.classList.add('active');
+          filterTodos(this.dataset.filter);
+        });
+      });
     }
 
-    // Enhanced default todos initialization
-    async function initializeDefaultTodos(uid) {
+    // Load todos from Firestore
+    async function loadTodos(uid) {
       try {
-        const today = new Date();
-        const tomorrow = new Date();
-        tomorrow.setDate(today.getDate() + 1);
-        
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 7);
+        const todosSnapshot = await db.collection('users').doc(uid).collection('todos').get();
+        let todos = [];
+        if (todosSnapshot.empty) {
+          // Initialize with default todos
+          const today = new Date();
+          const tomorrow = new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000);
+          const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-        const defaultTodos = [
-          {
-            title: 'Fix critical server issue',
-            description: 'Address the server outage affecting users',
-            dueDate: today.toISOString().split('T')[0],
-            priority: 'high',
-            completed: false
-          },
-          {
-            title: 'Client meeting preparation',
-            description: 'Prepare slides and materials for client meeting',
-            dueDate: today.toISOString().split('T')[0],
-            priority: 'medium',
-            completed: false
-          },
-          {
-            title: 'Update project documentation',
-            description: 'Document recent API changes',
-            dueDate: tomorrow.toISOString().split('T')[0],
-            priority: 'low',
-            completed: false
+          const defaultTodos = [
+            {
+              title: 'Fix critical server issue',
+              description: '',
+              dueDate: today.toISOString().split('T')[0],
+              time: '',
+              priority: 'high',
+              completed: false
+            },
+            {
+              title: 'Client meeting preparation',
+              description: '',
+              dueDate: today.toISOString().split('T')[0],
+              time: '',
+              priority: 'medium',
+              completed: true
+            },
+            {
+              title: 'Update project documentation',
+              description: '',
+              dueDate: tomorrow.toISOString().split('T')[0],
+              time: '',
+              priority: 'low',
+              completed: false
+            },
+            {
+              title: 'Review team performance',
+              description: '',
+              dueDate: nextWeek.toISOString().split('T')[0],
+              time: '',
+              priority: 'medium',
+              completed: false
+            }
+          ];
+
+          for (const todo of defaultTodos) {
+            const docRef = await db.collection('users').doc(uid).collection('todos').add(todo);
+            todos.push({ id: docRef.id, ...todo });
           }
-        ];
-
-        const batch = db.batch();
-        defaultTodos.forEach(todo => {
-          const ref = db.collection('users').doc(uid).collection('todos').doc();
-          batch.set(ref, todo);
-        });
-
-        await batch.commit();
+        } else {
+          todosSnapshot.forEach(doc => {
+            todos.push({ id: doc.id, ...doc.data() });
+          });
+        }
+        renderTodos(todos);
       } catch (error) {
-        console.error('Default todos error:', error);
-        showMessage('Error initializing default tasks.', 'error');
+        showMessage('Error loading todos: ' + error.message, 'error');
       }
     }
 
-    // Enhanced todo rendering
+    // Render todos from the array
     function renderTodos(todos) {
       const todoList = document.getElementById('todo-list');
-      if (!todoList) return;
+      todoList.innerHTML = '';
 
       if (todos.length === 0) {
         todoList.innerHTML = `
@@ -996,31 +976,27 @@
         return;
       }
 
-      todoList.innerHTML = '';
       todos.forEach(todo => {
         const todoItem = createTodoElement(todo);
         todoList.appendChild(todoItem);
       });
     }
 
-    // Enhanced todo element creation
+    // Create a todo element from todo data
     function createTodoElement(todo) {
       const todoItem = document.createElement('li');
       todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
       todoItem.dataset.id = todo.id;
-      todoItem.dataset.due = todo.dueDate || '';
+      todoItem.dataset.due = todo.dueDate;
       todoItem.dataset.completed = todo.completed;
-      todoItem.dataset.priority = todo.priority;
 
+      // Format due date display
       const dueText = formatDueDate(todo.dueDate);
-      const title = sanitizeInput(todo.title);
-      const description = todo.description ? sanitizeInput(todo.description) : '';
 
       todoItem.innerHTML = `
         <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
         <div class="todo-content">
-          <div class="todo-title">${title}</div>
-          ${description ? `<div class="todo-description">${description}</div>` : ''}
+          <div class="todo-title">${todo.title}</div>
           <div class="todo-due">
             <i class="far fa-calendar-alt"></i> ${dueText}
           </div>
@@ -1032,21 +1008,23 @@
         </div>
       `;
 
+      // Add event listeners
       addTodoEventListeners(todoItem);
+
       return todoItem;
     }
 
-    // Enhanced date formatting
+    // Format due date for display
     function formatDueDate(dueDate) {
       if (!dueDate) return 'No due date';
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
       const due = new Date(dueDate);
       due.setHours(0, 0, 0, 0);
 
-      const diffDays = Math.round((due - today) / (1000 * 60 * 60 * 24));
+      const diffTime = due - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays === 0) return 'Due today';
       if (diffDays === 1) return 'Due tomorrow';
@@ -1054,40 +1032,42 @@
       if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
       if (diffDays <= 7) return `Due in ${diffDays} days`;
 
-      return `Due on ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      return `Due on ${due.toLocaleDateString()}`;
     }
 
-    // Enhanced filtering
+    // Filter todos based on selected filter
     function filterTodos(filterType) {
       const todoItems = document.querySelectorAll('.todo-item');
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const nextWeek = new Date(today);
-      nextWeek.setDate(today.getDate() + 7);
 
       todoItems.forEach(item => {
         const dueDate = item.dataset.due;
         const isCompleted = item.dataset.completed === 'true';
         let shouldShow = true;
 
-        if (filterType === 'today' && dueDate) {
-          const itemDate = new Date(dueDate);
-          itemDate.setHours(0, 0, 0, 0);
-          shouldShow = itemDate.getTime() === today.getTime() && !isCompleted;
-        } else if (filterType === 'week' && dueDate) {
-          const itemDate = new Date(dueDate);
-          itemDate.setHours(0, 0, 0, 0);
-          shouldShow = itemDate >= today && itemDate <= nextWeek && !isCompleted;
-        } else if (filterType === 'completed') {
-          shouldShow = isCompleted;
+        switch(filterType) {
+          case 'today':
+            const today = new Date().toISOString().split('T')[0];
+            shouldShow = dueDate === today && !isCompleted;
+            break;
+          case 'week':
+            const todayObj = new Date();
+            const nextWeek = new Date(todayObj.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const dueDateObj = new Date(dueDate);
+            shouldShow = dueDateObj >= todayObj && dueDateObj <= nextWeek && !isCompleted;
+            break;
+          case 'completed':
+            shouldShow = isCompleted;
+            break;
+          case 'all':
+          default:
+            shouldShow = true;
         }
 
         item.style.display = shouldShow ? 'flex' : 'none';
       });
     }
 
-    // Enhanced event listeners for todos
+    // Add event listeners to todo items
     function addTodoEventListeners(item) {
       const checkbox = item.querySelector('.todo-checkbox');
       const editBtn = item.querySelector('.fa-edit').parentNode;
@@ -1095,180 +1075,111 @@
       const priorityBtn = item.querySelector('.fa-flag').parentNode;
 
       checkbox.addEventListener('change', async function() {
+        const todoId = item.dataset.id;
         try {
-          await db.collection('users').doc(auth.currentUser.uid).collection('todos')
-            .doc(item.dataset.id)
-            .update({
-              completed: this.checked,
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          
+          await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).update({
+            completed: this.checked
+          });
           item.dataset.completed = this.checked;
-          item.classList.toggle('todo-completed', this.checked);
+          if (this.checked) {
+            item.classList.add('todo-completed');
+          } else {
+            item.classList.remove('todo-completed');
+          }
           showMessage('Task updated!', 'success');
         } catch (error) {
-          console.error('Update error:', error);
-          this.checked = !this.checked; // Revert checkbox on error
-          showMessage('Error updating task', 'error');
+          showMessage('Error updating task: ' + error.message, 'error');
         }
       });
 
-      editBtn.addEventListener('click', () => openEditModal(item));
-      deleteBtn.addEventListener('click', () => deleteTodo(item));
-      priorityBtn.addEventListener('click', () => togglePriority(item));
-    }
+      editBtn.addEventListener('click', function() {
+        openEditModal(item);
+      });
 
-    // Enhanced todo deletion
-    async function deleteTodo(item) {
-      if (!confirm('Are you sure you want to delete this task?')) return;
-      
-      try {
-        await db.collection('users').doc(auth.currentUser.uid).collection('todos')
-          .doc(item.dataset.id)
-          .delete();
-        
-        showMessage('Task deleted', 'success');
-      } catch (error) {
-        console.error('Delete error:', error);
-        showMessage('Error deleting task', 'error');
-      }
-    }
+      deleteBtn.addEventListener('click', async function() {
+        if (confirm('Are you sure you want to delete this task?')) {
+          const todoId = item.dataset.id;
+          try {
+            await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).delete();
+            item.remove();
+            showMessage('Task deleted!', 'success');
+          } catch (error) {
+            showMessage('Error deleting task: ' + error.message, 'error');
+          }
+        }
+      });
 
-    // Enhanced priority toggle
-    async function togglePriority(item) {
-      const priorities = ['low', 'medium', 'high'];
-      const currentPriority = item.dataset.priority;
-      const newPriority = priorities[(priorities.indexOf(currentPriority) + 1] || priorities[0];
+      priorityBtn.addEventListener('click', async function() {
+        const todoId = item.dataset.id;
+        const priorities = ['low', 'medium', 'high'];
+        const currentTodo = (await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).get()).data();
+        const currentPriority = currentTodo.priority;
+        const nextPriority = priorities[(priorities.indexOf(currentPriority) + 1) % 3];
 
-      try {
-        await db.collection('users').doc(auth.currentUser.uid).collection('todos')
-          .doc(item.dataset.id)
-          .update({
-            priority: newPriority,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        try {
+          await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).update({
+            priority: nextPriority
           });
-        
-        item.classList.remove(`priority-${currentPriority}`);
-        item.classList.add(`priority-${newPriority}`);
-        item.dataset.priority = newPriority;
-        showMessage(`Priority set to ${newPriority}`, 'success');
-      } catch (error) {
-        console.error('Priority error:', error);
-        showMessage('Error updating priority', 'error');
-      }
+          item.classList.remove(`priority-${currentPriority}`);
+          item.classList.add(`priority-${nextPriority}`);
+          showMessage(`Priority changed to ${nextPriority}!`, 'success');
+        } catch (error) {
+          showMessage('Error updating priority: ' + error.message, 'error');
+        }
+      });
     }
 
-    // Enhanced modal setup
+    // Modal functions
     function setupModal(openBtnId, modalId) {
       const openBtn = document.getElementById(openBtnId);
       const modal = document.getElementById(modalId);
       const closeBtn = modal.querySelector('.modal-close');
 
-      openBtn?.addEventListener('click', () => {
+      openBtn?.addEventListener('click', function() {
         document.getElementById('modal-title').textContent = 'Add New Task';
         document.getElementById('todo-form').reset();
         document.getElementById('todo-id').value = '';
         document.getElementById('todo-priority').value = 'medium';
-        document.querySelector('.priority-option[data-priority="medium"]').classList.add('selected');
+        document.querySelectorAll('.priority-option').forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.priority === 'medium') {
+            opt.classList.add('selected');
+          }
+        });
         modal.style.display = 'flex';
       });
 
-      closeBtn?.addEventListener('click', () => modal.style.display = 'none');
-      window.addEventListener('click', (e) => e.target === modal && (modal.style.display = 'none'));
-    }
-
-    // Enhanced priority selector
-    function setupPrioritySelector() {
-      document.querySelectorAll('.priority-option').forEach(option => {
-        option.addEventListener('click', function() {
-          document.querySelectorAll('.priority-option').forEach(opt => {
-            opt.classList.remove('selected');
-          });
-          this.classList.add('selected');
-          document.getElementById('todo-priority').value = this.dataset.priority;
-        });
+      closeBtn?.addEventListener('click', function() {
+        modal.style.display = 'none';
       });
-    }
 
-    // Enhanced form submission
-    function setupFormSubmitHandler(uid) {
-      document.getElementById('todo-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const id = document.getElementById('todo-id').value;
-        const title = document.getElementById('todo-title').value.trim();
-        const description = document.getElementById('todo-description').value.trim();
-        const dueDate = document.getElementById('todo-due').value;
-        const time = document.getElementById('todo-time').value;
-        const priority = document.getElementById('todo-priority').value;
-
-        if (!title) {
-          showMessage('Task title is required', 'error');
-          return;
-        }
-
-        const todoData = {
-          title: sanitizeInput(title),
-          description: sanitizeInput(description),
-          dueDate,
-          time,
-          priority,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        try {
-          if (id) {
-            await db.collection('users').doc(uid).collection('todos').doc(id).update(todoData);
-            showMessage('Task updated!', 'success');
-          } else {
-            todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-            todoData.completed = false;
-            await db.collection('users').doc(uid).collection('todos').add(todoData);
-            showMessage('Task added!', 'success');
-          }
-          
-          document.getElementById('todo-modal').style.display = 'none';
-        } catch (error) {
-          console.error('Save error:', error);
-          showMessage('Error saving task', 'error');
+      window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
         }
       });
     }
 
-    // Enhanced filter setup
-    function setupFilterButtons() {
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
-          filterTodos(this.dataset.filter);
-        });
-      });
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
     }
 
-    // Enhanced edit modal
     async function openEditModal(item) {
+      const modal = document.getElementById('todo-modal');
+      const todoId = item.dataset.id;
       try {
-        const doc = await db.collection('users').doc(auth.currentUser.uid).collection('todos')
-          .doc(item.dataset.id)
-          .get();
-        
-        if (!doc.exists) {
-          showMessage('Task not found', 'error');
-          return;
-        }
-
-        const todo = doc.data();
-        const modal = document.getElementById('todo-modal');
+        const todoDoc = await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).get();
+        const todo = todoDoc.data();
 
         document.getElementById('modal-title').textContent = 'Edit Task';
-        document.getElementById('todo-id').value = item.dataset.id;
+        document.getElementById('todo-id').value = todoId;
         document.getElementById('todo-title').value = todo.title;
         document.getElementById('todo-description').value = todo.description || '';
         document.getElementById('todo-due').value = todo.dueDate || '';
         document.getElementById('todo-time').value = todo.time || '';
-        document.getElementById('todo-priority').value = todo.priority;
 
+        // Set priority
+        document.getElementById('todo-priority').value = todo.priority;
         document.querySelectorAll('.priority-option').forEach(opt => {
           opt.classList.remove('selected');
           if (opt.dataset.priority === todo.priority) {
@@ -1278,25 +1189,49 @@
 
         modal.style.display = 'flex';
       } catch (error) {
-        console.error('Edit error:', error);
-        showMessage('Error loading task', 'error');
+        showMessage('Error loading task: ' + error.message, 'error');
       }
     }
 
-    // Initialize app
-    document.addEventListener('DOMContentLoaded', checkAuthState);
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted) {
-        checkAuthState();
-      }
-    });
+    // Save todo item
+    async function saveTodoItem(uid) {
+      const id = document.getElementById('todo-id').value;
+      const title = document.getElementById('todo-title').value.trim();
+      const description = document.getElementById('todo-description').value.trim();
+      const dueDate = document.getElementById('todo-due').value;
+      const time = document.getElementById('todo-time').value;
+      const priority = document.getElementById('todo-priority').value;
 
-    // Cleanup on unload
-    window.addEventListener('beforeunload', function() {
-      if (window.todoUnsubscribe) {
-        window.todoUnsubscribe();
+      if (!title) {
+        showMessage('Task title is required.', 'error');
+        return;
       }
-    });
+
+      const todoData = {
+        title,
+        description,
+        dueDate,
+        time,
+        priority,
+        completed: false
+      };
+
+      try {
+        if (id) {
+          // Update existing todo
+          await db.collection('users').doc(uid).collection('todos').doc(id).update(todoData);
+          showMessage('Task updated!', 'success');
+        } else {
+          // Create new todo
+          await db.collection('users').doc(uid).collection('todos').add(todoData);
+          showMessage('Task added!', 'success');
+        }
+        // Reload todos
+        await loadTodos(uid);
+      } catch (error) {
+        showMessage('Error saving task: ' + error.message, 'error');
+      }
+    }
   </script>
 </body>
 </html>
