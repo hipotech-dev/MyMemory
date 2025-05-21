@@ -1326,8 +1326,7 @@
   </div>
 
   <script>
-    // Firebase configuration
-    // Firebase configuration
+  // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1525,6 +1524,43 @@ function canResendVerification(email) {
   if (!lastAttempt) return true;
   const timeSinceLast = Date.now() - parseInt(lastAttempt);
   return timeSinceLast > RATE_LIMIT_MS;
+}
+
+// Check authentication state on page load
+function checkAuthOnLoad() {
+  return new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      if (user && user.emailVerified) {
+        const userData = {
+          name: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem('isAuthenticated', 'true');
+        document.getElementById('auth-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        initializeDashboard(userData);
+        resolve(true);
+      } else {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userData');
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('auth-page').style.display = 'flex';
+        document.getElementById('login-form').style.display = 'block';
+        document.getElementById('signup-form').style.display = 'none';
+        resolve(false);
+      }
+    }, (error) => {
+      showMessage('login-message', 'Authentication error: ' + error.message, 'error');
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('auth-page').style.display = 'flex';
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('signup-form').style.display = 'none';
+      resolve(false);
+    });
+  });
 }
 
 // Login form submission
@@ -2026,9 +2062,15 @@ function secureNavigation() {
             document.getElementById('auth-page').style.display = 'flex';
             document.getElementById('login-form').style.display = 'block';
             document.getElementById('signup-form').style.display = 'none';
+            window.location.href = 'index.html';
           }
         } catch (error) {
           showMessage('login-message', 'Authentication error: ' + error.message, 'error');
+          document.getElementById('dashboard').style.display = 'none';
+          document.getElementById('auth-page').style.display = 'flex';
+          document.getElementById('login-form').style.display = 'block';
+          document.getElementById('signup-form').style.display = 'none';
+          window.location.href = 'index.html';
         } finally {
           isCheckingAuth = false;
         }
@@ -2036,6 +2078,11 @@ function secureNavigation() {
     }
   });
 }
+
+// Initialize authentication check on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkAuthOnLoad();
+});
 </script>
 </body>
 </html>
