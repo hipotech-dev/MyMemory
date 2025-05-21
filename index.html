@@ -413,54 +413,103 @@
       transform: scale(1.1);
     }
     
-    .user-popup {
-      display: none;
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background: var(--white);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      padding: 1rem;
-      width: 200px;
-      z-index: 1001;
-      animation: slideIn 0.2s ease-out;
-    }
-    
-    .user-popup.active {
-      display: block;
-    }
-    
-    .user-popup .user-info {
-      margin-bottom: 1rem;
-    }
-    
-    .user-popup .user-name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--dark);
-    }
-    
-    .user-popup .user-email {
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-top: 0.25rem;
-    }
-    
-    .user-popup .logout-btn {
-      width: 100%;
-      padding: 0.5rem;
-      background: var(--secondary);
-      border: none;
-      color: var(--white);
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-    
+   /* User Popup Mobile Styles */
+.user-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  text-align: center; /* Center text */
+  padding: 1rem;
+  width: 180px; /* Adjusted for mobile */
+  right: 10px;
+  top: 45px;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 1001;
+  animation: slideIn 0.2s ease-out;
+}
+
+.user-popup.active {
+  display: flex; /* Ensure flex display when active */
+}
+
+.user-popup .user-info {
+  margin-bottom: 0.75rem; /* Reduced margin for tighter layout */
+}
+
+.user-popup .user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 0.25rem; /* Space between name and email */
+}
+
+.user-popup .user-email {
+  font-size: 0.8rem; /* Slightly smaller for mobile */
+  color: #6b7280;
+  margin-bottom: 0.5rem; /* Space before logout button */
+}
+
+.user-popup .logout-btn {
+  width: 80%; /* Slightly narrower for better appearance */
+  padding: 0.5rem;
+  background: var(--secondary);
+  border: none;
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .user-popup {
+    width: 160px; /* Slightly smaller for mobile */
+    right: 5px;
+    top: 40px;
+    padding: 0.75rem; /* Reduced padding */
+  }
+
+  .user-popup .user-name {
+    font-size: 0.95rem; /* Adjust font size for mobile */
+  }
+
+  .user-popup .user-email {
+    font-size: 0.75rem; /* Smaller email font */
+  }
+
+  .user-popup .logout-btn {
+    width: 85%; /* Adjust width */
+    padding: 0.4rem; /* Smaller padding */
+    font-size: 0.8rem; /* Smaller font */
+  }
+}
+
+@media (max-width: 480px) {
+  .user-popup {
+    width: 140px; /* Even smaller for very small screens */
+    right: 5px;
+    top: 38px;
+    padding: 0.6rem; /* Minimal padding */
+  }
+
+  .user-popup .user-name {
+    font-size: 0.9rem;
+  }
+
+  .user-popup .user-email {
+    font-size: 0.7rem;
+  }
+
+  .user-popup .logout-btn {
+    width: 90%;
+    padding: 0.35rem;
+    font-size: 0.75rem;
+  }
+}
     .user-popup .logout-btn:hover {
       background: #e53e3e;
       transform: translateY(-1px);
