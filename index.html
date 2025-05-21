@@ -1,22 +1,3 @@
-The primary issue is that the user popup (`#user-popup`) does not reliably appear only when clicking the user avatar (`#user-avatar`). The provided code already includes a `setupUserPopup` function to handle this behavior, but there are a few areas where improvements are needed to ensure the popup toggles correctly and consistently. Additionally, the duplicate `initializeDashboard` function needs to be resolved, and the logout button in the popup needs to be wired up. Below is the fully fixed HTML, CSS, and JavaScript code, incorporating the previous suggestions and ensuring the user popup only appears on avatar click.
-
-### Key Fixes
-1. **User Popup Behavior**:
-   - Ensured `#user-popup` is hidden by default with `display: none` in CSS and only shown with `.active` class (`display: flex`).
-   - Refined `setupUserPopup` to prevent duplicate event listeners and handle clicks correctly.
-   - Added event listener for the popup's logout button (`#popup-logout-btn`) to call `handleLogout`.
-2. **Removed Duplicate `initializeDashboard`**:
-   - Consolidated the two `initializeDashboard` functions into a single one to avoid redundancy.
-3. **CSS Consistency**:
-   - Ensured `.user-popup` CSS aligns with mobile responsiveness and visibility rules.
-4. **JavaScript Robustness**:
-   - Added checks to prevent errors if elements are missing.
-   - Improved event delegation to avoid conflicts with other UI elements.
-
-### Fully Fixed Code
-Below is the complete, corrected code. The changes are integrated into the provided HTML, CSS, and JavaScript, with no other modifications beyond what's necessary to address the user popup issue and remove the duplicate function.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
