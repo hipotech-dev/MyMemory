@@ -40,7 +40,8 @@
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
     }
     
     /* Header Styles */
@@ -214,20 +215,20 @@
     }
     
     .btn {
-      padding: 0.75rem 1.5rem;
+      padding: 0.8rem 1.6rem;
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       border: none;
       color: var(--white);
-      border-radius: 12px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      min-height: 48px;
+      gap: 10px;
+      min-height: 44px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       position: relative;
       overflow: hidden;
@@ -235,7 +236,7 @@
     
     .btn:hover {
       background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     }
     
@@ -245,11 +246,12 @@
     }
     
     .btn i {
+      font-size: 1.1rem;
       transition: transform 0.3s ease;
     }
     
     .btn:hover i {
-      transform: scale(1.2);
+      transform: scale(1.1);
     }
     
     .btn::before {
@@ -259,13 +261,8 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent
-      );
-      transition: 0.5s;
+      background: rgba(255, 255, 255, 0.2);
+      transition: left 0.4s ease;
     }
     
     .btn:hover::before {
@@ -876,7 +873,6 @@
       console.error('Firebase initialization failed:', error);
       showMessage('Failed to initialize application. Please try again later.', 'error');
       hideLoading();
-      // Redirect to index.html instead of return
       window.location.href = 'index.html';
     }
 
@@ -922,7 +918,6 @@
         console.log('Auth state changed:', user ? 'User found' : 'No user');
 
         if (user && user.emailVerified) {
-          // User is authenticated and email is verified
           const userData = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -932,7 +927,6 @@
           localStorage.setItem('isAuthenticated', 'true');
           showContent(userData, user);
         } else {
-          // User is not authenticated or email not verified
           console.log('User not authenticated or email not verified.');
           localStorage.removeItem('userData');
           localStorage.removeItem('isAuthenticated');
@@ -974,7 +968,6 @@
       console.log('Initializing page for user:', userData);
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
 
-      // Logout handler
       document.getElementById('logout-link').addEventListener('click', function (e) {
         e.preventDefault();
         auth.signOut().then(() => {
@@ -988,19 +981,15 @@
         });
       });
 
-      // Secure navigation
       secureNavigation();
 
-      // Initialize todos
       loadTodos(user.uid).catch((error) => {
         console.error('Failed to load todos:', error);
         showMessage('Failed to load tasks. Please try again.', 'error');
       });
 
-      // Set up modal
       setupModal('add-todo-btn', 'todo-modal');
 
-      // Priority selection
       document.querySelectorAll('.priority-option').forEach(option => {
         option.addEventListener('click', function() {
           document.querySelectorAll('.priority-option').forEach(opt => {
@@ -1011,14 +1000,12 @@
         });
       });
 
-      // Form submission
       document.getElementById('todo-form').addEventListener('submit', function(e) {
         e.preventDefault();
         saveTodoItem(user.uid);
         closeModal('todo-modal');
       });
 
-      // Filter buttons
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           document.querySelectorAll('.filter-btn').forEach(b => {
@@ -1030,13 +1017,11 @@
       });
     }
 
-    // Load todos from Firestore
     async function loadTodos(uid) {
       try {
         const todosSnapshot = await db.collection('users').doc(uid).collection('todos').orderBy('dueDate', 'asc').get();
         let todos = [];
         if (todosSnapshot.empty) {
-          // Initialize with default todos
           const today = new Date();
           const tomorrow = new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000);
           const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -1088,11 +1073,10 @@
         renderTodos(todos);
       } catch (error) {
         console.error('Error loading todos:', error);
-        throw error; // Let caller handle the error
+        throw error;
       }
     }
 
-    // Render todos from the array
     function renderTodos(todos) {
       const todoList = document.getElementById('todo-list');
       todoList.innerHTML = '';
@@ -1112,12 +1096,10 @@
         todoList.appendChild(todoItem);
       });
 
-      // Apply current filter
       const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
       filterTodos(activeFilter);
     }
 
-    // Create a todo element from todo data
     function createTodoElement(todo) {
       const todoItem = document.createElement('li');
       todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
@@ -1125,7 +1107,6 @@
       todoItem.dataset.due = todo.dueDate;
       todoItem.dataset.completed = todo.completed;
 
-      // Format due date display
       const dueText = formatDueDate(todo.dueDate);
 
       todoItem.innerHTML = `
@@ -1143,13 +1124,11 @@
         </div>
       `;
 
-      // Add event listeners
       addTodoEventListeners(todoItem);
 
       return todoItem;
     }
 
-    // Format due date for display
     function formatDueDate(dueDate) {
       if (!dueDate) return 'No due date';
 
@@ -1170,7 +1149,6 @@
       return `Due on ${due.toLocaleDateString()}`;
     }
 
-    // Filter todos based on selected filter
     function filterTodos(filterType) {
       const todoItems = document.querySelectorAll('.todo-item');
 
@@ -1202,7 +1180,6 @@
       });
     }
 
-    // Add event listeners to todo items
     function addTodoEventListeners(item) {
       const checkbox = item.querySelector('.todo-checkbox');
       const editBtn = item.querySelector('.fa-edit').parentNode;
@@ -1269,7 +1246,6 @@
       });
     }
 
-    // Modal functions
     function setupModal(openBtnId, modalId) {
       const openBtn = document.getElementById(openBtnId);
       const modal = document.getElementById(modalId);
@@ -1318,7 +1294,6 @@
         document.getElementById('todo-due').value = todo.dueDate || '';
         document.getElementById('todo-time').value = todo.time || '';
 
-        // Set priority
         document.getElementById('todo-priority').value = todo.priority;
         document.querySelectorAll('.priority-option').forEach(opt => {
           opt.classList.remove('selected');
@@ -1334,7 +1309,6 @@
       }
     }
 
-    // Save todo item
     async function saveTodoItem(uid) {
       const id = document.getElementById('todo-id').value;
       const title = document.getElementById('todo-title').value.trim();
@@ -1361,35 +1335,28 @@
       try {
         let todoId;
         if (id) {
-          // Update existing todo
           await db.collection('users').doc(uid).collection('todos').doc(id).update(todoData);
           showMessage('Task updated!', 'success');
           todoId = id;
         } else {
-          // Create new todo
           const docRef = await db.collection('users').doc(uid).collection('todos').add(todoData);
           showMessage('Task added!', 'success');
           todoId = docRef.id;
         }
 
-        // Fetch the updated todo to ensure consistency
         const todoDoc = await db.collection('users').doc(uid).collection('todos').doc(todoId).get();
         const updatedTodo = { id: todoDoc.id, ...todoDoc.data() };
 
-        // Update the UI
         const todoList = document.getElementById('todo-list');
         const existingItem = document.querySelector(`.todo-item[data-id="${todoId}"]`);
         if (existingItem) {
-          // Replace existing item
           const newTodoItem = createTodoElement(updatedTodo);
           existingItem.replaceWith(newTodoItem);
         } else {
-          // Add new item to the top
           const newTodoItem = createTodoElement(updatedTodo);
           todoList.insertBefore(newTodoItem, todoList.firstChild);
         }
 
-        // Apply current filter
         const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         filterTodos(activeFilter);
       } catch (error) {
