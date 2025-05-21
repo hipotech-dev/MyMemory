@@ -1001,6 +1001,10 @@
             </div>
           </div>
         </div>
+        <!-- Add to login-form, below the forgot-password link -->
+<div class="resend-verification">
+  <a href="#" id="resend-verification">Resend Verification Email</a>
+</div>
         
         <button type="submit" class="btn">Log In</button>
       </form>
@@ -1630,19 +1634,20 @@ document.getElementById('signup')?.addEventListener('submit', function(e) {
       return user.updateProfile({
         displayName: name
       }).then(() => {
-        return user.sendEmailVerification({
-          url: 'https://hipotech-dev.github.io/MyMemory/verify.html' // Or verify.html
-        }).then(() => {
-          showMessage('signup-message', 'A verification email has been sent. Please verify your email before logging in.', 'success');
-          auth.signOut().then(() => {
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('userData');
-            document.getElementById('auth-page').style.display = 'flex';
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('signup-form').style.display = 'none';
-            document.getElementById('signup').reset();
-          });
-        });
+        // In the signup form handler
+return user.sendEmailVerification({
+  url: 'https://hipotech-dev.github.io/MyMemory/verify.html' // Use the dedicated verification page
+}).then(() => {
+  showMessage('signup-message', 'A verification email has been sent. Please verify your email before logging in.', 'success');
+  auth.signOut().then(() => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userData');
+    document.getElementById('auth-page').style.display = 'flex';
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('signup').reset();
+  });
+});
       });
     })
     .catch((error) => {
