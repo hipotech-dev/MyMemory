@@ -2134,34 +2134,103 @@ function handleLogout(e) {
 document.getElementById('logout-link').addEventListener('click', handleLogout);
 
 // User popup logout button
-document.getElementById('popup-logout-btn').addEventListener('click', function(e) {
-  document.getElementById('user-popup').classList.remove('active');
-  handleLogout(e);
-});
-
-// Toggle user popup
-document.getElementById('user-avatar').addEventListener('click', function(e) {
-  e.stopPropagation();
-  const userPopup = document.getElementById('user-popup');
-  userPopup.classList.toggle('active');
-});
-
-// Close user popup when clicking outside
-window.addEventListener('click', function(e) {
-  const userPopup = document.getElementById('user-popup');
+// Toggle user popup only on user avatar click
+function setupUserPopup() {
   const userAvatar = document.getElementById('user-avatar');
-  if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-    userPopup.classList.remove('active');
-  }
-});
+  const userPopup = document.getElementById('user-popup');
 
-// Close user popup on Escape key
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const userPopup = document.getElementById('user-popup');
-    userPopup.classList.remove('active');
+  if (!userAvatar || !userPopup) return; // Prevent errors if elements are missing
+
+  // Remove any existing listeners to prevent duplicates
+  userAvatar.removeEventListener('click', toggleUserPopup);
+  userPopup.removeEventListener('click', stopPropagation);
+  window.removeEventListener('click', closeUserPopupOnOutsideClick);
+  document.removeEventListener('keydown', closeUserPopupOnEscape);
+
+  // Add click event to toggle popup
+  userAvatar.addEventListener('click', toggleUserPopup);
+
+  // Prevent popup clicks from closing the popup
+  userPopup.addEventListener('click', stopPropagation);
+
+  // Close popup when clicking outside
+  window.addEventListener('click', closeUserPopupOnOutsideClick);
+
+  // Close popup on Escape key
+  document.addEventListener('keydown', closeUserPopupOnEscape);
+
+  function toggleUserPopup(e) {
+    e.stopPropagation(); // Prevent click from bubbling to window
+    userPopup.classList.toggle('active');
   }
-});
+
+  function stopPropagation(e) {
+    e.stopPropagation(); // Prevent popup clicks from triggering window click
+  }
+
+  function closeUserPopupOnOutsideClick(e) {
+    if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+      userPopup.classList.remove('active');
+    }
+  }
+
+  function closeUserPopupOnEscape(e) {
+    if (e.key === 'Escape' && userPopup.classList.contains('active')) {
+      userPopup.classList.remove('active');
+    }
+  }
+}
+
+// Call setupUserPopup when initializing the dashboard
+function initializeDashboard(userData) {
+  document.getElementById('user-name').textContent = userData.name;
+  document.getElementById('user-avatar').textContent = userData.avatarInitials;
+  document.getElementById('popup-user-name').textContent = userData.name;
+  document.getElementById('popup-user-email').textContent = userData.email;
+
+  loadTodos();
+  setupModal('add-todo-btn', 'todo-modal');
+  setupModal('add-password-btn', 'password-modal');
+  setupModal('upload-doc-btn', 'document-modal');
+
+  document.getElementById('todo-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (validateTodoForm()) {
+      addTodoItem();
+      saveTodos();
+      closeModal('todo-modal');
+    }
+  });
+
+  document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (validatePasswordForm()) {
+      addPasswordItem();
+      closeModal('password-modal');
+    }
+  });
+
+  document.getElementById('document-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (validateDocumentForm()) {
+      addDocumentItem();
+      closeModal('document-modal');
+    }
+  });
+
+  document.querySelectorAll('.toggle-password-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      togglePasswordVisibility(this);
+    });
+  });
+
+  document.querySelectorAll('.todo-item').forEach(item => {
+    addTodoEventListeners(item);
+  });
+
+  setupUserPopup(); // Initialize user popup behavior
+  secureNavigation();
+}
 
 // Dashboard initialization
 function initializeDashboard(userData) {
