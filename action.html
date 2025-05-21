@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Action Handler - MyMemory</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #003087;
+      --primary-light: #0070ba;
+      --secondary: #ff5a5f;
+      --dark: #2d3748;
+      --light: #f5f7fa;
+      --gray: #e2e8f0;
+      --success: #38a169;
+      --white: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { min-height: 100vh; background: var(--light); }
+    .auth-page { background: url('hipo.jpg') no-repeat center center fixed; background-size: cover; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
+    .auth-container { background: var(--white); padding: 2rem; max-width: 400px; border-radius: 20px; box-shadow: var(--shadow); margin: 1rem; }
+    .logo { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .logo img { height: 60px; }
+    .logo h1 { color: var(--primary); font-size: 1.8rem; font-weight: 700; }
+    .message { display: none; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; font-size: 0.9rem; text-align: center; }
+    .message.success { background: var(--success); color: var(--white); }
+    .message.error { background: var(--secondary); color: var(--white); }
+    .btn { width: 100%; padding: 1rem; background: var(--primary); border: none; color: var(--white); font-size: 1rem; font-weight: 600; border-radius: 10px; cursor: pointer; }
+    .btn:hover { background: var(--primary-light); }
+  </style>
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="logo">
+        <img src="amnesia.png" alt="MyMemory Logo">
+        <h1>MyMemory</h1>
+      </div>
+      <div class="message" id="action-message">Processing your request...</div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+      authDomain: "mymemory-ddc21.firebaseapp.com",
+      projectId: "mymemory-ddc21",
+      storageBucket: "mymemory-ddc21.firebasestorage.app",
+      messagingSenderId: "875926928384",
+      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+      measurementId: "G-8XZZNJB0QD"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function showMessage(message, type = 'success') {
+      const messageElement = document.getElementById('action-message');
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+      messageElement.style.display = 'block';
+      setTimeout(() => { messageElement.style.display = 'none'; }, 5000);
+    }
+
+    function getParameterByName(name, url = window.location.href) {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+      const results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const mode = getParameterByName('mode');
+      const oobCode = getParameterByName('oobCode');
+      const continueUrl = getParameterByName('continueUrl') || 'https://hipotech-dev.github.io/MyMemory/index.html';
+      const lang = getParameterByName('lang') || 'en';
+
+      if (!mode || !oobCode) {
+        showMessage('Invalid or missing action code', 'error');
+        setTimeout(() => {
+          window.location.href = continueUrl;
+        }, 3000);
+        return;
+      }
+
+      // Redirect based on mode
+      if (mode === 'resetPassword') {
+        window.location.href = `reset.html?mode=${mode}&oobCode=${oobCode}&continueUrl=${encodeURIComponent(continueUrl)}&lang=${lang}`;
+      } else if (mode === 'verifyEmail') {
+        window.location.href = `verify.html?mode=${mode}&oobCode=${oobCode}&continueUrl=${encodeURIComponent(continueUrl)}&lang=${lang}`;
+      } else {
+        showMessage('Invalid action type', 'error');
+        setTimeout(() => {
+          window.location.href = continueUrl;
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>
