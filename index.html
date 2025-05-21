@@ -1356,7 +1356,7 @@
           });
       } else if (mode === 'resetPassword' && oobCode) {
         // Redirect to reset.html with the same query parameters
-        window.location.replace(`reset.html?${urlParams.toString()}`);
+        window.location.replace(`reset-password.html?${urlParams.toString()}`);
       }
     }
 
@@ -1588,7 +1588,7 @@
       }
 
       auth.sendPasswordResetEmail(email, {
-        url: 'https://hipotech-dev.github.io/MyMemory/reset.html' // CHANGED: Use reset.html
+        url: 'https://hipotech-dev.github.io/MyMemory/reset-password.html' // CHANGED: Use reset.html
       })
       .then(() => {
         localStorage.setItem(`reset-attempt-${email}`, Date.now());
