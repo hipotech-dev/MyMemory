@@ -36,6 +36,7 @@
     input:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2); }
     .btn { width: 100%; padding: 1rem; background: var(--primary); border: none; color: var(--white); font-size: 1rem; font-weight: 600; border-radius: 10px; cursor: pointer; }
     .btn:hover { background: var(--primary-light); }
+    .btn:disabled { background: var(--gray); cursor: not-allowed; }
     .error-text { color: var(--secondary); font-size: 0.8rem; margin-top: 0.5rem; display: none; }
     .form-group.invalid input { border-color: var(--secondary); }
     .form-group.invalid .error-text { display: block; }
@@ -62,8 +63,9 @@
           <input type="password" id="confirm-password" placeholder="Confirm new password" required>
           <div class="error-text" id="confirm-password-error"></div>
         </div>
-        <button type="submit" class="btn">Reset Password</button>
+        <button type="submit" class="btn" id="reset-btn">Reset Password</button>
       </form>
+      <button class="btn" id="continue-btn" style="display: none;">Continue to MyMemory</button>
     </div>
   </div>
 
@@ -122,13 +124,28 @@
       return isValid;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const oobCode = urlParams.get('oobCode');
-      const continueUrl = urlParams.get('continueUrl') || 'https://hipotech-dev.github.io/MyMemory/index.html';
+    function getParameterByName(name, url = window.location.href) {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+      const results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
 
-      if (!oobCode) {
+    document.addEventListener('DOMContentLoaded', function() {
+      const mode = getParameterByName('mode');
+      const oobCode = getParameterByName('oobCode');
+      const continueUrl = getParameterByName('continueUrl') || 'https://hipotech-dev.github.io/MyMemory/index.html';
+      const resetBtn = document.getElementById('reset-btn');
+      const continueBtn = document.getElementById('continue-btn');
+
+      if (mode !== 'resetPassword' || !oobCode) {
         showMessage('Invalid or missing reset code', 'error');
+        continueBtn.style.display = 'block';
+        continueBtn.addEventListener('click', () => {
+          window.location.href = continueUrl;
+        });
         return;
       }
 
@@ -138,6 +155,9 @@
             e.preventDefault();
 
             if (!validateResetForm()) return;
+
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Resetting...';
 
             const newPassword = document.getElementById('new-password').value;
 
@@ -161,6 +181,12 @@
                     errorMessage = 'An error occurred';
                 }
                 showMessage(errorMessage, 'error');
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Reset Password';
+                continueBtn.style.display = 'block';
+                continueBtn.addEventListener('click', () => {
+                  window.location.href = continueUrl;
+                });
               });
           });
         })
@@ -177,9 +203,10 @@
               errorMessage = 'Error verifying reset link';
           }
           showMessage(errorMessage, 'error');
-          setTimeout(() => {
+          continueBtn.style.display = 'block';
+          continueBtn.addEventListener('click', () => {
             window.location.href = continueUrl;
-          }, 3000);
+          });
         });
     });
   </script>
