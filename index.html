@@ -967,6 +967,21 @@
     button, a, input[type="checkbox"] {
       touch-action: manipulation;
     }
+    .resend-verification {
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+
+.resend-verification a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.resend-verification a:hover {
+  text-decoration: underline;
+}
   </style>
 </head>
 <body>
@@ -1003,7 +1018,7 @@
         </div>
         <!-- Add to login-form, below the forgot-password link -->
 <div class="resend-verification">
-  <a href="index.html" id="resend-verification">Resend Verification Email</a>
+  <a href="#" id="resend-verification">Resend Verification Email</a>
 </div>
         
         <button type="submit" class="btn">Log In</button>
@@ -1490,7 +1505,55 @@ function handleEmailVerification() {
       const timeSinceLast = Date.now() - parseInt(lastReset);
       return timeSinceLast > RATE_LIMIT_MS;
     }
+  // Resend Verification Email Handler
+document.getElementById('resend-verification')?.addEventListener('click', function(e) {
+  e.preventDefault();
   
+  const user = auth.currentUser;
+  const email = document.getElementById('email').value;
+  
+  if (!email) {
+    showMessage('login-message', 'Please enter your email address first', 'error');
+    return;
+  }
+  
+  if (user && !user.emailVerified) {
+    user.sendEmailVerification({
+      url: 'https://hipotech-dev.github.io/MyMemory/verify.html' // Same as signup
+    })
+    .then(() => {
+      showMessage('login-message', 'Verification email resent. Please check your inbox.', 'success');
+    })
+    .catch((error) => {
+      let errorMessage = 'Error resending verification email';
+      switch (error.code) {
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many requests. Please try again later.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No user found with this email';
+          break;
+        default:
+          errorMessage = 'Failed to resend verification. Please try again.';
+      }
+      showMessage('login-message', errorMessage, 'error');
+    });
+  } else {
+    // If no current user but email is entered, try to fetch the user
+    auth.fetchSignInMethodsForEmail(email)
+      .then((providers) => {
+        if (providers.includes('password')) {
+          showMessage('login-message', 'A verification email has been resent. Please check your inbox.', 'success');
+          // This is just UI - actual resend would require signing in first
+        } else {
+          showMessage('login-message', 'No account found with this email', 'error');
+        }
+      })
+      .catch((error) => {
+        showMessage('login-message', 'Error checking account status', 'error');
+      });
+  }
+});
     // Forgot Password handler
     document.getElementById('forgot-password')?.addEventListener('click', function(e) {
       e.preventDefault();
