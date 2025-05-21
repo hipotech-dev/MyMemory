@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifying Email - MyMemory</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <p>Verifying your email...</p>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+      authDomain: "mymemory-ddc21.firebaseapp.com",
+      projectId: "mymemory-ddc21",
+      storageBucket: "mymemory-ddc21.firebasestorage.app",
+      messagingSenderId: "875926928384",
+      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+      measurementId: "G-8XZZNJB0QD"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const oobCode = urlParams.get('oobCode');
+
+    if (oobCode) {
+      auth.applyActionCode(oobCode)
+        .then(() => {
+          alert('Email successfully verified! Redirecting to login...');
+          window.location.replace('index.html');
+        })
+        .catch((error) => {
+          alert('Error verifying email: ' + error.message);
+          window.location.replace('index.html');
+        });
+    } else {
+      alert('Invalid verification link.');
+      window.location.replace('index.html');
+    }
+  </script>
+</body>
+</html>
