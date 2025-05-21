@@ -22,6 +22,8 @@
       --light: #f5f7fa;
       --gray: #e2e8f0;
       --success: #38a169;
+      --white: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
     
     * {
@@ -32,7 +34,8 @@
     
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--light);
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
       min-height: 100vh;
       margin: 0;
     }
@@ -99,9 +102,10 @@
     /* Sidebar */
     .sidebar {
       width: 250px;
-      background: white;
+      background: var(--primary);
       padding: 2rem 1rem;
-      border-right: 1px solid var(--gray);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
     }
     
     .sidebar-menu {
@@ -116,21 +120,34 @@
       display: flex;
       align-items: center;
       padding: 10px 15px;
-      color: var(--dark);
+      color: var(--white);
       text-decoration: none;
       border-radius: 6px;
-      transition: all 0.2s;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      font-weight: 500;
     }
     
-    .sidebar-menu a:hover, .sidebar-menu a.active {
-      background-color: var(--light);
+    .sidebar-menu a:hover {
+      background: var(--primary-light);
+      transform: translateX(5px);
+    }
+    
+    .sidebar-menu a.active {
+      background: var(--white);
       color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
     .sidebar-menu i {
       margin-right: 10px;
       width: 20px;
       text-align: center;
+      color: var(--white);
+    }
+    
+    .sidebar-menu a.active i {
+      color: var(--primary);
     }
     
     /* Main Content Area */
@@ -415,8 +432,9 @@
         width: 100%;
         height: auto;
         padding: 0.5rem;
-        border-right: none;
-        border-bottom: 1px solid var(--gray);
+        background: var(--primary);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
       }
       
       .sidebar-menu {
@@ -441,6 +459,25 @@
         display: inline-flex;
         white-space: nowrap;
         font-size: 0.9rem;
+        color: var(--white);
+      }
+      
+      .sidebar-menu a:hover {
+        background: var(--primary-light);
+        transform: translateX(5px);
+      }
+      
+      .sidebar-menu a.active {
+        background: var(--white);
+        color: var(--primary);
+      }
+      
+      .sidebar-menu i {
+        color: var(--white);
+      }
+      
+      .sidebar-menu a.active i {
+        color: var(--primary);
       }
       
       /* Main Content Adjustments */
@@ -657,7 +694,7 @@
     <!-- Header -->
     <header class="header">
       <div class="logo">
-        <img src="https://cdn-icons-png.flaticon.com/512/2232/2232688.png" alt="MyMemory Logo">
+        <img src="amnesia.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
@@ -810,7 +847,7 @@
                   <button type="button" class="btn-outline" style="padding: 5px 10px;">
                     <i class="fas fa-info-circle"></i>
                   </button>
-                  <button type="button" class="btn-outline sign-out-device" style=" personally identifiable information redacted style="padding: 5px 10px;">
+                  <button type="button" class="btn-outline sign-out-device" style="padding: 5px 10px;">
                     <i class="fas fa-sign-out-alt"></i>
                   </button>
                 </div>
