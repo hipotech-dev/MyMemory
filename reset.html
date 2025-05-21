@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Prevent Caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="-1" />
+  <meta http-equiv="Vary" content="*" />
+  <title>MyMemory - Reset Password</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #003087;
+      --primary-light: #0070ba;
+      --secondary: #ff5a5f;
+      --dark: #2d3748;
+      --light: #f5f7fa;
+      --gray: #e2e8f0;
+      --success: #38a169;
+      --white: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--light);
+    }
+
+    .auth-page {
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+      position: relative;
+    }
+    
+    .auth-container {
+      background: var(--white);
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      margin: 1rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .auth-container:hover {
+      transform: translateY(-5px);
+    }
+    
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+    }
+    
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .logo img {
+      height: 60px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+    
+    .logo img[src=""] {
+      background: url('amnesia.png') no-repeat center;
+      background-size: contain;
+      height: 60px;
+      width: 60px;
+    }
+    
+    .logo h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    
+    .message {
+      display: none;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      animation: slideIn 0.3s ease;
+    }
+    
+    .message.success {
+      background: var(--success);
+      color: var(--white);
+    }
+    
+    .message.error {
+      background: var(--secondary);
+      color: var(--white);
+    }
+    
+    .error-text {
+      color: var(--secondary);
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    
+    .form-group.invalid input {
+      border-color: var(--secondary);
+    }
+    
+    .form-group.invalid .error-text {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 2.5rem;
+      color: #6b7280;
+      font-size: 1.1rem;
+    }
+    
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      border: 1px solid var(--gray);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      background: var(--white);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      border: none;
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+    
+    .switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .switch a:hover {
+      text-decoration: underline;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @media (max-width: 768px) {
+      .auth-page {
+        padding: 1rem;
+      }
+      
+      .auth-container {
+        max-width: 95%;
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+      
+      .logo img {
+        height: 50px;
+      }
+      
+      .logo img[src=""] {
+        height: 50px;
+        width: 50px;
+      }
+      
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+      
+      input[type="password"] {
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+        font-size: 0.95rem;
+      }
+      
+      .input-icon {
+        top: 2.4rem;
+      }
+      
+      .btn {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 1.25rem;
+      }
+      
+      .logo img {
+        height: 45px;
+      }
+      
+      .logo img[src=""] {
+        height: 45px;
+        width: 45px;
+      }
+      
+      .logo h1 {
+        font-size: 1.3rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      
+      .btn {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+      }
+      
+      .switch {
+        font-size: 0.9rem;
+      }
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    button, a {
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-page" id="auth-page">
+    <div class="auth-container" id="reset-password-form">
+      <div class="logo">
+        <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
+        <h1>MyMemory</h1>
+      </div>
+      <h2>Reset Password</h2>
+      <div class="message" id="reset-message"></div>
+      <form id="reset-password">
+        <div class="form-group" id="password-reset-group">
+          <label for="password-reset">New Password</label>
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password-reset" placeholder="Enter new password" required />
+          <div class="error-text" id="password-reset-error"></div>
+        </div>
+        <div class="form-group" id="password-confirm-group">
+          <label for="password-confirm">Confirm New Password</label>
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password-confirm" placeholder="Confirm new password" required />
+          <div class="error-text" id="password-confirm-error"></div>
+        </div>
+        <button type="submit" class="btn">Continue</button>
+      </form>
+      <div class="switch">
+        Remembered your password? <a href="index.html">Log In</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+      authDomain: "mymemory-ddc21.firebaseapp.com",
+      projectId: "mymemory-ddc21",
+      storageBucket: "mymemory-ddc21.firebasestorage.app",
+      messagingSenderId: "875926928384",
+      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+      measurementId: "G-8XZZNJB0QD"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Show message (success or error)
+    function showMessage(elementId, message, type = 'success') {
+      const messageElement = document.getElementById(elementId);
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+      messageElement.style.display = 'block';
+      setTimeout(() => {
+        messageElement.style.display = 'none';
+      }, 5000);
+    }
+
+    // Validate password reset form
+    function validateResetForm() {
+      const password = document.getElementById('password-reset').value;
+      const confirmPassword = document.getElementById('password-confirm').value;
+      const passwordGroup = document.getElementById('password-reset-group');
+      const confirmGroup = document.getElementById('password-confirm-group');
+      const passwordError = document.getElementById('password-reset-error');
+      const confirmError = document.getElementById('password-confirm-error');
+      let isValid = true;
+
+      passwordGroup.classList.remove('invalid');
+      confirmGroup.classList.remove('invalid');
+      passwordError.style.display = 'none';
+      confirmError.style.display = 'none';
+
+      if (!password) {
+        passwordError.textContent = 'Password is required';
+        passwordGroup.classList.add('invalid');
+        isValid = false;
+      } else if (password.length < 8) {
+        passwordError.textContent = 'Password must be at least 8 characters long';
+        passwordGroup.classList.add('invalid');
+        isValid = false;
+      }
+
+      if (!confirmPassword) {
+        confirmError.textContent = 'Please confirm your password';
+        confirmGroup.classList.add('invalid');
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        confirmError.textContent = 'Passwords do not match';
+        confirmGroup.classList.add('invalid');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    // Handle password reset form submission
+    document.getElementById('reset-password')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (!validateResetForm()) return;
+
+      const password = document.getElementById('password-reset').value;
+      const urlParams = new URLSearchParams(window.location.search);
+      const oobCode = urlParams.get('oobCode'); // Firebase action code from reset email
+
+      if (!oobCode) {
+        showMessage('reset-message', 'Invalid or missing reset code.', 'error');
+        return;
+      }
+
+      auth.verifyPasswordResetCode(oobCode)
+        .then((email) => {
+          return auth.confirmPasswordReset(oobCode, password)
+            .then(() => {
+              showMessage('reset-message', 'Password reset successfully! Redirecting to login...', 'success');
+              setTimeout(() => {
+                window.location.href = 'index.html';
+              }, 3000);
+            })
+            .catch((error) => {
+              let errorMessage = 'An error occurred while resetting the password';
+              switch (error.code) {
+                case 'auth/invalid-action-code':
+                  errorMessage = 'Invalid or expired reset code';
+                  break;
+                case 'auth/weak-password':
+                  errorMessage = 'Password is too weak. Use at least 8 characters';
+                  break;
+                default:
+                  errorMessage = 'Network or server error. Please try again.';
+              }
+              showMessage('reset-message', errorMessage, 'error');
+            });
+        })
+        .catch((error) => {
+          let errorMessage = 'Invalid or expired reset code';
+          switch (error.code) {
+            case 'auth/invalid-action-code':
+              errorMessage = 'Invalid or expired reset code';
+              break;
+            default:
+              errorMessage = 'Network or server error. Please try again.';
+          }
+          showMessage('reset-message', errorMessage, 'error');
+        });
+    });
+
+    // Check for valid reset code on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const oobCode = urlParams.get('oobCode');
+
+      if (!oobCode) {
+        showMessage('reset-message', 'No reset code provided. Please use the link from your email.', 'error');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 3000);
+      } else {
+        auth.verifyPasswordResetCode(oobCode)
+          .catch((error) => {
+            showMessage('reset-message', 'Invalid or expired reset code. Please request a new one.', 'error');
+            setTimeout(() => {
+              window.location.href = 'index.html';
+            }, 3000);
+          });
+      }
+    });
+  </script>
+</body>
+</html>
