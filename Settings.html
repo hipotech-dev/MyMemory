@@ -96,7 +96,15 @@
     /* Main Container */
     .container {
       display: flex;
+      flex-direction: column;
+      align-items: center;
       min-height: calc(100vh - 60px);
+    }
+    
+    /* Sidebar Wrapper */
+    .sidebar-wrapper {
+      max-width: 250px;
+      margin: 0 auto;
     }
     
     /* Sidebar */
@@ -152,7 +160,8 @@
     
     /* Main Content Area */
     .main-content {
-      flex: 1;
+      flex: none;
+      width: 100%;
       padding: 2rem;
     }
     
@@ -433,6 +442,10 @@
       }
       
       /* Sidebar becomes horizontal menu */
+      .sidebar-wrapper {
+        max-width: 100%;
+      }
+      
       .sidebar {
         width: 100%;
         height: auto;
@@ -714,16 +727,18 @@
     <!-- Main Container -->
     <div class="container">
       <!-- Sidebar -->
-      <aside class="sidebar">
-        <ul class="sidebar-menu">
-          <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
-          <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
-          <li><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-      </aside>
+      <div class="sidebar-wrapper">
+        <aside class="sidebar">
+          <ul class="sidebar-menu">
+            <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
+            <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
+            <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
+            <li><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          </ul>
+        </aside>
+      </div>
 
       <!-- Main Content -->
       <main class="main-content">
