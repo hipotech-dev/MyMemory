@@ -1305,7 +1305,38 @@
   
     // Enable email verification
     auth.useDeviceLanguage();
-  
+// Handle Firebase email verification
+function handleEmailVerification() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+  const oobCode = urlParams.get('oobCode');
+  if (mode === 'verifyEmail' && oobCode) {
+    auth.applyActionCode(oobCode)
+      .then(() => {
+        showMessage('login-message', 'Email successfully verified! Please log in.', 'success');
+        window.location.replace('index.html');
+      })
+      .catch((error) => {
+        let errorMessage = 'Error verifying email. Please try again.';
+        switch (error.code) {
+          case 'auth/expired-action-code':
+            errorMessage = 'The verification link has expired.';
+            break;
+          case 'auth/invalid-action-code':
+            errorMessage = 'The verification link is invalid.';
+            break;
+          case 'auth/user-disabled':
+            errorMessage = 'This account has been disabled.';
+            break;
+          default:
+            errorMessage = 'An error occurred during email verification.';
+        }
+        showMessage('login-message', errorMessage, 'error');
+        window.location.replace('index.html');
+      });
+  }
+}
+    
     // Authentication Functions
     function toggleForms() {
       const loginForm = document.getElementById('login-form');
@@ -1582,55 +1613,56 @@
         });
     });
   
-    document.getElementById('signup')?.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      if (!validateSignupForm()) return;
+    // Update the signup handler (if using verify.html, update the URL here)
+document.getElementById('signup')?.addEventListener('submit', function(e) {
+  e.preventDefault();
   
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email-signup').value;
-      const password = document.getElementById('password-signup').value;
+  if (!validateSignupForm()) return;
+
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email-signup').value;
+  const password = document.getElementById('password-signup').value;
+  
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
       
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          
-          return user.updateProfile({
-            displayName: name
-          }).then(() => {
-            return user.sendEmailVerification({
-              url: window.location.href
-            }).then(() => {
-              showMessage('signup-message', 'A verification email has been sent. Please verify your email before logging in.', 'success');
-              auth.signOut().then(() => {
-                localStorage.removeItem('isAuthenticated');
-                localStorage.removeItem('userData');
-                document.getElementById('auth-page').style.display = 'flex';
-                document.getElementById('login-form').style.display = 'block';
-                document.getElementById('signup-form').style.display = 'none';
-                document.getElementById('signup').reset();
-              });
-            });
+      return user.updateProfile({
+        displayName: name
+      }).then(() => {
+        return user.sendEmailVerification({
+          url: 'https://hipotech-dev.github.io/MyMemory/verify.html' // Or verify.html
+        }).then(() => {
+          showMessage('signup-message', 'A verification email has been sent. Please verify your email before logging in.', 'success');
+          auth.signOut().then(() => {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('userData');
+            document.getElementById('auth-page').style.display = 'flex';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('signup').reset();
           });
-        })
-        .catch((error) => {
-          let errorMessage = 'An error occurred during signup';
-          switch (error.code) {
-            case 'auth/invalid-email':
-              errorMessage = 'Please enter a valid email address';
-              break;
-            case 'auth/weak-password':
-              errorMessage = 'Password is too weak. Use at least 8 characters';
-              break;
-            case 'auth/email-already-in-use':
-              errorMessage = 'This email is already in use';
-              break;
-            default:
-              errorMessage = 'Network or server error. Please try again.';
-          }
-          showMessage('signup-message', errorMessage, 'error');
         });
+      });
+    })
+    .catch((error) => {
+      let errorMessage = 'An error occurred during signup';
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Please enter a valid email address';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password is too weak. Use at least 8 characters';
+          break;
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already in use';
+          break;
+        default:
+          errorMessage = 'Network or server error. Please try again.';
+      }
+      showMessage('signup-message', errorMessage, 'error');
     });
+});
   
     // Logout handler
     document.getElementById('logout-link')?.addEventListener('click', function(e) {
@@ -1649,7 +1681,10 @@
         showMessage('login-message', 'Error logging out: ' + error.message, 'error');
       });
     });
-  
+  document.addEventListener('DOMContentLoaded', function() {
+  checkAuthState('DOMContentLoaded');
+  handleEmailVerification(); // Add verification handling
+});
     // Dashboard Functions
     function initializeDashboard(userData) {
       document.getElementById('user-name').textContent = userData.name;
