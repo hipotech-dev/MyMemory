@@ -390,6 +390,7 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+      position: relative;
     }
     
     .user-avatar {
@@ -403,6 +404,66 @@
       justify-content: center;
       font-weight: 600;
       font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .user-avatar:hover {
+      background: var(--primary-light);
+      transform: scale(1.1);
+    }
+    
+    .user-popup {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      width: 200px;
+      z-index: 1001;
+      animation: slideIn 0.2s ease-out;
+    }
+    
+    .user-popup.active {
+      display: block;
+    }
+    
+    .user-popup .user-info {
+      margin-bottom: 1rem;
+    }
+    
+    .user-popup .user-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .user-popup .user-email {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+    
+    .user-popup .logout-btn {
+      width: 100%;
+      padding: 0.5rem;
+      background: var(--secondary);
+      border: none;
+      color: var(--white);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .user-popup .logout-btn:hover {
+      background: #e53e3e;
+      transform: translateY(-1px);
     }
     
     .container {
@@ -887,6 +948,12 @@
       .header .logo h1 {
         font-size: 1.4rem;
       }
+      
+      .user-popup {
+        width: 180px;
+        top: 45px;
+        right: 10px;
+      }
     }
     
     @media (max-width: 480px) {
@@ -956,6 +1023,12 @@
       .card-header h3 {
         font-size: 1.2rem;
       }
+      
+      .user-popup {
+        width: 160px;
+        top: 40px;
+        right: 5px;
+      }
     }
 
     /* Prevent horizontal scrolling */
@@ -968,6 +1041,7 @@
     button, a, input[type="checkbox"] {
       touch-action: manipulation;
     }
+    
     .resend-verification {
       text-align: center;
       margin: 1rem 0;
@@ -1105,6 +1179,13 @@
       </div>
       <div class="user-menu">
         <div class="user-avatar" id="user-avatar">JS</div>
+        <div class="user-popup" id="user-popup">
+          <div class="user-info">
+            <div class="user-name" id="popup-user-name">John Smith</div>
+            <div class="user-email" id="popup-user-email">john.smith@example.com</div>
+          </div>
+          <button class="logout-btn" id="popup-logout-btn">Logout</button>
+        </div>
       </div>
     </header>
 
@@ -1326,7 +1407,8 @@
   </div>
 
   <script>
-  // Firebase configuration
+    // Firebase configuration
+    // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1360,6 +1442,16 @@ function showMessage(elementId, message, type = 'success') {
 // Validate email format
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Validate URL format
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // Toggle between login and signup forms
@@ -1509,6 +1601,130 @@ function validateForgotForm() {
   return isValid;
 }
 
+function validateTodoForm() {
+  const title = document.getElementById('todo-title').value;
+  const dueDate = document.getElementById('todo-due').value;
+  const titleGroup = document.getElementById('todo-title').parentElement;
+  let isValid = true;
+
+  titleGroup.classList.remove('invalid');
+  titleGroup.querySelector('.error-text')?.remove();
+
+  if (!title.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Task description is required';
+    titleGroup.appendChild(errorText);
+    titleGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (dueDate && new Date(dueDate) < new Date()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Due date cannot be in the past';
+    document.getElementById('todo-due').parentElement.appendChild(errorText);
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validatePasswordForm() {
+  const title = document.getElementById('password-title').value;
+  const username = document.getElementById('password-username').value;
+  const password = document.getElementById('password-value').value;
+  const url = document.getElementById('password-url').value;
+  const titleGroup = document.getElementById('password-title').parentElement;
+  const usernameGroup = document.getElementById('password-username').parentElement;
+  const passwordGroup = document.getElementById('password-value').parentElement;
+  const urlGroup = document.getElementById('password-url').parentElement;
+  let isValid = true;
+
+  [titleGroup, usernameGroup, passwordGroup, urlGroup].forEach(group => {
+    group.classList.remove('invalid');
+    group.querySelector('.error-text')?.remove();
+  });
+
+  if (!title.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Title is required';
+    titleGroup.appendChild(errorText);
+    titleGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!username.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Username or email is required';
+    usernameGroup.appendChild(errorText);
+    usernameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Password is required';
+    passwordGroup.appendChild(errorText);
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (url && !isValidUrl(url)) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Please enter a valid URL';
+    urlGroup.appendChild(errorText);
+    urlGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateDocumentForm() {
+  const name = document.getElementById('document-name').value;
+  const file = document.getElementById('document-file').files[0];
+  const nameGroup = document.getElementById('document-name').parentElement;
+  const fileGroup = document.getElementById('document-file').parentElement;
+  let isValid = true;
+
+  [nameGroup, fileGroup].forEach(group => {
+    group.classList.remove('invalid');
+    group.querySelector('.error-text')?.remove();
+  });
+
+  if (!name.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Document name is required';
+    nameGroup.appendChild(errorText);
+    nameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!file) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Please select a file';
+    fileGroup.appendChild(errorText);
+    fileGroup.classList.add('invalid');
+    isValid = false;
+  } else if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'File size must be less than 5MB';
+    fileGroup.appendChild(errorText);
+    fileGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 // Rate limiting for password reset and verification email
 const RATE_LIMIT_MS = 30 * 1000; // 30 seconds
 
@@ -1524,6 +1740,43 @@ function canResendVerification(email) {
   if (!lastAttempt) return true;
   const timeSinceLast = Date.now() - parseInt(lastAttempt);
   return timeSinceLast > RATE_LIMIT_MS;
+}
+
+// Persist todos to localStorage
+function saveTodos() {
+  const todos = [];
+  document.querySelectorAll('.todo-item').forEach(item => {
+    todos.push({
+      text: item.querySelector('.todo-text').textContent,
+      completed: item.classList.contains('todo-completed')
+    });
+  });
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
+
+function loadTodos() {
+  const todos = JSON.parse(localStorage.getItem('todos') || '[]');
+  const todoList = document.getElementById('todo-list');
+  todoList.innerHTML = ''; // Clear existing todos
+  todos.forEach(todo => {
+    const todoItem = document.createElement('div');
+    todoItem.className = `todo-item ${todo.completed ? 'todo-completed' : ''}`;
+    todoItem.innerHTML = `
+      <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+      <div class="todo-text">${todo.text}</div>
+      <div class="todo-actions">
+        <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
+        <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
+      </div>
+      <div class="edit-todo-form">
+        <input type="text" class="edit-todo-input" value="${todo.text}">
+        <button class="save-edit-btn">Save</button>
+        <button class="cancel-edit-btn">Cancel</button>
+      </div>
+    `;
+    todoList.prepend(todoItem);
+    addTodoEventListeners(todoItem);
+  });
 }
 
 // Check authentication state on page load
@@ -1794,7 +2047,7 @@ document.getElementById('resend-verification').addEventListener('click', functio
         .catch((error) => {
           let errorMessage = 'Failed to send verification email';
           if (error.code === 'auth/too-many-requests') {
-            errorMessage = 'Too many requests. Try again later';
+            errorMessage = 'Too many requests. Please try again later';
           }
           showMessage('login-message', errorMessage, 'error');
           auth.signOut();
@@ -1814,7 +2067,7 @@ document.getElementById('resend-verification').addEventListener('click', functio
 });
 
 // Logout handler
-document.getElementById('logout-link').addEventListener('click', function(e) {
+function handleLogout(e) {
   e.preventDefault();
   auth.signOut().then(() => {
     localStorage.clear();
@@ -1826,12 +2079,49 @@ document.getElementById('logout-link').addEventListener('click', function(e) {
   }).catch((error) => {
     showMessage('login-message', 'Error logging out: ' + error.message, 'error');
   });
+}
+
+// Sidebar logout link
+document.getElementById('logout-link').addEventListener('click', handleLogout);
+
+// User popup logout button
+document.getElementById('popup-logout-btn').addEventListener('click', function(e) {
+  document.getElementById('user-popup').classList.remove('active');
+  handleLogout(e);
+});
+
+// Toggle user popup
+document.getElementById('user-avatar').addEventListener('click', function(e) {
+  e.stopPropagation();
+  const userPopup = document.getElementById('user-popup');
+  userPopup.classList.toggle('active');
+});
+
+// Close user popup when clicking outside
+window.addEventListener('click', function(e) {
+  const userPopup = document.getElementById('user-popup');
+  const userAvatar = document.getElementById('user-avatar');
+  if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+    userPopup.classList.remove('active');
+  }
+});
+
+// Close user popup on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const userPopup = document.getElementById('user-popup');
+    userPopup.classList.remove('active');
+  }
 });
 
 // Dashboard initialization
 function initializeDashboard(userData) {
   document.getElementById('user-name').textContent = userData.name;
   document.getElementById('user-avatar').textContent = userData.avatarInitials;
+  document.getElementById('popup-user-name').textContent = userData.name;
+  document.getElementById('popup-user-email').textContent = userData.email;
+
+  loadTodos(); // Load persisted todos
 
   setupModal('add-todo-btn', 'todo-modal');
   setupModal('add-password-btn', 'password-modal');
@@ -1839,20 +2129,27 @@ function initializeDashboard(userData) {
 
   document.getElementById('todo-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    addTodoItem();
-    closeModal('todo-modal');
+    if (validateTodoForm()) {
+      addTodoItem();
+      saveTodos();
+      closeModal('todo-modal');
+    }
   });
 
   document.getElementById('password-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    addPasswordItem();
-    closeModal('password-modal');
+    if (validatePasswordForm()) {
+      addPasswordItem();
+      closeModal('password-modal');
+    }
   });
 
   document.getElementById('document-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    addDocumentItem();
-    closeModal('document-modal');
+    if (validateDocumentForm()) {
+      addDocumentItem();
+      closeModal('document-modal');
+    }
   });
 
   document.querySelectorAll('.toggle-password-btn').forEach(button => {
@@ -1909,6 +2206,7 @@ function setupModal(openBtnId, modalId) {
 
 function closeModal(modalId) {
   document.getElementById(modalId).style.display = 'none';
+  document.getElementById(`${modalId.replace('-modal', '-form')}`).reset();
 }
 
 function addTodoItem() {
@@ -2003,10 +2301,12 @@ function addTodoEventListeners(todoItem) {
     } else {
       todoItem.classList.remove('todo-completed');
     }
+    saveTodos();
   });
 
   deleteBtn.addEventListener('click', function() {
     todoItem.remove();
+    saveTodos();
   });
 
   editBtn.addEventListener('click', function() {
@@ -2016,8 +2316,11 @@ function addTodoEventListeners(todoItem) {
 
   saveEditBtn.addEventListener('click', function(e) {
     e.preventDefault();
-    todoText.textContent = editInput.value;
-    editForm.style.display = 'none';
+    if (editInput.value.trim()) {
+      todoText.textContent = editInput.value;
+      editForm.style.display = 'none';
+      saveTodos();
+    }
   });
 
   cancelEditBtn.addEventListener('click', function(e) {
@@ -2026,10 +2329,11 @@ function addTodoEventListeners(todoItem) {
   });
 
   editInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && editInput.value.trim()) {
       e.preventDefault();
       todoText.textContent = editInput.value;
       editForm.style.display = 'none';
+      saveTodos();
     }
   });
 }
@@ -2079,10 +2383,8 @@ function secureNavigation() {
   });
 }
 
-// Initialize authentication check on page load
-document.addEventListener('DOMContentLoaded', async () => {
-  await checkAuthOnLoad();
-});
+// Initialize on page load
+checkAuthOnLoad();
 </script>
 </body>
 </html>
