@@ -3,12 +3,203 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Prevent Caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="-1">
+  <meta http-equiv="Vary" content="*">
   <title>Verifying Email - MyMemory</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #003087;
+      --primary-light: #0070ba;
+      --secondary: #ff5a5f;
+      --dark: #2d3748;
+      --light: #f5f7fa;
+      --gray: #e2e8f0;
+      --success: #38a169;
+      --white: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .verify-container {
+      background: var(--white);
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      margin: 1rem;
+      text-align: center;
+    }
+
+    .verify-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo img {
+      height: 60px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .logo img[src=""] {
+      background: url('amnesia.png') no-repeat center;
+      background-size: contain;
+      height: 60px;
+      width: 60px;
+    }
+
+    .logo h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .message {
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      animation: slideIn 0.3s ease;
+    }
+
+    .message.success {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .message.error {
+      background: var(--secondary);
+      color: var(--white);
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      border: none;
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .verify-container {
+        max-width: 95%;
+        padding: 1.5rem;
+      }
+
+      .logo img {
+        height: 50px;
+      }
+
+      .logo img[src=""] {
+        height: 50px;
+        width: 50px;
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .verify-container {
+        padding: 1.25rem;
+      }
+
+      .logo img {
+        height: 45px;
+      }
+
+      .logo img[src=""] {
+        height: 45px;
+        width: 45px;
+      }
+
+      .logo h1 {
+        font-size: 1.3rem;
+      }
+
+      .message {
+        font-size: 0.85rem;
+      }
+
+      .btn {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <p>Verifying your email...</p>
+  <div class="verify-container">
+    <div class="logo">
+      <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
+      <h1>MyMemory</h1>
+    </div>
+    <div class="message" id="verify-message">Verifying your email...</div>
+    <button class="btn" id="return-login" style="display: none;">Return to Login</button>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
@@ -23,23 +214,51 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
+    function showMessage(message, type = 'success') {
+      const messageElement = document.getElementById('verify-message');
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+      messageElement.style.display = 'block';
+      const returnButton = document.getElementById('return-login');
+      returnButton.style.display = 'block';
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
     const oobCode = urlParams.get('oobCode');
 
-    if (oobCode) {
+    if (mode === 'verifyEmail' && oobCode) {
       auth.applyActionCode(oobCode)
         .then(() => {
-          alert('Email successfully verified! Redirecting to login...');
-          window.location.replace('index.html');
+          showMessage('Email successfully verified! You can now log in.', 'success');
+          setTimeout(() => {
+            window.location.replace('index.html');
+          }, 5000);
         })
         .catch((error) => {
-          alert('Error verifying email: ' + error.message);
-          window.location.replace('index.html');
+          let errorMessage = 'Error verifying email. Please try again.';
+          switch (error.code) {
+            case 'auth/expired-action-code':
+              errorMessage = 'The verification link has expired. Please request a new one.';
+              break;
+            case 'auth/invalid-action-code':
+              errorMessage = 'The verification link is invalid.';
+              break;
+            case 'auth/user-disabled':
+              errorMessage = 'This account has been disabled.';
+              break;
+            default:
+              errorMessage = 'An error occurred during email verification.';
+          }
+          showMessage(errorMessage, 'error');
         });
     } else {
-      alert('Invalid verification link.');
-      window.location.replace('index.html');
+      showMessage('Invalid or missing verification link.', 'error');
     }
+
+    document.getElementById('return-login').addEventListener('click', () => {
+      window.location.replace('index.html');
+    });
   </script>
 </body>
 </html>
