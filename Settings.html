@@ -616,12 +616,20 @@
       measurementId: "G-8XZZNJB0QD"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    // Initialize Firebase with error handling
+    let auth;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+    } catch (error) {
+      console.error('Firebase initialization failed:', error);
+      showMessage('Failed to initialize application. Please try again later.', 'error');
+      hideLoading();
+      window.location.replace('index.html');
+    }
 
     // Show message
-   剑function showMessage(message, type = 'error') {
+    function showMessage(message, type = 'error') {
       const messageElement = document.getElementById('auth-message');
       messageElement.textContent = message;
       messageElement.className = `message ${type}`;
@@ -629,6 +637,12 @@
       setTimeout(() => {
         messageElement.style.display = 'none';
       }, 5000);
+    }
+
+    // Hide loading
+    function hideLoading() {
+      const loadingElement = document.getElementById('loading');
+      loadingElement.style.display = 'none';
     }
 
     // Secure sidebar navigation
@@ -720,13 +734,25 @@
       });
     }
 
-    // Check authentication state
+    // Check authentication state with timeout
     function checkAuthState(eventType) {
       console.log(`Checking auth state on ${eventType}`);
       const loadingElement = document.getElementById('loading');
       const appContentElement = document.getElementById('app-content');
 
+      // Set a 7-second timeout for auth check
+      const authTimeout = setTimeout(() => {
+        console.error('Authentication check timed out');
+        hideLoading();
+        showMessage('Authentication timed out. Please try again.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
+      }, 7000);
+
       auth.onAuthStateChanged((user) => {
+        clearTimeout(authTimeout); // Clear timeout on successful auth state change
+        console.log('Auth state resolved:', user ? 'User found' : 'No user');
+
         if (user && user.emailVerified) {
           console.log('User authenticated:', user.email);
           const userData = {
@@ -742,17 +768,20 @@
           initializePage(userData);
         } else {
           console.log('User not authenticated or email not verified, redirecting to login');
-          loadingElement.style.display = 'none';
+          hideLoading();
           if (user && !user.emailVerified) {
             showMessage('Please verify your email before accessing this page.', 'error');
-            auth.signOut();
+            auth.signOut().catch(error => {
+              console.error('Sign out error:', error);
+            });
           }
           localStorage.clear();
           window.location.replace('index.html');
         }
       }, error => {
+        clearTimeout(authTimeout); // Clear timeout on error
         console.error('Error checking auth state:', error);
-        loadingElement.style.display = 'none';
+        hideLoading();
         showMessage('Error verifying authentication. Please log in again.', 'error');
         localStorage.clear();
         window.location.replace('index.html');
