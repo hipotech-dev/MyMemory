@@ -2222,15 +2222,27 @@ function initializeDashboard(userData, user) {
       notes: ''
     };
 
-    try {
-      await savePassword(user.uid, passwordData);
-      await loadPasswords(user.uid);
-      passwordForm.reset();
-      passwordModal.style.display = 'none';
-      showMessage('login-message', 'Password added!', 'success');
-    } catch (error) {
-      // Error handled in savePassword
-    }
+  async function savePassword(uid, passwordData) {
+  try {
+    const encryptedPassword = btoa(passwordData.password);
+    const docRef = await db.collection('users').doc(uid).collection('passwords').add({
+      ...passwordData,
+      password: encryptedPassword,
+      createdAt: new Date().toISOString()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving password:', error);
+    throw error;
+  }
+}
+    function decryptPassword(encryptedPassword) {
+  try {
+    return atob(encryptedPassword);
+  } catch (error) {
+    return 'Error decrypting';
+  }
+}
   });
 
   // Document modal handling
@@ -2289,7 +2301,17 @@ function initializeDashboard(userData, user) {
     });
   }
 }
-
+function checkAuthOnLoad() {
+  const rememberMe = localStorage.getItem('rememberMe');
+  const savedEmail = localStorage.getItem('savedEmail');
+  
+  if (rememberMe && savedEmail) {
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+      emailInput.value = savedEmail;
+    }
+  }
+}
 // Handle authentication state
 auth.onAuthStateChanged(user => {
   const authPage = document.getElementById('auth-page');
@@ -2417,5 +2439,9 @@ document.getElementById('resend-verification').addEventListener('click', async (
   }
 });
 // Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
   checkAuthOnLoad();
+});
 </script>
+</body>
+</html>
