@@ -1102,7 +1102,12 @@
           query = query.limit(limit);
         }
 
-        const passwordsSnapshot = await query.get();
+        // Add query timeout
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Firestore query timed out')), 5000);
+        });
+
+        const passwordsSnapshot = await Promise.race([query.get(), timeoutPromise]);
 
         if (passwordsSnapshot.empty) {
           passwordList.innerHTML = '<div class="password-item">No passwords found.</div>';
@@ -1428,20 +1433,21 @@
             }
 
             if (searchTerm.trim()) {
-              // Firestore prefix search for name and username
               const searchLower = searchTerm.toLowerCase();
               const searchUpper = searchLower + '\uf8ff';
               query = query
                 .where('name', '>=', searchLower)
                 .where('name', '<=', searchUpper);
-              // Note: Firestore only supports one range filter per query, so we prioritize 'name'.
-              // Username filtering will be done client-side if needed.
             }
+
+            // Add query timeout
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Firestore query timed out')), 5000);
+            });
 
             unsubscribe = query.onSnapshot(snapshot => {
               const passwords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-              // Client-side filtering for username if search term exists
               const filteredPasswords = searchTerm.trim()
                 ? passwords.filter(p =>
                     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1501,7 +1507,7 @@
               throw error;
             });
 
-            return; // Success, exit retry loop
+            return; // Success
           } catch (error) {
             attempt++;
             console.error(`Filter attempt ${attempt} failed:`, error);
@@ -1511,6 +1517,8 @@
                 errorMessage = 'Permission denied. Please check your access rights.';
               } else if (error.code === 'unavailable') {
                 errorMessage = 'Network error. Please check your connection.';
+              } else if (error.message.includes('timed out')) {
+                errorMessage = 'Query timed out. Please try again.';
               }
               showMessage(errorMessage, 'error');
               passwordList.innerHTML = '<div class="password-item">Error loading passwords.</div>';
@@ -1586,32 +1594,41 @@
     }
 
     // Initialize app
-    function initializeApp(userData, user) {
-      const cachedUserData = JSON.parse(localStorage.getItem('userData')) || userData;
-      document.getElementById('popup-user-name').textContent = cachedUserData.name;
-      document.getElementById('popup-user-email').textContent = cachedUserData.email;
-      document.getElementById('user-avatar').textContent = cachedUserData.avatarInitials;
-      document.getElementById('popup-user-avatar').textContent = cachedUserData.avatarInitials;
+    async function initializeApp(userData, user) {
+      try {
+        const cachedUserData = JSON.parse(localStorage.getItem('userData')) || userData;
+        document.getElementById('popup-user-name').textContent = cachedUserData.name;
+        document.getElementById('popup-user-email').textContent = cachedUserData.email;
+        document.getElementById('user-avatar').textContent = cachedUserData.avatarInitials;
+        document.getElementById('popup-user-avatar').textContent = cachedUserData.avatarInitials;
 
-      setupUserMenu();
-      setupPasswordActions(user.uid);
-      setupSearchAndFilter(user.uid);
+        setupUserMenu();
+        setupPasswordActions(user.uid);
+        setupSearchAndFilter(user.uid);
 
-      document.getElementById('export-btn').addEventListener('click', async () => {
-        try {
-          const passwordsSnapshot = await db.collection('users').doc(user.uid).collection('passwords').get();
-          const passwords = passwordsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          exportToPDF(passwords);
-        } catch (error) {
-          showMessage('Failed to export passwords.', 'error');
-        }
-      });
+        document.getElementById('export-btn').addEventListener('click', async () => {
+          try {
+            const passwordsSnapshot = await db.collection('users').doc(user.uid).collection('passwords').get();
+            const passwords = passwordsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            exportToPDF(passwords);
+          } catch (error) {
+            showMessage('Failed to export passwords.', 'error');
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        showMessage('Failed to initialize app. Please try again.', 'error');
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
+      }
     }
 
     // Auth state listener with timeout
     document.addEventListener('DOMContentLoaded', () => {
       const isAuthenticated = localStorage.getItem('isAuthenticated');
       if (!isAuthenticated) {
+        document.getElementById('loading').style.display = 'none';
         window.location.href = 'index.html';
         return;
       }
@@ -1619,25 +1636,40 @@
       const authTimeout = setTimeout(() => {
         showMessage('Authentication timed out. Please log in again.', 'error');
         document.getElementById('loading').style.display = 'none';
+        document.getElementById('app-content').style.display = 'none';
         window.location.href = 'index.html';
-      }, 10000);
+      }, 5000);
 
       auth.onAuthStateChanged(user => {
         clearTimeout(authTimeout);
-        if (user && user.emailVerified) {
-          const userData = {
-            name: user.displayName || 'User',
-            email: user.email,
-            avatarInitials: user.displayName ? user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'US'
-          };
-          localStorage.setItem('userData', JSON.stringify(userData));
-          initializeApp(userData, user);
-        } else {
+        try {
+          if (user && user.emailVerified) {
+            const userData = {
+              name: user.displayName || 'User',
+              email: user.email,
+              avatarInitials: user.displayName ? user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'US'
+            };
+            localStorage.setItem('userData', JSON.stringify(userData));
+            initializeApp(userData, user);
+          } else {
+            throw new Error('User not authenticated or email not verified');
+          }
+        } catch (error) {
+          console.error('Auth state error:', error);
+          showMessage('Authentication failed. Please log in again.', 'error');
           localStorage.removeItem('isAuthenticated');
           localStorage.removeItem('userData');
           document.getElementById('loading').style.display = 'none';
+          document.getElementById('app-content').style.display = 'none';
           window.location.href = 'index.html';
         }
+      }, error => {
+        clearTimeout(authTimeout);
+        console.error('Auth listener error:', error);
+        showMessage('Authentication error. Please try again.', 'error');
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('app-content').style.display = 'none';
+        window.location.href = 'index.html';
       });
     });
   </script>
