@@ -80,6 +80,7 @@
       display: flex;
       align-items: center;
       height: 100%;
+      position: relative;
     }
 
     .user-avatar {
@@ -94,6 +95,79 @@
       font-weight: bold;
       margin: 0;
       vertical-align: middle;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    
+    .user-avatar:hover {
+      transform: scale(1.1);
+    }
+    
+    .user-popup {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      width: 220px;
+      padding: 1rem;
+      z-index: 1000;
+    }
+    
+    .user-popup.active {
+      display: block;
+    }
+    
+    .user-popup .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    
+    .user-popup .user-info .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .user-popup .user-info .details h4 {
+      font-size: 1rem;
+      color: var(--dark);
+      margin: 0;
+    }
+    
+    .user-popup .user-info .details p {
+      font-size: 0.85rem;
+      color: #718096;
+      margin: 0;
+    }
+    
+    .user-popup .logout-btn {
+      width: 100%;
+      padding: 8px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    
+    .user-popup .logout-btn:hover {
+      background: #e04e53;
     }
     
     /* Main Container */
@@ -368,6 +442,11 @@
       .logo img {
         height: 30px;
       }
+      
+      .user-popup {
+        width: 200px;
+        top: 48px;
+      }
     }
     
     @media (max-width: 480px) {
@@ -392,6 +471,11 @@
         width: 32px;
         height: 32px;
         font-size: 0.9rem;
+      }
+      
+      .user-popup {
+        width: 180px;
+        top: 44px;
       }
     }
     
@@ -425,6 +509,18 @@
       </div>
       <div class="user-menu">
         <div class="user-avatar" id="user-avatar"></div>
+        <div class="user-popup" id="user-popup">
+          <div class="user-info">
+            <div class="avatar" id="popup-user-avatar"></div>
+            <div class="details">
+              <h4 id="popup-user-name"></h4>
+              <p id="popup-user-email"></p>
+            </div>
+          </div>
+          <button class="logout-btn" id="popup-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
       </div>
     </header>
 
@@ -438,7 +534,6 @@
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
           <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
@@ -526,7 +621,7 @@
     const auth = firebase.auth();
 
     // Show message
-    function showMessage(message, type = 'error') {
+   剑function showMessage(message, type = 'error') {
       const messageElement = document.getElementById('auth-message');
       messageElement.textContent = message;
       messageElement.className = `message ${type}`;
@@ -540,45 +635,88 @@
     function secureNavigation() {
       let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        if (link.id !== 'logout-link') {
-          link.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const targetUrl = this.getAttribute('href');
-            console.log(`Navigation attempt to ${targetUrl}`);
+        link.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const targetUrl = this.getAttribute('href');
+          console.log(`Navigation attempt to ${targetUrl}`);
 
-            if (isCheckingAuth) {
-              console.log('Auth check already in progress, skipping');
-              return;
-            }
-            isCheckingAuth = true;
+          if (isCheckingAuth) {
+            console.log('Auth check already in progress, skipping');
+            return;
+          }
+          isCheckingAuth = true;
 
-            try {
-              const user = await new Promise((resolve, reject) => {
-                const unsubscribe = auth.onAuthStateChanged(user => {
-                  unsubscribe();
-                  resolve(user);
-                }, reject);
-              });
+          try {
+            const user = await new Promise((resolve, reject) => {
+              const unsubscribe = auth.onAuthStateChanged(user => {
+                unsubscribe();
+                resolve(user);
+              }, reject);
+            });
 
-              if (user && user.emailVerified) {
-                console.log('Navigation allowed, user authenticated:', user.email);
-                window.location.href = targetUrl;
-              } else {
-                console.log('Navigation blocked, user not authenticated or email not verified');
-                showMessage('Please log in to access this page.', 'error');
-                localStorage.clear();
-                window.location.replace('index.html');
-              }
-            } catch (error) {
-              console.error('Error checking auth state for navigation:', error);
-              showMessage('Error verifying authentication. Please log in again.', 'error');
+            if (user && user.emailVerified) {
+              console.log('Navigation allowed, user authenticated:', user.email);
+              window.location.href = targetUrl;
+            } else {
+              console.log('Navigation blocked, user not authenticated or email not verified');
+              showMessage('Please log in to access this page.', 'error');
               localStorage.clear();
               window.location.replace('index.html');
-            } finally {
-              isCheckingAuth = false;
             }
-          });
+          } catch (error) {
+            console.error('Error checking auth state for navigation:', error);
+            showMessage('Error verifying authentication. Please log in again.', 'error');
+            localStorage.clear();
+            window.location.replace('index.html');
+          } finally {
+            isCheckingAuth = false;
+          }
+        });
+      });
+    }
+
+    // Setup user popup
+    function setupUserPopup(userData) {
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      const popupUserAvatar = document.getElementById('popup-user-avatar');
+      const popupUserName = document.getElementById('popup-user-name');
+      const popupUserEmail = document.getElementById('popup-user-email');
+      const logoutBtn = document.getElementById('popup-logout-btn');
+
+      popupUserAvatar.textContent = userData.avatarInitials;
+      popupUserName.textContent = userData.name;
+      popupUserEmail.textContent = userData.email;
+
+      userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
+        console.log('User popup toggled:', userPopup.classList.contains('active') ? 'open' : 'closed');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!userPopup.contains(e.target) && e.target !== userAvatar) {
+          userPopup.classList.remove('active');
+          console.log('User popup closed via outside click');
         }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && userPopup.classList.contains('active')) {
+          userPopup.classList.remove('active');
+          console.log('User popup closed via Escape key');
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        console.log('Logging out via popup');
+        auth.signOut().then(() => {
+          localStorage.clear();
+          window.location.replace('index.html');
+        }).catch(error => {
+          console.error('Logout error:', error);
+          showMessage('Error logging out: ' + error.message, 'error');
+        });
       });
     }
 
@@ -636,21 +774,9 @@
     // Initialize page
     function initializePage(userData) {
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
+      setupUserPopup(userData);
       document.getElementById('display-name').value = userData.name;
       document.getElementById('email').value = userData.email;
-
-      // Logout handler
-      document.getElementById('logout-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Logging out, redirecting to login');
-        auth.signOut().then(() => {
-          localStorage.clear();
-          window.location.replace('index.html');
-        }).catch(error => {
-          console.error('Logout error:', error);
-          showMessage('Error logging out: ' + error.message, 'error');
-        });
-      });
 
       secureNavigation();
 
@@ -670,6 +796,11 @@
             avatarInitials: displayName.substring(0, 2).toUpperCase()
           }));
           document.getElementById('user-avatar').textContent = displayName.substring(0, 2).toUpperCase();
+          setupUserPopup({
+            name: displayName,
+            email: userData.email,
+            avatarInitials: displayName.substring(0, 2).toUpperCase()
+          });
         }).catch(error => {
           console.error('Error updating profile:', error);
           showMessage('Error updating profile: ' + error.message, 'error');
