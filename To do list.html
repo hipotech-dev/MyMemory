@@ -87,6 +87,7 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+      position: relative;
     }
     
     .user-avatar {
@@ -106,6 +107,73 @@
     
     .user-avatar:hover {
       transform: scale(1.1);
+    }
+    
+    .user-popup {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      width: 220px;
+      padding: 1rem;
+      z-index: 1000;
+    }
+    
+    .user-popup.active {
+      display: block;
+    }
+    
+    .user-popup .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    
+    .user-popup .user-info .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .user-popup .user-info .details h4 {
+      font-size: 1rem;
+      color: var(--dark);
+      margin: 0;
+    }
+    
+    .user-popup .user-info .details p {
+      font-size: 0.85rem;
+      color: #718096;
+      margin: 0;
+    }
+    
+    .user-popup .logout-btn {
+      width: 100%;
+      padding: 8px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    
+    .user-popup .logout-btn:hover {
+      background: #e04e53;
     }
     
     /* Main Container */
@@ -681,6 +749,11 @@
       .logo h1 {
         font-size: 1.4rem;
       }
+      
+      .user-popup {
+        width: 200px;
+        top: 48px;
+      }
     }
     
     @media (max-width: 480px) {
@@ -730,6 +803,11 @@
         height: 36px;
         font-size: 0.9rem;
       }
+      
+      .user-popup {
+        width: 180px;
+        top: 80px;
+      }
     }
     
     /* Prevent horizontal scrolling */
@@ -761,6 +839,18 @@
       </div>
       <div class="user-menu">
         <div class="user-avatar" id="user-avatar"></div>
+        <div class="user-popup" id="user-popup">
+          <div class="user-info">
+            <div class="avatar" id="popup-user-avatar"></div>
+            <div class="details">
+              <h4 id="popup-user-name"></h4>
+              <p id="popup-user-email"></p>
+            </div>
+          </div>
+          <button class="logout-btn" id="popup-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
       </div>
     </header>
 
@@ -774,7 +864,6 @@
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
           <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
@@ -951,15 +1040,58 @@
     // Secure sidebar navigation
     function secureNavigation() {
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        if (link.id !== 'logout-link') {
-          link.addEventListener('click', function (e) {
-            if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
-              e.preventDefault();
-              showMessage('Please log in to access this page.', 'error');
-              window.location.href = 'index.html';
-            }
-          });
+        link.addEventListener('click', function (e) {
+          if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
+            e.preventDefault();
+            showMessage('Please log in to access this page.', 'error');
+            window.location.href = 'index.html';
+          }
+        });
+      });
+    }
+
+    // Setup user popup
+    function setupUserPopup(userData) {
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      const popupUserAvatar = document.getElementById('popup-user-avatar');
+      const popupUserName = document.getElementById('popup-user-name');
+      const popupUserEmail = document.getElementById('popup-user-email');
+      const logoutBtn = document.getElementById('popup-logout-btn');
+
+      popupUserAvatar.textContent = userData.avatarInitials;
+      popupUserName.textContent = userData.name;
+      popupUserEmail.textContent = userData.email;
+
+      userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
+        console.log('User popup toggled:', userPopup.classList.contains('active') ? 'open' : 'closed');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!userPopup.contains(e.target) && e.target !== userAvatar) {
+          userPopup.classList.remove('active');
+          console.log('User popup closed via outside click');
         }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && userPopup.classList.contains('active')) {
+          userPopup.classList.remove('active');
+          console.log('User popup closed via Escape key');
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        console.log('Logging out via popup');
+        auth.signOut().then(() => {
+          localStorage.clear();
+          window.location.href = 'index.html';
+        }).catch(error => {
+          console.error('Logout error:', error);
+          showMessage('Error logging out: ' + error.message, 'error');
+        });
       });
     }
 
@@ -967,20 +1099,7 @@
     function initializePage(userData, user) {
       console.log('Initializing page for user:', userData);
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
-
-      document.getElementById('logout-link').addEventListener('click', function (e) {
-        e.preventDefault();
-        auth.signOut().then(() => {
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isAuthenticated');
-          localStorage.removeItem('passwords');
-          window.location.href = 'index.html';
-        }).catch((error) => {
-          console.error('Logout error:', error);
-          showMessage('Error logging out: ' + error.message, 'error');
-        });
-      });
-
+      setupUserPopup(userData);
       secureNavigation();
 
       loadTodos(user.uid).catch((error) => {
