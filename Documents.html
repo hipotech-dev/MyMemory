@@ -49,6 +49,7 @@
       justify-content: space-between;
       align-items: center;
       height: 60px;
+      position: relative;
     }
 
     .logo {
@@ -77,6 +78,7 @@
       display: flex;
       align-items: center;
       height: 100%;
+      position: relative;
     }
 
     .user-avatar {
@@ -91,6 +93,63 @@
       font-weight: bold;
       margin: 0;
       vertical-align: middle;
+      cursor: pointer;
+    }
+
+    .user-popup {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: var(--white);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      width: 200px;
+      z-index: 1000;
+    }
+
+    .user-popup.active {
+      display: block;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.5rem;
+    }
+
+    .user-info span {
+      font-size: 0.9rem;
+    }
+
+    .user-info .name {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .user-info .email {
+      color: #718096;
+      word-break: break-all;
+    }
+
+    .popup-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .popup-btn:hover {
+      background: var(--primary-light);
     }
     
     /* Main Container */
@@ -760,6 +819,11 @@
       .documents-table td {
         padding: 10px;
       }
+
+      .user-popup {
+        width: 180px;
+        top: 45px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -837,6 +901,11 @@
         padding: 0.5rem;
         font-size: 0.85rem;
       }
+
+      .user-popup {
+        width: 160px;
+        top: 80px;
+      }
     }
 
     /* Prevent horizontal scrolling */
@@ -868,6 +937,15 @@
       </div>
       <div class="user-menu">
         <div class="user-avatar" id="user-avatar"></div>
+        <div class="user-popup" id="user-popup">
+          <div class="user-info">
+            <span class="name" id="popup-user-name"></span>
+            <span class="email" id="popup-user-email"></span>
+          </div>
+          <button class="popup-btn" id="popup-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
       </div>
     </header>
 
@@ -1105,6 +1183,50 @@
       }, 5000);
     }
 
+    // Handle user popup functionality
+    function setupUserPopup() {
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      const logoutBtn = document.getElementById('popup-logout-btn');
+
+      if (!userAvatar || !userPopup || !logoutBtn) return;
+
+      function toggleUserPopup(e) {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
+      }
+
+      function closeUserPopup() {
+        userPopup.classList.remove('active');
+      }
+
+      userAvatar.addEventListener('click', toggleUserPopup);
+
+      document.addEventListener('click', function(e) {
+        if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+          closeUserPopup();
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeUserPopup();
+        }
+      });
+
+      logoutBtn.addEventListener('click', handleLogout);
+    }
+
+    // Handle logout
+    function handleLogout() {
+      auth.signOut().then(() => {
+        localStorage.clear();
+        window.location.replace('index.html');
+      }).catch((error) => {
+        showMessage('Error logging out: ' + error.message, 'error');
+      });
+    }
+
     // Secure sidebar navigation
     function secureNavigation() {
       let isCheckingAuth = false; // Prevent multiple simultaneous checks
@@ -1207,19 +1329,21 @@
 
     // Initialize page after authentication
     function initializePage(userData) {
-      document.getElementById('user-avatar').textContent = userData.avatarInitials;
+      const userAvatar = document.getElementById('user-avatar');
+      const popupUserName = document.getElementById('popup-user-name');
+      const popupUserEmail = document.getElementById('popup-user-email');
 
-      // Logout handler
+      if (userAvatar) userAvatar.textContent = userData.avatarInitials;
+      if (popupUserName) popupUserName.textContent = userData.name;
+      if (popupUserEmail) popupUserEmail.textContent = userData.email;
+
+      setupUserPopup();
+
+      // Logout handler for sidebar link
       document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
         console.log('Logging out, redirecting to login');
-        auth.signOut().then(() => {
-          localStorage.clear();
-          window.location.replace('index.html');
-        }).catch((error) => {
-          console.error('Logout error:', error);
-          showMessage('Error logging out: ' + error.message, 'error');
-        });
+        handleLogout();
       });
 
       // Secure navigation
@@ -1953,6 +2077,15 @@
             console.log(`Closed modal via click outside: ${modalId}`);
           }
         });
+      }
+
+      function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.style.display = 'none';
+        if (modalId === 'share-modal') {
+          document.getElementById('share-link-container').style.display = 'none';
+        }
+        console.log(`Closed modal: ${modalId}`);
       }
     }
 
