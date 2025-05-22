@@ -1497,6 +1497,7 @@
 
   <script>
   // Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1998,6 +1999,57 @@ function addTodoEventListeners(todoItem, uid) {
   });
 }
 
+// Load passwords from Firestore
+async function loadPasswords(uid) {
+  try {
+    const passwordList = document.getElementById('password-list');
+    passwordList.innerHTML = ''; // Clear existing passwords
+
+    const passwordsSnapshot = await db.collection('users').doc(uid).collection('passwords')
+      .orderBy('createdAt', 'desc').limit(5).get(); // Limit to 5 for dashboard
+
+    if (passwordsSnapshot.empty) {
+      passwordList.innerHTML = '<div class="password-item">No passwords found.</div>';
+      return;
+    }
+
+    passwordsSnapshot.forEach(doc => {
+      const password = { id: doc.id, ...doc.data() };
+      const passwordItem = document.createElement('div');
+      passwordItem.className = 'password-item';
+      passwordItem.dataset.id = password.id;
+      passwordItem.innerHTML = `
+        <div class="password-title">${password.name}</div>
+        <div class="password-details">
+          <span class="password-username">${password.username}</span>
+          <span class="password-value" style="display: none;">${password.password}</span>
+          <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
+        </div>
+      `;
+      passwordList.appendChild(passwordItem);
+      addPasswordEventListeners(passwordItem);
+    });
+  } catch (error) {
+    console.error('Error loading passwords:', error);
+    showMessage('login-message', 'Failed to load passwords.', 'error');
+  }
+}
+
+// Save password to Firestore
+async function savePassword(uid, passwordData) {
+  try {
+    const docRef = await db.collection('users').doc(uid).collection('passwords').add({
+      ...passwordData,
+      createdAt: new Date().toISOString()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving password:', error);
+    showMessage('login-message', 'Failed to save password.', 'error');
+    throw error;
+  }
+}
+
 // Handle user popup functionality
 function setupUserPopup() {
   const userAvatar = document.getElementById('user-avatar');
@@ -2058,6 +2110,7 @@ function initializeDashboard(userData, user) {
 
   setupUserPopup();
   loadTodos(user.uid);
+  loadPasswords(user.uid);
 
   document.getElementById('logout-link').addEventListener('click', function(e) {
     e.preventDefault();
@@ -2137,6 +2190,7 @@ function initializeDashboard(userData, user) {
   const passwordForm = document.getElementById('password-form');
 
   addPasswordBtn.addEventListener('click', () => {
+    passwordForm.reset();
     passwordModal.style.display = 'flex';
   });
 
@@ -2150,28 +2204,33 @@ function initializeDashboard(userData, user) {
     }
   });
 
-  passwordForm.addEventListener('submit', (e) => {
+  passwordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validatePasswordForm()) return;
 
     const title = document.getElementById('password-title').value;
     const username = document.getElementById('password-username').value;
     const password = document.getElementById('password-value').value;
-    const passwordList = document.getElementById('password-list');
-    const passwordItem = document.createElement('div');
-    passwordItem.className = 'password-item';
-    passwordItem.innerHTML = `
-      <div class="password-title">${title}</div>
-      <div class="password-details">
-        <span class="password-username">${username}</span>
-        <span class="password-value" style="display: none;">${password}</span>
-        <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
-      </div>
-    `;
-    passwordList.prepend(passwordItem);
-    addPasswordEventListeners(passwordItem);
-    passwordForm.reset();
-    passwordModal.style.display = 'none';
+    const url = document.getElementById('password-url').value;
+
+    const passwordData = {
+      name: title,
+      username,
+      password,
+      url: url || '',
+      category: 'other', // Default category; can be extended to include a dropdown
+      notes: ''
+    };
+
+    try {
+      await savePassword(user.uid, passwordData);
+      await loadPasswords(user.uid);
+      passwordForm.reset();
+      passwordModal.style.display = 'none';
+      showMessage('login-message', 'Password added!', 'success');
+    } catch (error) {
+      // Error handled in savePassword
+    }
   });
 
   // Document modal handling
@@ -2229,9 +2288,6 @@ function initializeDashboard(userData, user) {
       toggleBtn.innerHTML = `<i class="fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
     });
   }
-
-  // Initialize password event listeners
-  document.querySelectorAll('.password-item').forEach(addPasswordEventListeners);
 }
 
 // Handle authentication state
