@@ -27,6 +27,9 @@
       --white: #ffffff;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --category-work: #007bff;
+      --category-personal: #28a745;
+      --category-urgent: #dc3545;
     }
     
     * {
@@ -427,12 +430,33 @@
       gap: 5px;
     }
     
+    .todo-category {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      color: var(--white);
+      margin-left: 8px;
+    }
+    
+    .category-work {
+      background: var(--category-work);
+    }
+    
+    .category-personal {
+      background: var(--category-personal);
+    }
+    
+    .category-urgent {
+      background: var(--category-urgent);
+    }
+    
     .todo-completed .todo-title {
       text-decoration: line-through;
       color: #718096;
     }
     
-    .todo-completed .todo-due {
+    .todo-completed .todo-due,
+    .todo-completed .todo-category {
       color: #cbd5e0;
     }
     
@@ -806,7 +830,7 @@
       
       .user-popup {
         width: 180px;
-        top: 80px;
+        top: 44px;
       }
     }
     
@@ -883,6 +907,9 @@
           <button class="filter-btn" data-filter="today">Today</button>
           <button class="filter-btn" data-filter="week">This Week</button>
           <button class="filter-btn" data-filter="completed">Completed</button>
+          <button class="filter-btn" data-filter="work">Work</button>
+          <button class="filter-btn" data-filter="personal">Personal</button>
+          <button class="filter-btn" data-filter="urgent">Urgent</button>
         </div>
         
         <div class="todo-container">
@@ -924,6 +951,15 @@
         </div>
         
         <div class="form-group">
+          <label for="todo-category">Category</label>
+          <select id="todo-category" class="form-control">
+            <option value="work">Work</option>
+            <option value="personal">Personal</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
           <label>Priority</label>
           <div class="priority-selector">
             <div class="priority-option high" data-priority="high">High</div>
@@ -962,7 +998,7 @@
       console.error('Firebase initialization failed:', error);
       showMessage('Failed to initialize application. Please try again later.', 'error');
       hideLoading();
-      window.location.href = 'index.html';
+      window.location.replace('index.html');
     }
 
     // Show message
@@ -976,37 +1012,32 @@
       }, 5000);
     }
 
-    // Hide loading and show content
-    function showContent(userData, user) {
-      console.log('Showing content for user:', userData);
-      const loadingElement = document.getElementById('loading');
-      const appContentElement = document.getElementById('app-content');
-      loadingElement.style.display = 'none';
-      appContentElement.style.display = 'block';
-      initializePage(userData, user);
-    }
-
-    // Hide loading on error or timeout
+    // Hide loading
     function hideLoading() {
       const loadingElement = document.getElementById('loading');
       loadingElement.style.display = 'none';
     }
 
-    // Authentication check with timeout
-    document.addEventListener('DOMContentLoaded', function () {
-      console.log('DOM content loaded, checking auth state...');
-      const loadingTimeout = setTimeout(() => {
-        console.error('Authentication check timed out.');
-        showMessage('Authentication timed out. Please try again.', 'error');
+    // Check authentication state with timeout
+    function checkAuthState(eventType) {
+      console.log(`Checking auth state on ${eventType}`);
+      const loadingElement = document.getElementById('loading');
+      const appContentElement = document.getElementById('app-content');
+
+      const authTimeout = setTimeout(() => {
+        console.error('Authentication check timed out');
         hideLoading();
-        window.location.href = 'index.html';
-      }, 10000); // 10-second timeout
+        showMessage('Authentication timed out. Please try again.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
+      }, 7000);
 
       auth.onAuthStateChanged((user) => {
-        clearTimeout(loadingTimeout); // Clear timeout on auth state change
-        console.log('Auth state changed:', user ? 'User found' : 'No user');
+        clearTimeout(authTimeout);
+        console.log('Auth state resolved:', user ? 'User found' : 'No user');
 
         if (user && user.emailVerified) {
+          console.log('User authenticated:', user.email);
           const userData = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
@@ -1014,37 +1045,83 @@
           };
           localStorage.setItem('userData', JSON.stringify(userData));
           localStorage.setItem('isAuthenticated', 'true');
-          showContent(userData, user);
+
+          loadingElement.style.display = 'none';
+          appContentElement.style.display = 'block';
+          initializePage(userData, user);
         } else {
-          console.log('User not authenticated or email not verified.');
-          localStorage.removeItem('userData');
-          localStorage.removeItem('isAuthenticated');
+          console.log('User not authenticated or email not verified, redirecting to login');
+          hideLoading();
           if (user && !user.emailVerified) {
             showMessage('Please verify your email before accessing this page.', 'error');
-            auth.signOut().catch((error) => {
+            auth.signOut().catch(error => {
               console.error('Sign out error:', error);
             });
           }
-          hideLoading();
-          window.location.href = 'index.html';
+          localStorage.clear();
+          window.location.replace('index.html');
         }
-      }, (error) => {
-        clearTimeout(loadingTimeout);
-        console.error('Auth state error:', error);
-        showMessage('Authentication error: ' + error.message, 'error');
+      }, error => {
+        clearTimeout(authTimeout);
+        console.error('Error checking auth state:', error);
         hideLoading();
-        window.location.href = 'index.html';
+        showMessage('Error verifying authentication. Please log in again.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
       });
+    }
+
+    // Handle page load and bfcache restore
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuthState('DOMContentLoaded');
+    });
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log('Page restored from bfcache, checking auth');
+        checkAuthState('pageshow');
+      }
     });
 
     // Secure sidebar navigation
     function secureNavigation() {
+      let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        link.addEventListener('click', function (e) {
-          if (!auth.currentUser || localStorage.getItem('isAuthenticated') !== 'true') {
-            e.preventDefault();
-            showMessage('Please log in to access this page.', 'error');
-            window.location.href = 'index.html';
+        link.addEventListener('click', async function(e) {
+          e.preventDefault();
+          const targetUrl = this.getAttribute('href');
+          console.log(`Navigation attempt to ${targetUrl}`);
+
+          if (isCheckingAuth) {
+            console.log('Auth check already in progress, skipping');
+            return;
+          }
+          isCheckingAuth = true;
+
+          try {
+            const user = await new Promise((resolve, reject) => {
+              const unsubscribe = auth.onAuthStateChanged(user => {
+                unsubscribe();
+                resolve(user);
+              }, reject);
+            });
+
+            if (user && user.emailVerified) {
+              console.log('Navigation allowed, user authenticated:', user.email);
+              window.location.href = targetUrl;
+            } else {
+              console.log('Navigation blocked, user not authenticated or email not verified');
+              showMessage('Please log in to access this page.', 'error');
+              localStorage.clear();
+              window.location.replace('index.html');
+            }
+          } catch (error) {
+            console.error('Error checking auth state for navigation:', error);
+            showMessage('Error verifying authentication. Please log in again.', 'error');
+            localStorage.clear();
+            window.location.replace('index.html');
+          } finally {
+            isCheckingAuth = false;
           }
         });
       });
@@ -1087,7 +1164,7 @@
         console.log('Logging out via popup');
         auth.signOut().then(() => {
           localStorage.clear();
-          window.location.href = 'index.html';
+          window.location.replace('index.html');
         }).catch(error => {
           console.error('Logout error:', error);
           showMessage('Error logging out: ' + error.message, 'error');
@@ -1152,6 +1229,7 @@
               dueDate: today.toISOString().split('T')[0],
               time: '',
               priority: 'high',
+              category: 'urgent',
               completed: false
             },
             {
@@ -1160,6 +1238,7 @@
               dueDate: today.toISOString().split('T')[0],
               time: '',
               priority: 'medium',
+              category: 'work',
               completed: true
             },
             {
@@ -1168,6 +1247,7 @@
               dueDate: tomorrow.toISOString().split('T')[0],
               time: '',
               priority: 'low',
+              category: 'work',
               completed: false
             },
             {
@@ -1176,6 +1256,7 @@
               dueDate: nextWeek.toISOString().split('T')[0],
               time: '',
               priority: 'medium',
+              category: 'personal',
               completed: false
             }
           ];
@@ -1225,13 +1306,15 @@
       todoItem.dataset.id = todo.id;
       todoItem.dataset.due = todo.dueDate;
       todoItem.dataset.completed = todo.completed;
+      todoItem.dataset.category = todo.category;
 
       const dueText = formatDueDate(todo.dueDate);
+      const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
 
       todoItem.innerHTML = `
         <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
         <div class="todo-content">
-          <div class="todo-title">${todo.title}</div>
+          <div class="todo-title">${todo.title} ${categoryText}</div>
           <div class="todo-due">
             <i class="far fa-calendar-alt"></i> ${dueText}
           </div>
@@ -1274,6 +1357,7 @@
       todoItems.forEach(item => {
         const dueDate = item.dataset.due;
         const isCompleted = item.dataset.completed === 'true';
+        const category = item.dataset.category;
         let shouldShow = true;
 
         switch(filterType) {
@@ -1289,6 +1373,11 @@
             break;
           case 'completed':
             shouldShow = isCompleted;
+            break;
+          case 'work':
+          case 'personal':
+          case 'urgent':
+            shouldShow = category === filterType && !isCompleted;
             break;
           case 'all':
           default:
@@ -1375,6 +1464,7 @@
         document.getElementById('todo-form').reset();
         document.getElementById('todo-id').value = '';
         document.getElementById('todo-priority').value = 'medium';
+        document.getElementById('todo-category').value = 'work';
         document.querySelectorAll('.priority-option').forEach(opt => {
           opt.classList.remove('selected');
           if (opt.dataset.priority === 'medium') {
@@ -1412,6 +1502,7 @@
         document.getElementById('todo-description').value = todo.description || '';
         document.getElementById('todo-due').value = todo.dueDate || '';
         document.getElementById('todo-time').value = todo.time || '';
+        document.getElementById('todo-category').value = todo.category || 'work';
 
         document.getElementById('todo-priority').value = todo.priority;
         document.querySelectorAll('.priority-option').forEach(opt => {
@@ -1435,6 +1526,7 @@
       const dueDate = document.getElementById('todo-due').value;
       const time = document.getElementById('todo-time').value;
       const priority = document.getElementById('todo-priority').value;
+      const category = document.getElementById('todo-category').value;
 
       if (!title) {
         showMessage('Task title is required.', 'error');
@@ -1447,6 +1539,7 @@
         dueDate,
         time,
         priority,
+        category,
         completed: false,
         createdAt: new Date().toISOString()
       };
