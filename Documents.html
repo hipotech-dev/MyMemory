@@ -1987,15 +1987,18 @@ function initializePage(userData) {
   
   // Upload document function
   async function uploadDocument() {
-    if (isUploading) {
-      console.log('Upload already in progress, ignoring');
-      return;
-    }
-    
-    isUploading = true;
+  if (isUploading) {
+    console.log('Upload already in progress, ignoring');
+    return;
+  }
+  
+  isUploading = true;
+  const asyncLoading = document.getElementById('async-loading');
+  asyncLoading.style.display = 'flex';
+  try {
     const nameInput = document.getElementById('document-name').value.trim();
     const cleanName = DOMPurify.sanitize(nameInput);
-    const safeName = cleanName.replace(/[^a-zA-Z0-9-_]/g, '_'); // Safe for storage path
+    const safeName = cleanName.replace(/[^a-zA-Z0-9-_]/g, '_');
     const category = document.getElementById('document-category').value;
     const folder = document.getElementById('document-folder').value;
     const description = DOMPurify.sanitize(document.getElementById('document-description').value.trim());
@@ -2034,21 +2037,18 @@ function initializePage(userData) {
       return;
     }
 
-    try {
-      // Disable form inputs and button during upload
-      submitBtn.classList.add('disabled');
-      submitBtn.disabled = true;
-      formInputs.forEach(input => input.disabled = true);
-      
-      // Show progress bar
-      progressContainer.style.display = 'block';
-      progressFill.style.width = '0%';
-      progressText.textContent = '0%';
+    submitBtn.classList.add('disabled');
+    submitBtn.disabled = true;
+    formInputs.forEach(input => input.disabled = true);
+    
+    progressContainer.style.display = 'block';
+    progressFill.style.width = '0%';
+    progressText.textContent = '0%';
 
-      const storageRef = storage.ref(`documents/${auth.currentUser.uid}/${Date.now()}_${safeName}.${fileType}`);
-      const uploadTask = storageRef.put(file);
+    const storageRef = storage.ref(`documents/${auth.currentUser.uid}/${Date.now()}_${safeName}.${fileType}`);
+    const uploadTask = storageRef.put(file);
 
-      // Monitor upload progress
+    await new Promise((resolve, reject) => {
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
@@ -2056,44 +2056,11 @@ function initializePage(userData) {
           progressText.textContent = `${Math.round(progress)}%`;
           console.log(`Upload progress: ${progress}%`);
         },
-        (error) => {
-          // Handle specific Firebase Storage errors
-          let errorMessage = 'Error uploading file.';
-          switch (error.code) {
-            case 'storage/unauthorized':
-              errorMessage = 'Unauthorized access. Please log in again.';
-              break;
-            case 'storage/quota-exceeded':
-              errorMessage = 'Storage quota exceeded. Upgrade your plan.';
-              break;
-            case 'storage/retry-limit-exceeded':
-              errorMessage = 'Upload timed out. Please try again.';
-              break;
-            case 'storage/canceled':
-              errorMessage = 'Upload canceled.';
-              break;
-          }
-          console.error('Upload error:', error);
-          showMessage(errorMessage, 'error');
-          resetUploadForm();
-        },
+        (error) => reject(error),
         async () => {
-          // Upload complete
           try {
-            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+            const downloadURL = await withTimeout(uploadTask.snapshot.ref.getDownloadURL(), 10000); // 10s timeout
             console.log('File uploaded successfully, download URL:', downloadURL);
-            console.log('Storage path:', storageRef.fullPath);
-
-            // Verify file exists
-            try {
-              await storageRef.getMetadata();
-              console.log('File verified in storage.');
-            } catch (verifyError) {
-              console.error('Error verifying file:', verifyError);
-              showMessage('Error verifying uploaded file.', 'error');
-              resetUploadForm();
-              return;
-            }
 
             const newDoc = {
               id: 'doc' + Date.now(),
@@ -2123,20 +2090,36 @@ function initializePage(userData) {
             populateFolderDropdown();
             
             resetUploadForm();
-            showMessage(`Document "${cleanName}.${fileType}" uploaded and stored successfully!`, 'success');
+            showMessage(`Document "${cleanName}.${fileType}" uploaded successfully!`, 'success');
             closeModal('upload-modal');
+            resolve();
           } catch (error) {
-            console.error('Error getting download URL:', error);
-            showMessage('Error finalizing upload.', 'error');
-            resetUploadForm();
+            reject(error);
           }
         }
       );
-    } catch (error) {
-      console.error('Error initiating upload:', error);
-      showMessage('Error initiating upload.', 'error');
-      resetUploadForm();
-    }
+    });
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    showMessage('Error uploading document: ' + error.message, 'error');
+    resetUploadForm();
+  } finally {
+    asyncLoading.style.display = 'none';
+    console.log('Upload operation completed, hiding async-loading');
+  }
+
+  function resetUploadForm() {
+    document.getElementById('upload-form').reset();
+    document.getElementById('file-upload-area').querySelector('p').textContent = 'Drag & drop files here or click to browse';
+    submitBtn.classList.remove('disabled');
+    submitBtn.disabled = false;
+    formInputs.forEach(input => input.disabled = false);
+    progressContainer.style.display = 'none';
+    progressFill.style.width = '0%';
+    progressText.textContent = '0%';
+    isUploading = false;
+  }
+}
 
     // Reset form function
     function resetUploadForm() {
@@ -2237,44 +2220,44 @@ function initializePage(userData) {
   }
   
   // Download document function
-  async function downloadDocument(docId) {
-    asyncLoading.style.display = 'flex';
-    try {
-      const doc = documents.find(d => d.id === docId);
-      if (!doc) {
-        showMessage('Document not found.', 'error');
-        return;
-      }
-      
-      console.log('Downloading document:', doc.name);
-      if (doc.downloadURL) {
-        const a = document.createElement('a');
-        a.href = doc.downloadURL;
-        a.download = `${doc.name}.${doc.type}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } else {
-        const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${doc.name}.${doc.type}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-      showMessage(`Downloaded ${DOMPurify.sanitize(doc.name)}.${doc.type}`, 'success');
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      showMessage('Error downloading document.', 'error');
-    } finally {
-      asyncLoading.style.display = 'none';
+async function downloadDocument(docId) {
+  const asyncLoading = document.getElementById('async-loading');
+  asyncLoading.style.display = 'flex';
+  try {
+    const doc = documents.find(d => d.id === docId);
+    if (!doc) {
+      showMessage('Document not found.', 'error');
+      return;
     }
+    
+    console.log('Downloading document:', doc.name);
+    if (doc.downloadURL) {
+      const a = document.createElement('a');
+      a.href = doc.downloadURL;
+      a.download = `${doc.name}.${doc.type}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${doc.name}.${doc.type}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    showMessage(`Downloaded ${DOMPurify.sanitize(doc.name)}.${doc.type}`, 'success');
+  } catch (error) {
+    console.error('Error downloading document:', error);
+    showMessage('Error downloading document.', 'error');
+  } finally {
+    asyncLoading.style.display = 'none';
+    console.log('Download operation completed, hiding async-loading');
   }
-  
+}
   // Preview document function
   async function previewDocument(docId) {
     const doc = documents.find(d => d.id === docId);
@@ -2327,7 +2310,10 @@ function initializePage(userData) {
   }
 
   // Delete document function
-  async function deleteDocument(docId) {
+async function deleteDocument(docId) {
+  const asyncLoading = document.getElementById('async-loading');
+  asyncLoading.style.display = 'flex';
+  try {
     const doc = documents.find(d => d.id === docId);
     if (!doc) {
       showMessage('Document not found.', 'error');
@@ -2336,32 +2322,31 @@ function initializePage(userData) {
     
     if (!confirm(`Are you sure you want to delete "${DOMPurify.sanitize(doc.name)}.${doc.type}"?`)) return;
     
-    asyncLoading.style.display = 'flex';
-    try {
-      if (doc.storagePath) {
-        await storage.ref(doc.storagePath).delete();
-        console.log('Deleted file from storage:', doc.storagePath);
-      }
-      
-      documents = documents.filter(d => d.id !== docId);
-      
-      if (doc.folder) {
-        const folderObj = folders.find(f => f.name === doc.folder);
-        if (folderObj) folderObj.files--;
-      }
-      
-      await saveData();
-      renderDocuments();
-      renderFolders();
-      populateFolderDropdown();
-      showMessage('Document deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      showMessage('Error deleting document.', 'error');
-    } finally {
-      asyncLoading.style.display = 'none';
+    if (doc.storagePath) {
+      await storage.ref(doc.storagePath).delete();
+      console.log('Deleted file from storage:', doc.storagePath);
     }
+    
+    documents = documents.filter(d => d.id !== docId);
+    
+    if (doc.folder) {
+      const folderObj = folders.find(f => f.name === doc.folder);
+      if (folderObj) folderObj.files--;
+    }
+    
+    await saveData();
+    renderDocuments();
+    renderFolders();
+    populateFolderDropdown();
+    showMessage('Document deleted successfully!', 'success');
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    showMessage('Error deleting document: ' + error.message, 'error');
+  } finally {
+    asyncLoading.style.display = 'none';
+    console.log('Delete operation completed, hiding async-loading');
   }
+}
   
   // Helper functions
   function getFileIconClass(fileType) {
