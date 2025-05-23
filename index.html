@@ -1657,6 +1657,7 @@
   </div>
 
 <script>
+ <script>
   // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
@@ -1913,7 +1914,7 @@
       group.querySelector('.error-text')?.remove();
     });
 
-    if (!title.trim()) {
+    if (!title || title.trim() === '' || typeof title === 'undefined') {
       const errorText = document.createElement('div');
       errorText.className = 'error-text';
       errorText.textContent = 'Title is required';
@@ -1922,7 +1923,7 @@
       isValid = false;
     }
 
-    if (!username.trim()) {
+    if (!username || username.trim() === '') {
       const errorText = document.createElement('div');
       errorText.className = 'error-text';
       errorText.textContent = 'Username or email is required';
@@ -1931,7 +1932,7 @@
       isValid = false;
     }
 
-    if (!password.trim()) {
+    if (!password || password.trim() === '') {
       const errorText = document.createElement('div');
       errorText.className = 'error-text';
       errorText.textContent = 'Password is required';
@@ -2139,7 +2140,7 @@
 
         document.getElementById('modal-title').textContent = 'Edit Task';
         document.getElementById('todo-id').value = todoId;
-        document.getElementById('todo-title').value = todo.title;
+        document.getElementById('todo-title').value = todo.title || '';
         document.getElementById('todo-description').value = todo.description || '';
         document.getElementById('todo-due').value = todo.dueDate || '';
         document.getElementById('todo-time').value = todo.time || '';
@@ -2268,12 +2269,15 @@
     card.className = 'password-card';
     card.dataset.id = password.id;
 
+    // Fallback for undefined or empty title
+    const title = password.title && password.title.trim() !== '' ? password.title : 'Untitled Password';
+
     const strength = calculatePasswordStrength(decryptPassword(password.password));
     const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
 
     card.innerHTML = `
       <div class="password-card-header">
-        <div class="password-name">${password.title}</div>
+        <div class="password-name">${title}</div>
         <div class="password-card-actions">
           <button title="Copy Password"><i class="fas fa-copy"></i></button>
           <button title="Edit"><i class="fas fa-edit"></i></button>
@@ -2339,9 +2343,9 @@
 
         document.getElementById('modal-title').textContent = 'Edit Password';
         document.getElementById('password-id').value = passwordId;
-        document.getElementById('password-title').value = password.title;
-        document.getElementById('password-username').value = password.username;
-        document.getElementById('password-value').value = decryptPassword(password.password);
+        document.getElementById('password-title').value = password.title || 'Untitled Password'; // Fallback for undefined title
+        document.getElementById('password-username').value = password.username || '';
+        document.getElementById('password-value').value = decryptPassword(password.password) || '';
         document.getElementById('password-url').value = password.url || '';
         document.getElementById('password-category').value = password.category || 'other';
         document.getElementById('password-notes').value = password.notes || '';
@@ -2422,7 +2426,7 @@
     }
 
     const passwordData = {
-      title,
+      title: title || 'Untitled Password', // Fallback for empty title
       username,
       password: encryptPassword(password),
       url,
@@ -2443,6 +2447,10 @@
       document.getElementById('password-form').reset();
       document.getElementById('password-id').value = '';
       document.getElementById('modal-title').textContent = 'Add New Password';
+      document.querySelectorAll('.form-group').forEach(group => {
+        group.classList.remove('invalid');
+        group.querySelector('.error-text')?.remove();
+      });
     } catch (error) {
       console.error('Error saving password:', error);
       showMessage('password-message', 'Error saving password: ' + error.message, 'error');
@@ -2806,6 +2814,7 @@
         } else if (modal.id === 'password-modal') {
           document.getElementById('modal-title').textContent = 'Add New Password';
           document.getElementById('password-id').value = '';
+          document.getElementById('password-title').value = ''; // Ensure title is reset
         }
       });
     });
@@ -2817,6 +2826,17 @@
           modal.querySelector('form')?.reset();
           modal.querySelectorAll('.error-text').forEach(err => err.remove());
           modal.querySelectorAll('.form-group').forEach(group => group.classList.remove('invalid'));
+          if (modal.id === 'todo-modal') {
+            document.getElementById('modal-title').textContent = 'Add New Task';
+            document.getElementById('todo-id').value = '';
+            document.querySelector('.priority-option.medium').classList.add('selected');
+            document.querySelectorAll('.priority-option.high, .priority-option.low').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('todo-priority').value = 'medium';
+          } else if (modal.id === 'password-modal') {
+            document.getElementById('modal-title').textContent = 'Add New Password';
+            document.getElementById('password-id').value = '';
+            document.getElementById('password-title').value = ''; // Ensure title is reset
+          }
         }
       });
     });
@@ -2827,6 +2847,9 @@
 
     addPasswordBtn.addEventListener('click', function() {
       document.getElementById('password-modal').style.display = 'flex';
+      document.getElementById('password-title').value = ''; // Ensure title is empty for new password
+      document.getElementById('modal-title').textContent = 'Add New Password';
+      document.getElementById('password-id').value = '';
     });
 
     uploadDocBtn.addEventListener('click', function() {
@@ -2856,6 +2879,6 @@
 
   // Initialize modals and other listeners
   setupModals();
-  </script>
+</script>
 </body>
 </html>
