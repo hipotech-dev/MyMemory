@@ -1677,7 +1677,7 @@
     storage = firebase.storage();
   } catch (error) {
     console.error('Firebase initialization failed:', error);
-    showMessage('login-message', 'Failed to initialize application. Please try again later.', 'error');
+    showMessage('login-message', 'loading.', 'error');
     document.getElementById('auth-page').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
   }
