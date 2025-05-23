@@ -1464,6 +1464,45 @@ function initializePage(userData) {
   });
 
   secureNavigation();
+    // Add timeout for auth check
+  const authTimeout = setTimeout(() => {
+    loadingElement.style.display = 'none';
+    showMessage('Authentication check timed out. Please refresh.', 'error');
+  }, 10000); // 10 second timeout
+
+  auth.onAuthStateChanged((user) => {
+    clearTimeout(authTimeout); // Clear the timeout if auth completes
+    
+    if (user && user.emailVerified) {
+      console.log('User authenticated:', user.email);
+      const userData = {
+        name: user.displayName || user.email.split('@')[0],
+        email: user.email,
+        avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
+      };
+      
+      loadingElement.style.display = 'none';
+      appContentElement.style.display = 'block';
+      initializePage(userData);
+    } else {
+      console.log('User not authenticated or email not verified, redirecting to login');
+      loadingElement.style.display = 'none';
+      if (user && !user.emailVerified) {
+        showMessage('Please verify your email before accessing this page.', 'error');
+        auth.signOut();
+      }
+      localStorage.clear();
+      window.location.replace('index.html');
+    }
+  }, error => {
+    clearTimeout(authTimeout);
+    console.error('Error checking auth state:', error);
+    loadingElement.style.display = 'none';
+    showMessage('Error verifying authentication. Please log in again.', 'error');
+    localStorage.clear();
+    window.location.replace('index.html');
+  });
+}
 
   // Document and folder data
   let documents = [];
@@ -1574,7 +1613,47 @@ function initializePage(userData) {
       showMessage('Error loading documents.', 'error');
     }
   }
-
+// In the loadData function, add error handling:
+async function loadData() {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) {
+      throw new Error('No user ID found');
+    }
+    
+    const doc = await withTimeout(db.collection('users').doc(userId).get(), 5000);
+    
+    if (doc.exists) {
+      const data = doc.data();
+      documents = data.documents || [];
+      folders = data.folders || [];
+    } else {
+      // Use default data if no document exists
+      documents = [...]; // your default documents
+      folders = [...]; // your default folders
+      await saveData();
+    }
+  } catch (error) {
+    console.error('Error loading data:', error);
+    // Use default data if there's an error
+    documents = [...]; // your default documents
+    folders = [...]; // your default folders
+    showMessage('Error loading documents. Using default data.', 'error');
+  }
+}
+// Make sure to hide loading indicators in all cases
+function initializePage(userData) {
+  try {
+    // Your existing initialization code
+    
+    // Add this at the end of initialization
+    document.getElementById('async-loading').style.display = 'none';
+  } catch (error) {
+    console.error('Error initializing page:', error);
+    document.getElementById('async-loading').style.display = 'none';
+    showMessage('Error initializing page. Please refresh.', 'error');
+  }
+}
   // Save data to Firestore
   async function saveData() {
     try {
