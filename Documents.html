@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +9,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="-1" />
   <meta http-equiv="Vary" content="*" />
-  <!-- Firebase scripts (updated to 10.12.2) -->
+  <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
@@ -382,7 +381,7 @@
     }
     
     .document-meta {
-      color: #4a5568; /* Increased contrast */
+      color: #4a5568;
       font-size: 0.85rem;
       display: flex;
       gap: 15px;
@@ -460,7 +459,7 @@
     }
     
     .folder-meta {
-      color: #4a5568; /* Increased contrast */
+      color: #4a5568;
       font-size: 0.85rem;
     }
     
@@ -1260,7 +1259,7 @@
     </div>
   </div>
 <script>
- // Firebase configuration (SECURITY WARNING: Move to environment variables in production)
+// Firebase configuration (SECURITY WARNING: Move to environment variables in production)
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1277,17 +1276,13 @@ const auth = firebase.auth();
 const storage = firebase.storage();
 const db = firebase.firestore();
 
-// Firestore security rules recommendation:
-/*
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
+// Utility function to add timeout to promises
+function withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Operation timed out')), ms))
+  ]);
 }
-*/
 
 // Show message
 function showMessage(message, type = 'error') {
@@ -1412,7 +1407,7 @@ function checkAuthState(eventType) {
         email: user.email,
         avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
       };
-      localStorage.setItem('userData', JSON.stringify(userData)); // Temporary for user info
+      localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('isAuthenticated', 'true');
 
       loadingElement.style.display = 'none';
@@ -1479,7 +1474,7 @@ function initializePage(userData) {
   let currentDocumentToShare = null;
   let sortColumn = 'modified';
   let sortDirection = 'desc';
-  let isUploading = false; // Prevent duplicate uploads
+  let isUploading = false;
 
   // Cache DOM elements
   const categoryButtons = document.querySelectorAll('.category-btn');
@@ -1572,7 +1567,7 @@ function initializePage(userData) {
             files: 5
           }
         ];
-        await saveData(); // Save defaults to Firestore
+        await saveData();
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -1640,7 +1635,7 @@ function initializePage(userData) {
   setupModal('upload-doc-btn', 'upload-modal');
   setupModal('new-folder-btn', 'folder-modal');
   setupModal(null, 'preview-modal');
-  // Removed incorrect setupModal for share-modal
+  setupModal(null, 'share-modal');
 
   // Setup drag-and-drop and file input
   function setupDragAndDrop() {
@@ -1834,7 +1829,6 @@ function initializePage(userData) {
 
   // Render documents in table view
   function renderDocuments() {
-    // Sort documents before rendering
     documents.sort((a, b) => {
       let valueA = a[sortColumn];
       let valueB = b[sortColumn];
@@ -1914,7 +1908,7 @@ function initializePage(userData) {
       `;
       
       folderItem.addEventListener('click', function(e) {
-        if (e.target.closest('.folder-actions')) return; // Ignore clicks on actions
+        if (e.target.closest('.folder-actions')) return;
         console.log('Filtering documents by folder:', folder.name);
         filterDocuments(folder.name);
       });
@@ -1973,7 +1967,6 @@ function initializePage(userData) {
         sortDirection = 'asc';
       }
       
-      // Update sort icons
       document.querySelectorAll('.documents-table th i').forEach(icon => {
         icon.className = 'fas fa-sort';
       });
@@ -1987,141 +1980,129 @@ function initializePage(userData) {
   
   // Upload document function
   async function uploadDocument() {
-  if (isUploading) {
-    console.log('Upload already in progress, ignoring');
-    return;
-  }
-  
-  isUploading = true;
-  const asyncLoading = document.getElementById('async-loading');
-  asyncLoading.style.display = 'flex';
-  try {
-    const nameInput = document.getElementById('document-name').value.trim();
-    const cleanName = DOMPurify.sanitize(nameInput);
-    const safeName = cleanName.replace(/[^a-zA-Z0-9-_]/g, '_');
-    const category = document.getElementById('document-category').value;
-    const folder = document.getElementById('document-folder').value;
-    const description = DOMPurify.sanitize(document.getElementById('document-description').value.trim());
-    const fileInput = document.getElementById('document-file');
+    if (isUploading) {
+      console.log('Upload already in progress, ignoring');
+      return;
+    }
+    
+    isUploading = true;
+    const asyncLoading = document.getElementById('async-loading');
+    asyncLoading.style.display = 'flex';
     const submitBtn = document.getElementById('upload-submit-btn');
     const progressContainer = document.getElementById('upload-progress');
     const progressFill = document.getElementById('progress-fill');
     const progressText = document.getElementById('progress-text');
     const formInputs = document.querySelectorAll('#upload-form input, #upload-form select, #upload-form textarea');
 
-    if (!cleanName) {
-      showMessage('Document name is required.', 'error');
-      resetUploadForm();
-      return;
-    }
-    
-    if (fileInput.files.length === 0) {
-      showMessage('Please select a file to upload.', 'error');
-      resetUploadForm();
-      return;
-    }
-    
-    const file = fileInput.files[0];
-    const fileType = file.name.split('.').pop().toLowerCase();
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      showMessage('File size exceeds 5MB limit.', 'error');
-      resetUploadForm();
-      return;
-    }
-    
-    const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
-    if (!allowedTypes.includes(fileType)) {
-      showMessage('Unsupported file type.', 'error');
-      resetUploadForm();
-      return;
-    }
+    try {
+      const nameInput = document.getElementById('document-name').value.trim();
+      const cleanName = DOMPurify.sanitize(nameInput);
+      const safeName = cleanName.replace(/[^a-zA-Z0-9-_]/g, '_');
+      const category = document.getElementById('document-category').value;
+      const folder = document.getElementById('document-folder').value;
+      const description = DOMPurify.sanitize(document.getElementById('document-description').value.trim());
+      const fileInput = document.getElementById('document-file');
 
-    submitBtn.classList.add('disabled');
-    submitBtn.disabled = true;
-    formInputs.forEach(input => input.disabled = true);
-    
-    progressContainer.style.display = 'block';
-    progressFill.style.width = '0%';
-    progressText.textContent = '0%';
+      if (!cleanName) {
+        showMessage('Document name is required.', 'error');
+        resetUploadForm();
+        return;
+      }
+      
+      if (fileInput.files.length === 0) {
+        showMessage('Please select a file to upload.', 'error');
+        resetUploadForm();
+        return;
+      }
+      
+      const file = fileInput.files[0];
+      const fileType = file.name.split('.').pop().toLowerCase();
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showMessage('File size exceeds 5MB limit.', 'error');
+        resetUploadForm();
+        return;
+      }
+      
+      const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
+      if (!allowedTypes.includes(fileType)) {
+        showMessage('Unsupported file type.', 'error');
+        resetUploadForm();
+        return;
+      }
 
-    const storageRef = storage.ref(`documents/${auth.currentUser.uid}/${Date.now()}_${safeName}.${fileType}`);
-    const uploadTask = storageRef.put(file);
+      submitBtn.classList.add('disabled');
+      submitBtn.disabled = true;
+      formInputs.forEach(input => input.disabled = true);
+      
+      progressContainer.style.display = 'block';
+      progressFill.style.width = '0%';
+      progressText.textContent = '0%';
 
-    await new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressFill.style.width = `${progress}%`;
-          progressText.textContent = `${Math.round(progress)}%`;
-          console.log(`Upload progress: ${progress}%`);
-        },
-        (error) => reject(error),
-        async () => {
-          try {
-            const downloadURL = await withTimeout(uploadTask.snapshot.ref.getDownloadURL(), 10000); // 10s timeout
-            console.log('File uploaded successfully, download URL:', downloadURL);
+      const storageRef = storage.ref(`documents/${auth.currentUser.uid}/${Date.now()}_${safeName}.${fileType}`);
+      const uploadTask = storageRef.put(file);
 
-            const newDoc = {
-              id: 'doc' + Date.now(),
-              name: cleanName,
-              type: fileType,
-              category: category,
-              folder: folder,
-              size: file.size,
-              modified: Date.now(),
-              owner: userData.name,
-              shared: false,
-              description: description,
-              storagePath: storageRef.fullPath,
-              downloadURL: downloadURL
-            };
-            
-            documents.unshift(newDoc);
-            
-            if (folder) {
-              const folderObj = folders.find(f => f.name === folder);
-              if (folderObj) folderObj.files++;
-            }
-            
-            await saveData();
-            renderDocuments();
-            renderFolders();
-            populateFolderDropdown();
-            
-            resetUploadForm();
-            showMessage(`Document "${cleanName}.${fileType}" uploaded successfully!`, 'success');
-            closeModal('upload-modal');
-            resolve();
-          } catch (error) {
+      await new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+            console.log(`Upload progress: ${progress}%`);
+          },
+          (error) => {
             reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await withTimeout(uploadTask.snapshot.ref.getDownloadURL(), 10000);
+              console.log('File uploaded successfully, download URL:', downloadURL);
+
+              const newDoc = {
+                id: 'doc' + Date.now(),
+                name: cleanName,
+                type: fileType,
+                category: category,
+                folder: folder,
+                size: file.size,
+                modified: Date.now(),
+                owner: userData.name,
+                shared: false,
+                description: description,
+                storagePath: storageRef.fullPath,
+                downloadURL: downloadURL
+              };
+              
+              documents.unshift(newDoc);
+              
+              if (folder) {
+                const folderObj = folders.find(f => f.name === folder);
+                if (folderObj) folderObj.files++;
+              }
+              
+              await saveData();
+              renderDocuments();
+              renderFolders();
+              populateFolderDropdown();
+              
+              showMessage(`Document "${cleanName}.${fileType}" uploaded successfully!`, 'success');
+              closeModal('upload-modal');
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
           }
-        }
-      );
-    });
-  } catch (error) {
-    console.error('Error uploading document:', error);
-    showMessage('Error uploading document: ' + error.message, 'error');
-    resetUploadForm();
-  } finally {
-    asyncLoading.style.display = 'none';
-    console.log('Upload operation completed, hiding async-loading');
-  }
+        );
+      });
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      showMessage('Error uploading document: ' + error.message, 'error');
+    } finally {
+      resetUploadForm();
+      asyncLoading.style.display = 'none';
+      console.log('Upload operation completed, hiding async-loading');
+    }
 
-  function resetUploadForm() {
-    document.getElementById('upload-form').reset();
-    document.getElementById('file-upload-area').querySelector('p').textContent = 'Drag & drop files here or click to browse';
-    submitBtn.classList.remove('disabled');
-    submitBtn.disabled = false;
-    formInputs.forEach(input => input.disabled = false);
-    progressContainer.style.display = 'none';
-    progressFill.style.width = '0%';
-    progressText.textContent = '0%';
-    isUploading = false;
-  }
-}
-
-    // Reset form function
     function resetUploadForm() {
       document.getElementById('upload-form').reset();
       document.getElementById('file-upload-area').querySelector('p').textContent = 'Drag & drop files here or click to browse';
@@ -2220,44 +2201,45 @@ function initializePage(userData) {
   }
   
   // Download document function
-async function downloadDocument(docId) {
-  const asyncLoading = document.getElementById('async-loading');
-  asyncLoading.style.display = 'flex';
-  try {
-    const doc = documents.find(d => d.id === docId);
-    if (!doc) {
-      showMessage('Document not found.', 'error');
-      return;
+  async function downloadDocument(docId) {
+    const asyncLoading = document.getElementById('async-loading');
+    asyncLoading.style.display = 'flex';
+    try {
+      const doc = documents.find(d => d.id === docId);
+      if (!doc) {
+        showMessage('Document not found.', 'error');
+        return;
+      }
+      
+      console.log('Downloading document:', doc.name);
+      if (doc.downloadURL) {
+        const a = document.createElement('a');
+        a.href = doc.downloadURL;
+        a.download = `${doc.name}.${doc.type}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${doc.name}.${doc.type}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      showMessage(`Downloaded ${DOMPurify.sanitize(doc.name)}.${doc.type}`, 'success');
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      showMessage('Error downloading document.', 'error');
+    } finally {
+      asyncLoading.style.display = 'none';
+      console.log('Download operation completed, hiding async-loading');
     }
-    
-    console.log('Downloading document:', doc.name);
-    if (doc.downloadURL) {
-      const a = document.createElement('a');
-      a.href = doc.downloadURL;
-      a.download = `${doc.name}.${doc.type}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } else {
-      const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${doc.name}.${doc.type}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-    showMessage(`Downloaded ${DOMPurify.sanitize(doc.name)}.${doc.type}`, 'success');
-  } catch (error) {
-    console.error('Error downloading document:', error);
-    showMessage('Error downloading document.', 'error');
-  } finally {
-    asyncLoading.style.display = 'none';
-    console.log('Download operation completed, hiding async-loading');
   }
-}
+  
   // Preview document function
   async function previewDocument(docId) {
     const doc = documents.find(d => d.id === docId);
@@ -2284,72 +2266,63 @@ async function downloadDocument(docId) {
       } else if (doc.type === 'txt') {
         try {
           const response = await fetch(doc.downloadURL);
-          if (!response.ok) throw new Error('Failed to fetch text file');
+          if (!response.ok) throw new Error('Failed to fetch text content');
           const text = await response.text();
-          previewContent.innerHTML = `<pre style="white-space: pre-wrap;">${DOMPurify.sanitize(text)}</pre>`;
+          previewContent.innerHTML = `<pre style="white-space: pre-wrap; background: #f5f7fa; padding: 10px; border-radius: 6px;">${DOMPurify.sanitize(text)}</pre>`;
         } catch (error) {
-          console.error('Error loading text preview:', error);
-          previewContent.innerHTML = '<p>Error loading text preview.</p>';
+          console.error('Error fetching text content:', error);
+          previewContent.innerHTML = '<p>Error loading text content.</p>';
         }
       }
     } else {
-      previewContent.innerHTML = '<p>Preview not available for this document.</p>';
+      previewContent.innerHTML = '<p>Preview not available.</p>';
     }
 
     previewModal.style.display = 'flex';
-    console.log('Opened preview modal for document:', doc.name);
   }
   
   // Share document function
   function shareDocument(docId) {
     currentDocumentToShare = docId;
-    document.getElementById('share-link-container').style.display = 'none';
-    document.getElementById('share-email-container').style.display = 'none';
-    document.getElementById('share-modal').style.display = 'flex';
-    console.log('Opened share modal for document ID:', docId);
+    const shareModal = document.getElementById('share-modal');
+    shareModal.style.display = 'flex';
   }
-
+  
   // Delete document function
-async function deleteDocument(docId) {
-  const asyncLoading = document.getElementById('async-loading');
-  asyncLoading.style.display = 'flex';
-  try {
+  async function deleteDocument(docId) {
     const doc = documents.find(d => d.id === docId);
     if (!doc) {
       showMessage('Document not found.', 'error');
       return;
     }
     
-    if (!confirm(`Are you sure you want to delete "${DOMPurify.sanitize(doc.name)}.${doc.type}"?`)) return;
+    if (!confirm(`Are you sure you want to delete "${doc.name}.${doc.type}"?`)) return;
     
-    if (doc.storagePath) {
-      await storage.ref(doc.storagePath).delete();
-      console.log('Deleted file from storage:', doc.storagePath);
+    try {
+      if (doc.storagePath) {
+        await storage.ref(doc.storagePath).delete();
+      }
+      
+      documents = documents.filter(d => d.id !== docId);
+      
+      if (doc.folder) {
+        const folder = folders.find(f => f.name === doc.folder);
+        if (folder) folder.files--;
+      }
+      
+      await saveData();
+      renderDocuments();
+      renderFolders();
+      populateFolderDropdown();
+      showMessage('Document deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      showMessage('Error deleting document.', 'error');
     }
-    
-    documents = documents.filter(d => d.id !== docId);
-    
-    if (doc.folder) {
-      const folderObj = folders.find(f => f.name === doc.folder);
-      if (folderObj) folderObj.files--;
-    }
-    
-    await saveData();
-    renderDocuments();
-    renderFolders();
-    populateFolderDropdown();
-    showMessage('Document deleted successfully!', 'success');
-  } catch (error) {
-    console.error('Error deleting document:', error);
-    showMessage('Error deleting document: ' + error.message, 'error');
-  } finally {
-    asyncLoading.style.display = 'none';
-    console.log('Delete operation completed, hiding async-loading');
   }
-}
   
-  // Helper functions
-  function getFileIconClass(fileType) {
+  // Utility functions
+  function getFileIconClass(type) {
     const iconMap = {
       pdf: 'fa-file-pdf',
       doc: 'fa-file-word',
@@ -2363,14 +2336,15 @@ async function deleteDocument(docId) {
       png: 'fa-file-image',
       txt: 'fa-file-alt'
     };
-    return iconMap[fileType] || 'fa-file';
+    return iconMap[type] || 'fa-file';
   }
 
   function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   function formatDate(timestamp) {
@@ -2378,17 +2352,21 @@ async function deleteDocument(docId) {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric'
     });
   }
 
   function closeModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) modal.style.display = 'none';
+    modal.style.display = 'none';
   }
-}
+
+  // Initialize additional listeners
+  function initializeAdditionalListeners() {
+    // Any additional listeners can be added here
+  }
+  initializeAdditionalListeners();
+} // Closing brace for initializePage
 </script>
 </body>
 </html>
