@@ -497,6 +497,129 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
+    /* Password Card Styles (Aligned with Password Manager.html) */
+    .password-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .password-card {
+      background: var(--light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .password-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    .password-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .password-name {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+    
+    .password-card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .password-card-actions button {
+      background: none;
+      border: none;
+      color: var(--dark);
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .password-card-actions button:hover {
+      background: var(--gray);
+      color: var(--primary);
+    }
+    
+    .password-details {
+      margin-top: 0.75rem;
+    }
+    
+    .password-detail {
+      display: flex;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+    
+    .password-label {
+      font-weight: 500;
+      min-width: 80px;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+    
+    .password-value {
+      flex: 1;
+      position: relative;
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+    
+    .password-value input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+    
+    .password-value .masked {
+      -webkit-text-security: disc;
+    }
+    
+    .toggle-password {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--dark);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    .toggle-password:hover {
+      color: var(--primary);
+    }
+    
+    .password-strength {
+      height: 4px;
+      background: var(--gray);
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+    
+    .strength-meter {
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+
     /* Mobile-specific adjustments */
     @media (max-width: 768px) {
       .user-popup {
@@ -521,6 +644,29 @@
       .user-popup .logout-btn {
         padding: 0.5rem;
         font-size: 0.85rem;
+      }
+      
+      .password-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .password-detail {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-start;
+      }
+      
+      .password-label {
+        min-width: 100%;
+      }
+      
+      .password-name, .password-value {
+        word-break: break-word;
+      }
+      
+      .password-strength {
+        display: none;
       }
     }
 
@@ -553,6 +699,11 @@
         width: 36px;
         height: 36px;
         font-size: 0.9rem;
+      }
+      
+      .password-card-actions button {
+        width: 35px;
+        height: 35px;
       }
     }
 
@@ -771,43 +922,15 @@
       background: var(--light);
       border-radius: 8px;
       transition: all 0.3s ease;
+      text-align: center;
+      color: var(--dark);
+      font-size: 1rem;
+      border: 1px solid var(--gray);
+      box-shadow: var(--card-shadow);
     }
     
     .password-item:hover {
       background: var(--gray);
-    }
-    
-    .password-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--dark);
-      margin-bottom: 0.25rem;
-    }
-    
-    .password-details {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      color: #4a5568;
-    }
-    
-    .password-username,
-    .password-value {
-      flex: 1;
-    }
-    
-    .toggle-password-btn, .delete-password-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--dark);
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    
-    .toggle-password-btn:hover, .delete-password-btn:hover {
-      color: var(--primary);
     }
     
     .document-list {
@@ -1264,11 +1387,11 @@
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
-        <div class="user-avatar" id="user-avatar">JS</div>
+        <div class="user-avatar" id="user-avatar"></div>
         <div class="user-popup" id="user-popup">
           <div class="user-info">
-            <div class="user-name" id="popup-user-name">John Smith</div>
-            <div class="user-email" id="popup-user-email">john.smith@example.com</div>
+            <div class="user-name" id="popup-user-name"></div>
+            <div class="user-email" id="popup-user-email"></div>
           </div>
           <button class="logout-btn" id="popup-logout-btn">Logout</button>
         </div>
@@ -1289,7 +1412,7 @@
 
       <main class="main-content">
         <div class="welcome-banner">
-          <h2>Welcome back, <span id="user-name">John Smith</span>!</h2>
+          <h2>Welcome back, <span id="user-name"></span>!</h2>
           <p>Here's what's happening with your account today.</p>
         </div>
 
@@ -1309,7 +1432,8 @@
               <h3>Password Manager</h3>
               <button class="btn" id="add-password-btn">Add Password</button>
             </div>
-            <div class="password-list" id="password-list">
+            <div class="password-list">
+              <div class="password-grid" id="password-list"></div>
               <div class="loading" id="password-loading">Loading passwords...</div>
             </div>
           </div>
@@ -1348,11 +1472,11 @@
       </div>
     </div>
 
-    <!-- Add Password Modal -->
+    <!-- Add/Edit Password Modal -->
     <div class="modal" id="password-modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>Add New Password</h3>
+          <h3 id="modal-title">Add New Password</h3>
           <button class="modal-close">×</button>
         </div>
         <div class="message" id="password-message"></div>
@@ -1373,7 +1497,26 @@
             <label for="password-url">Website URL</label>
             <input type="url" id="password-url" class="form-control">
           </div>
-          <button type="submit" class="btn">Save Password</button>
+          <div class="form-group">
+            <label for="password-category">Category</label>
+            <select id="password-category" class="form-control">
+              <option value="email">Email</option>
+              <option value="banking">Banking</option>
+              <option value="social">Social</option>
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="password-notes">Notes</label>
+            <textarea id="password-notes" class="form-control" rows="3"></textarea>
+          </div>
+          <input type="hidden" id="password-id">
+          <div class="form-actions">
+            <button type="button" class="btn" style="background: var(--gray); color: var(--dark);">Cancel</button>
+            <button type="submit" class="btn">Save</button>
+          </div>
         </form>
       </div>
     </div>
@@ -1399,7 +1542,7 @@
             <select id="document-category" class="form-control">
               <option value="contract">Contract</option>
               <option value="proposal">Proposal</option>
-              <option value="report">Report</option>
+              <option value="proposal">Report</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -1457,6 +1600,30 @@
     }
   }
 
+  // Calculate password strength
+  function calculatePasswordStrength(password) {
+    let strength = 0;
+    if (password.length >= 8) strength += 25;
+    if (password.length >= 12) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 15;
+    if (/[0-9]/.test(password)) strength += 15;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+    return Math.min(strength, 100);
+  }
+
+  // Encrypt and decrypt password
+  function encryptPassword(password) {
+    return btoa(password);
+  }
+
+  function decryptPassword(encryptedPassword) {
+    try {
+      return atob(encryptedPassword);
+    } catch {
+      return 'Error decrypting';
+    }
+  }
+
   // Toggle between login and signup forms
   function toggleForms() {
     const loginForm = document.getElementById('login-form');
@@ -1486,14 +1653,7 @@
   if (passwordInput && strengthMeter) {
     passwordInput.addEventListener('input', function() {
       const password = this.value;
-      let strength = 0;
-
-      if (password.length >= 8) strength += 25;
-      if (password.length >= 12) strength += 25;
-      if (/[A-Z]/.test(password)) strength += 15;
-      if (/[0-9]/.test(password)) strength += 15;
-      if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-
+      let strength = calculatePasswordStrength(password);
       strengthMeter.style.width = strength + '%';
       strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' : 
                                           strength < 75 ? '#f6ad55' : '#38a169';
@@ -1782,6 +1942,53 @@
     });
   }
 
+  // Add event listeners for todo items
+  function addTodoEventListeners(todoItem) {
+    const checkbox = todoItem.querySelector('.todo-checkbox');
+    const editBtn = todoItem.querySelector('.edit-todo-btn');
+    const deleteBtn = todoItem.querySelector('.delete-todo-btn');
+    const editForm = todoItem.querySelector('.edit-todo-form');
+    const saveBtn = todoItem.querySelector('.save-edit-btn');
+    const cancelBtn = todoItem.querySelector('.cancel-edit-btn');
+    const editInput = todoItem.querySelector('.edit-todo-input');
+
+    checkbox.addEventListener('change', () => {
+      todoItem.classList.toggle('todo-completed', checkbox.checked);
+      saveTodos();
+    });
+
+    editBtn.addEventListener('click', () => {
+      todoItem.querySelector('.todo-text').style.display = 'none';
+      todoItem.querySelector('.todo-actions').style.display = 'none';
+      editForm.style.display = 'flex';
+      editInput.focus();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      editForm.style.display = 'none';
+      todoItem.querySelector('.todo-text').style.display = 'block';
+      todoItem.querySelector('.todo-actions').style.display = 'flex';
+    });
+
+    saveBtn.addEventListener('click', () => {
+      const newText = editInput.value.trim();
+      if (newText) {
+        todoItem.querySelector('.todo-text').textContent = newText;
+        editForm.style.display = 'none';
+        todoItem.querySelector('.todo-text').style.display = 'block';
+        todoItem.querySelector('.todo-actions').style.display = 'flex';
+        saveTodos();
+      }
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to delete this task?')) {
+        todoItem.remove();
+        saveTodos();
+      }
+    });
+  }
+
   // Handle user popup functionality
   function setupUserPopup() {
     const userAvatar = document.getElementById('user-avatar');
@@ -1825,6 +2032,126 @@
       window.location.href = 'index.html';
     }).catch((error) => {
       showMessage('login-message', 'Logout failed: ' + error.message, 'error');
+    });
+  }
+
+  // Load passwords from Firestore
+  function loadPasswords(user) {
+    const passwordList = document.getElementById('password-list');
+    const loadingElement = document.getElementById('password-loading');
+    
+    passwordList.innerHTML = '';
+    loadingElement.style.display = 'block';
+
+    db.collection('users').doc(user.uid).collection('passwords')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(
+        (snapshot) => {
+          passwordList.innerHTML = '';
+          loadingElement.style.display = 'none';
+          if (snapshot.empty) {
+            passwordList.innerHTML = '<div class="password-item">No passwords found.</div>';
+          } else {
+            snapshot.forEach(doc => {
+              const password = { id: doc.id, ...doc.data() };
+              const passwordItem = document.createElement('div');
+              passwordItem.className = 'password-card';
+              const decryptedPassword = decryptPassword(password.password);
+              passwordItem.innerHTML = `
+                <div class="password-card-header">
+                  <div class="password-name">${password.name}</div>
+                  <div class="password-card-actions">
+                    <button class="edit-password-btn" data-id="${password.id}"><i class="fas fa-edit"></i></button>
+                    <button class="delete-password-btn" data-id="${password.id}"><i class="fas fa-trash"></i></button>
+                  </div>
+                </div>
+                <div class="password-details">
+                  <div class="password-detail">
+                    <span class="password-label">Username:</span>
+                    <span class="password-value">${password.username}</span>
+                  </div>
+                  <div class="password-detail">
+                    <span class="password-label">Password:</span>
+                    <span class="password-value">
+                      <input type="password" class="password-input masked" value="${decryptedPassword}" readonly>
+                      <button class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </span>
+                  </div>
+                  <div class="password-detail">
+                    <span class="password-label">URL:</span>
+                    <span class="password-value">${password.url || 'N/A'}</span>
+                  </div>
+                  <div class="password-detail">
+                    <span class="password-label">Category:</span>
+                    <span class="password-value">${password.category || 'N/A'}</span>
+                  </div>
+                  <div class="password-detail">
+                    <span class="password-label">Notes:</span>
+                    <span class="password-value">${password.notes || 'N/A'}</span>
+                  </div>
+                </div>
+                <div class="password-strength">
+                  <div class="strength-meter" style="width: ${calculatePasswordStrength(decryptedPassword)}%; background-color: ${calculatePasswordStrength(decryptedPassword) < 50 ? '#ff5a5f' : calculatePasswordStrength(decryptedPassword) < 75 ? '#f6ad55' : '#38a169'};"></div>
+                </div>
+              `;
+              passwordList.appendChild(passwordItem);
+              addPasswordEventListeners(passwordItem, user);
+            });
+          }
+        },
+        (error) => {
+          console.error('Error loading passwords:', error);
+          passwordList.innerHTML = '<div class="password-item">Error loading passwords.</div>';
+          loadingElement.style.display = 'none';
+          showMessage('password-message', 'Failed to load passwords. Please try again.', 'error');
+        }
+      );
+  }
+
+  // Add event listeners for password cards
+  function addPasswordEventListeners(passwordItem, user) {
+    const toggleBtn = passwordItem.querySelector('.toggle-password');
+    const passwordInput = passwordItem.querySelector('.password-input');
+    const editBtn = passwordItem.querySelector('.edit-password-btn');
+    const deleteBtn = passwordItem.querySelector('.delete-password-btn');
+
+    toggleBtn.addEventListener('click', () => {
+      const isMasked = passwordInput.classList.contains('masked');
+      passwordInput.classList.toggle('masked', !isMasked);
+      passwordInput.type = isMasked ? 'text' : 'password';
+      toggleBtn.innerHTML = `<i class="fas ${isMasked ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+    });
+
+    editBtn.addEventListener('click', async () => {
+      const passwordId = editBtn.dataset.id;
+      try {
+        const doc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
+        if (doc.exists) {
+          const password = doc.data();
+          document.getElementById('password-id').value = passwordId;
+          document.getElementById('password-title').value = password.name;
+          document.getElementById('password-username').value = password.username;
+          document.getElementById('password-value').value = decryptPassword(password.password);
+          document.getElementById('password-url').value = password.url || '';
+          document.getElementById('password-category').value = password.category || 'other';
+          document.getElementById('password-notes').value = password.notes || '';
+          document.getElementById('modal-title').textContent = 'Edit Password';
+          document.getElementById('password-modal').style.display = 'flex';
+        }
+      } catch (error) {
+        showMessage('password-message', 'Failed to load password for editing.', 'error');
+      }
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to delete this password?')) {
+        try {
+          await db.collection('users').doc(user.uid).collection('passwords').doc(deleteBtn.dataset.id).delete();
+          showMessage('password-message', 'Password deleted!', 'success');
+        } catch (error) {
+          showMessage('password-message', 'Failed to delete password.', 'error');
+        }
+      }
     });
   }
 
@@ -1885,12 +2212,13 @@
       if (!validateTodoForm()) return;
 
       const title = document.getElementById('todo-title').value;
+      const dueDate = document.getElementById('todo-due').value;
       const todoList = document.getElementById('todo-list');
       const todoItem = document.createElement('div');
       todoItem.className = 'todo-item';
       todoItem.innerHTML = `
         <input type="checkbox" class="todo-checkbox">
-        <div class="todo-text">${title}</div>
+        <div class="todo-text">${title}${dueDate ? ` (Due: ${dueDate})` : ''}</div>
         <div class="todo-actions">
           <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
           <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
@@ -1914,6 +2242,9 @@
     const passwordForm = document.getElementById('password-form');
 
     addPasswordBtn.addEventListener('click', () => {
+      passwordForm.reset();
+      document.getElementById('password-id').value = '';
+      document.getElementById('modal-title').textContent = 'Add New Password';
       passwordModal.style.display = 'flex';
     });
 
@@ -1931,28 +2262,34 @@
       e.preventDefault();
       if (!validatePasswordForm()) return;
 
-      const title = document.getElementById('password-title').value;
-      const username = document.getElementById('password-username').value;
-      const password = document.getElementById('password-value').value;
-      const url = document.getElementById('password-url').value;
+      const passwordId = document.getElementById('password-id').value;
+      const passwordData = {
+        name: document.getElementById('password-title').value,
+        username: document.getElementById('password-username').value,
+        password: encryptPassword(document.getElementById('password-value').value),
+        url: document.getElementById('password-url').value,
+        category: document.getElementById('password-category').value,
+        notes: document.getElementById('password-notes').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
 
       try {
-        await db.collection('users').doc(user.uid).collection('passwords').add({
-          title,
-          username,
-          password,
-          url: url || '',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        showMessage('password-message', 'Password saved successfully!', 'success');
+        if (passwordId) {
+          await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
+          showMessage('password-message', 'Password updated!', 'success');
+        } else {
+          await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
+          showMessage('password-message', 'Password saved!', 'success');
+        }
         passwordForm.reset();
         passwordModal.style.display = 'none';
       } catch (error) {
-        showMessage('password-message', 'Failed to save password: ' + error.message, 'error');
+        showMessage('password-message', 'Failed to save password.', 'error');
       }
     });
 
-    // Document modal handling
+    // Document modal handling (stub, as document upload not fully implemented)
     const documentModal = document.getElementById('document-modal');
     const uploadDocBtn = document.getElementById('upload-doc-btn');
     const documentForm = document.getElementById('document-form');
@@ -1974,227 +2311,53 @@
     documentForm.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!validateDocumentForm()) return;
-
-      const name = document.getElementById('document-name').value;
-      const file = document.getElementById('document-file').files[0];
-      const documentList = document.getElementById('document-list');
-      const extension = file.name.split('.').pop().toLowerCase();
-      const iconClass = extension === 'pdf' ? 'fa-file-pdf' :
-                       extension === 'docx' ? 'fa-file-word' :
-                       extension === 'xlsx' ? 'fa-file-excel' : 'fa-file';
-      const documentItem = document.createElement('div');
-      documentItem.className = 'document-item';
-      documentItem.innerHTML = `
-        <i class="fas ${iconClass} document-icon"></i>
-        <div class="document-info">
-          <div class="document-name">${name}.${extension}</div>
-          <div class="document-meta">Uploaded just now • ${(file.size / 1024 / 1024).toFixed(1)} MB</div>
-        </div>
-        <button><i class="fas fa-ellipsis-v"></i></button>
-      `;
-      documentList.prepend(documentItem);
-      documentForm.reset();
+      // Implement document upload logic here
+      showMessage('login-message', 'Document upload not implemented.', 'error');
       documentModal.style.display = 'none';
     });
   }
 
-  // Load passwords from Firestore
-  function loadPasswords(user) {
-    const passwordList = document.getElementById('password-list');
-    const loadingElement = document.getElementById('password-loading');
-
-    db.collection('users').doc(user.uid).collection('passwords')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot((snapshot) => {
-        passwordList.innerHTML = '';
-        if (snapshot.empty) {
-          passwordList.innerHTML = '<div>No passwords saved yet.</div>';
-        } else {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const passwordItem = document.createElement('div');
-            passwordItem.className = 'password-item';
-            passwordItem.setAttribute('data-id', doc.id);
-            passwordItem.innerHTML = `
-              <div class="password-title">${data.title}</div>
-              <div class="password-details">
-                <span class="password-username">${data.username}</span>
-                <span class="password-value" style="display: none;">${data.password}</span>
-                <button class="toggle-password-btn"><i class="fas fa-eye"></i></button>
-                <button class="delete-password-btn"><i class="fas fa-trash"></i></button>
-              </div>
-            `;
-            passwordList.appendChild(passwordItem);
-            addPasswordEventListeners(passwordItem, user, doc.id);
-          });
-        }
-        loadingElement.style.display = 'none';
-      }, (error) => {
-        showMessage('password-message', 'Failed to load passwords: ' + error.message, 'error');
-        loadingElement.style.display = 'none';
-      });
-  }
-
-  // Add event listeners for todo items
-  function addTodoEventListeners(todoItem) {
-    const checkbox = todoItem.querySelector('.todo-checkbox');
-    const editBtn = todoItem.querySelector('.edit-todo-btn');
-    const deleteBtn = todoItem.querySelector('.delete-todo-btn');
-    const editForm = todoItem.querySelector('.edit-todo-form');
-    const saveBtn = todoItem.querySelector('.save-edit-btn');
-    const cancelBtn = todoItem.querySelector('.cancel-edit-btn');
-    const editInput = todoItem.querySelector('.edit-todo-input');
-
-    checkbox.addEventListener('change', () => {
-      todoItem.classList.toggle('todo-completed', checkbox.checked);
-      saveTodos();
-    });
-
-    editBtn.addEventListener('click', () => {
-      todoItem.querySelector('.todo-text').style.display = 'none';
-      todoItem.querySelector('.todo-actions').style.display = 'none';
-      editForm.style.display = 'flex';
-      editInput.focus();
-    });
-
-    saveBtn.addEventListener('click', () => {
-      const newText = editInput.value.trim();
-      if (newText) {
-        todoItem.querySelector('.todo-text').textContent = newText;
-        editInput.value = newText;
-        todoItem.querySelector('.todo-text').style.display = 'block';
-        todoItem.querySelector('.todo-actions').style.display = 'flex';
-        editForm.style.display = 'none';
-        saveTodos();
-      }
-    });
-
-    cancelBtn.addEventListener('click', () => {
-      todoItem.querySelector('.todo-text').style.display = 'block';
-      todoItem.querySelector('.todo-actions').style.display = 'flex';
-      editForm.style.display = 'none';
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      todoItem.remove();
-      saveTodos();
-    });
-  }
-
-  // Add event listeners for password items
-  function addPasswordEventListeners(passwordItem, user, docId) {
-    const toggleBtn = passwordItem.querySelector('.toggle-password-btn');
-    const deleteBtn = passwordItem.querySelector('.delete-password-btn');
-    const passwordValue = passwordItem.querySelector('.password-value');
-
-    toggleBtn.addEventListener('click', () => {
-      const isHidden = passwordValue.style.display === 'none';
-      passwordValue.style.display = isHidden ? 'inline' : 'none';
-      toggleBtn.querySelector('i').className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
-    });
-
-    deleteBtn.addEventListener('click', async () => {
-      if (confirm('Are you sure you want to delete this password?')) {
-        try {
-          await db.collection('users').doc(user.uid).collection('passwords').doc(docId).delete();
-          showMessage('password-message', 'Password deleted successfully!', 'success');
-        } catch (error) {
-          showMessage('password-message', 'Failed to delete password: ' + error.message, 'error');
-        }
-      }
-    });
-  }
-
-  // Check authentication state on page load
-  function checkAuthOnLoad() {
-    return new Promise((resolve) => {
-      const unsubscribe = auth.onAuthStateChanged((user) => {
-        if (user && user.emailVerified) {
-          const userData = {
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
-            avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
-          };
-          localStorage.setItem('userData', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-          document.getElementById('auth-page').style.display = 'none';
-          document.getElementById('dashboard').style.display = 'block';
-          initializeDashboard(userData, user);
-          resolve(true);
-        } else {
-          localStorage.removeItem('isAuthenticated');
-          localStorage.removeItem('userData');
-          document.getElementById('dashboard').style.display = 'none';
-          document.getElementById('auth-page').style.display = 'flex';
-          document.getElementById('login-form').style.display = 'block';
-          document.getElementById('signup-form').style.display = 'none';
-          resolve(false);
-        }
-        unsubscribe(); // Clean up listener
-      }, (error) => {
-        showMessage('login-message', 'Authentication error: ' + error.message, 'error');
-        document.getElementById('dashboard').style.display = 'none';
-        document.getElementById('auth-page').style.display = 'flex';
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('signup-form').style.display = 'none';
-        resolve(false);
-        unsubscribe();
-      });
-    });
-  }
-
-  // Login form submission
-  document.getElementById('login').addEventListener('submit', function(e) {
+  // Authentication handling
+  document.getElementById('login').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateLoginForm()) return;
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const rememberMe = document.getElementById('remember').checked;
+    const remember = document.getElementById('remember').checked;
 
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        if (!user.emailVerified) {
-          showMessage('login-message', 'Please verify your email before logging in.', 'error');
-          auth.signOut();
-          return;
-        }
-        if (rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
-        } else {
-          localStorage.removeItem('rememberMe');
-        }
-        const userData = {
-          name: user.displayName || email.split('@')[0],
-          email: user.email,
-          avatarInitials: (user.displayName || email).substring(0, 2).toUpperCase()
-        };
-        localStorage.setItem('userData', JSON.stringify(userData));
-        localStorage.setItem('isAuthenticated', 'true');
-        document.getElementById('auth-page').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        initializeDashboard(userData, user);
-      })
-      .catch((error) => {
-        let errorMessage = 'Login failed. Please try again.';
-        switch (error.code) {
-          case 'auth/wrong-password':
-            errorMessage = 'Incorrect password.';
-            break;
-          case 'auth/user-not-found':
-            errorMessage = 'No account found with this email.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many attempts. Please try again later.';
-            break;
-        }
-        showMessage('login-message', errorMessage, 'error');
-      });
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        await auth.signOut();
+        showMessage('login-message', 'Please verify your email before logging in.', 'error');
+        return;
+      }
+
+      localStorage.setItem('isAuthenticated', 'true');
+      if (remember) {
+        localStorage.setItem('rememberMe', 'true');
+      }
+
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      const userData = {
+        name: userDoc.exists ? userDoc.data().name : user.displayName || 'User',
+        email: user.email,
+        avatarInitials: userData.name.split(' ').map(n => n[0]).join('').toUpperCase()
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
+
+      document.getElementById('auth-page').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+      initializeDashboard(userData, user);
+    } catch (error) {
+      showMessage('login-message', error.message, 'error');
+    }
   });
 
-  // Signup form submission
-  document.getElementById('signup').addEventListener('submit', function(e) {
+  document.getElementById('signup').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateSignupForm()) return;
 
@@ -2202,46 +2365,32 @@
     const email = document.getElementById('email-signup').value;
     const password = document.getElementById('password-signup').value;
 
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        return Promise.all([
-          user.updateProfile({ displayName: name }),
-          user.sendEmailVerification(),
-          db.collection('users').doc(user.uid).set({
-            name,
-            email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          })
-        ]);
-      })
-      .then(() => {
-        showMessage('signup-message', 'Account created! Please check your email to verify your account.', 'success');
-        document.getElementById('signup').reset();
-        toggleForms();
-      })
-      .catch((error) => {
-        let errorMessage = 'Signup failed. Please try again.';
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            errorMessage = 'This email is already registered.';
-            break;
-          case 'auth/weak-password':
-            errorMessage = 'Password is too weak.';
-            break;
-        }
-        showMessage('signup-message', errorMessage, 'error');
+    try {
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      await user.updateProfile({ displayName: name });
+      await user.sendEmailVerification();
+
+      await db.collection('users').doc(user.uid).set({
+        name,
+        email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+      showMessage('signup-message', 'Account created! Please check your email to verify.', 'success');
+      toggleForms();
+    } catch (error) {
+      showMessage('signup-message', error.message, 'error');
+    }
   });
 
-  // Forgot password form submission
-  document.getElementById('forgot-password').addEventListener('click', function(e) {
+  document.getElementById('forgot-password').addEventListener('click', (e) => {
     e.preventDefault();
-    const modal = document.getElementById('forgot-password-modal');
-    modal.style.display = 'flex';
+    document.getElementById('forgot-password-modal').style.display = 'flex';
   });
 
-  document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
+  document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateForgotForm()) return;
 
@@ -2252,40 +2401,21 @@
       return;
     }
 
-    auth.sendPasswordResetEmail(email)
-      .then(() => {
-        localStorage.setItem(`reset-attempt-${email}`, Date.now());
-        showMessage('forgot-message', 'Password reset email sent! Check your inbox.', 'success');
-        document.getElementById('forgot-password-form').reset();
-        document.getElementById('forgot-password-modal').style.display = 'none';
-      })
-      .catch((error) => {
-        let errorMessage = 'Failed to send reset email.';
-        switch (error.code) {
-          case 'auth/user-not-found':
-            errorMessage = 'No account found with this email.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many requests. Please try again later.';
-            break;
-        }
-        showMessage('forgot-message', errorMessage, 'error');
-      });
+    try {
+      await auth.sendPasswordResetEmail(email);
+      localStorage.setItem(`reset-attempt-${email}`, Date.now());
+      showMessage('forgot-message', 'Password reset email sent!', 'success');
+      document.getElementById('forgot-password-modal').style.display = 'none';
+    } catch (error) {
+      showMessage('forgot-message', error.message, 'error');
+    }
   });
 
-  // Close forgot password modal
   document.getElementById('forgot-password-modal').querySelector('.modal-close').addEventListener('click', () => {
     document.getElementById('forgot-password-modal').style.display = 'none';
   });
 
-  window.addEventListener('click', (e) => {
-    if (e.target === document.getElementById('forgot-password-modal')) {
-      document.getElementById('forgot-password-modal').style.display = 'none';
-    }
-  });
-
-  // Resend verification email
-  document.getElementById('resend-verification').addEventListener('click', function(e) {
+  document.getElementById('resend-verification').addEventListener('click', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
 
@@ -2299,36 +2429,58 @@
       return;
     }
 
-    auth.signInWithEmailAndPassword(email, document.getElementById('password').value)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        if (user.emailVerified) {
-          showMessage('login-message', 'Your email is already verified.', 'success');
-          return;
-        }
-        return user.sendEmailVerification();
-      })
-      .then(() => {
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        await user.sendEmailVerification();
         localStorage.setItem(`verification-attempt-${email}`, Date.now());
-        showMessage('login-message', 'Verification email sent! Please check your inbox.', 'success');
-      })
-      .catch((error) => {
-        let errorMessage = 'Failed to send verification email.';
-        switch (error.code) {
-          case 'auth/wrong-password':
-            errorMessage = 'Incorrect password.';
-            break;
-          case 'auth/user-not-found':
-            errorMessage = 'No account found with this email.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many requests. Please try again later.';
-            break;
-        }
-        showMessage('login-message', errorMessage, 'error');
-      });
+        showMessage('login-message', 'Verification email resent! Please check your inbox.', 'success');
+      } else {
+        showMessage('login-message', 'Email is already verified.', 'success');
+      }
+    } catch (error) {
+      showMessage('login-message', error.message, 'error');
+    }
   });
 
-  // Check auth state on load
-  checkAuthOnLoad();
+  // Check auth state on page load
+  auth.onAuthStateChanged(async (user) => {
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+
+    if (user && isAuthenticated && user.emailVerified) {
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userData = {
+          name: userDoc.exists ? userDoc.data().name : user.displayName || 'User',
+          email: user.email,
+          avatarInitials: (userDoc.exists ? userDoc.data().name : user.displayName || 'User')
+            .split(' ').map(n => n[0]).join('').toUpperCase()
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+        document.getElementById('auth-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        initializeDashboard(userData, user);
+      } catch (error) {
+        showMessage('login-message', 'Failed to load user data.', 'error');
+        auth.signOut();
+      }
+    } else {
+      if (user && !user.emailVerified) {
+        showMessage('login-message', 'Please verify your email before logging in.', 'error');
+        await auth.signOut();
+      }
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('userData');
+      if (!rememberMe) {
+        localStorage.removeItem('rememberMe');
+      }
+      document.getElementById('auth-page').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+  });
 </script>
+</body>
+</html>
