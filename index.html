@@ -10,9 +10,9 @@
   <meta http-equiv="Vary" content="*" />
   <base href="https://hipotech-dev.github.io/MyMemory/">
   <title>MyMemory - Your Personal Productivity App</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -26,6 +26,10 @@
       --white: #ffffff;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --category-work: #007bff;
+      --category-personal: #28a745;
+      --category-urgent: #dc3545;
+      --warning: #f6ad55;
     }
     
     * {
@@ -497,7 +501,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
-    /* Password Card Styles (Aligned with Password Manager.html) */
+    /* Password Card Styles */
     .password-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -619,7 +623,116 @@
       height: 100%;
       transition: all 0.3s ease;
     }
-
+    
+    /* To-Do List Styles */
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--light);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .todo-item:hover {
+      background: var(--gray);
+    }
+    
+    .todo-item.todo-completed .todo-title {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    
+    .todo-checkbox {
+      width: 1.2rem;
+      height: 1.2rem;
+      cursor: pointer;
+    }
+    
+    .todo-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .todo-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+      word-break: break-word;
+      color: var(--dark);
+    }
+    
+    .todo-due {
+      font-size: 0.85rem;
+      color: #718096;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .todo-category {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      color: var(--white);
+      margin-left: 8px;
+    }
+    
+    .category-work {
+      background: var(--category-work);
+    }
+    
+    .category-personal {
+      background: var(--category-personal);
+    }
+    
+    .category-urgent {
+      background: var(--category-urgent);
+    }
+    
+    .todo-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .todo-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--dark);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .todo-actions button:hover {
+      background: var(--gray);
+      color: var(--primary);
+    }
+    
+    .priority-high {
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .priority-medium {
+      border-left: 4px solid var(--warning);
+    }
+    
+    .priority-low {
+      border-left: 4px solid var(--success);
+    }
+    
     /* Mobile-specific adjustments */
     @media (max-width: 768px) {
       .user-popup {
@@ -667,6 +780,22 @@
       
       .password-strength {
         display: none;
+      }
+      
+      .todo-item {
+        flex-wrap: wrap;
+      }
+      
+      .todo-content {
+        min-width: calc(100% - 44px);
+      }
+      
+      .todo-actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
       }
     }
 
@@ -825,167 +954,6 @@
       font-size: 0.9rem;
     }
     
-    .todo-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    .todo-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem;
-      background: var(--light);
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .todo-item:hover {
-      background: var(--gray);
-    }
-    
-    .todo-item.todo-completed .todo-text {
-      text-decoration: line-through;
-      opacity: 0.6;
-    }
-    
-    .todo-checkbox {
-      width: 1.2rem;
-      height: 1.2rem;
-      cursor: pointer;
-    }
-    
-    .todo-text {
-      flex: 1;
-      font-size: 0.95rem;
-      color: var(--dark);
-    }
-    
-    .todo-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .todo-actions button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--dark);
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    
-    .todo-actions button:hover {
-      color: var(--primary);
-    }
-    
-    .edit-todo-form {
-      display: none;
-      flex: 1;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    
-    .edit-todo-input {
-      flex: 1;
-      padding: 0.5rem;
-      border: 1px solid var(--gray);
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-    
-    .edit-todo-form button {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      border-radius: 6px;
-    }
-    
-    .save-edit-btn {
-      background: var(--success);
-      color: var(--white);
-    }
-    
-    .cancel-edit-btn {
-      background: var(--secondary);
-      color: var(--white);
-    }
-    
-    .password-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    .password-item {
-      padding: 0.75rem;
-      background: var(--light);
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      text-align: center;
-      color: var(--dark);
-      font-size: 1rem;
-      border: 1px solid var(--gray);
-      box-shadow: var(--card-shadow);
-    }
-    
-    .password-item:hover {
-      background: var(--gray);
-    }
-    
-    .document-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    
-    .document-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem;
-      background: var(--light);
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .document-item:hover {
-      background: var(--gray);
-    }
-    
-    .document-icon {
-      font-size: 1.5rem;
-      color: var(--primary);
-    }
-    
-    .document-info {
-      flex: 1;
-    }
-    
-    .document-name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--dark);
-    }
-    
-    .document-meta {
-      font-size: 0.85rem;
-      color: #4a5568;
-    }
-    
-    .document-item button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--dark);
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-    
-    .document-item button:hover {
-      color: var(--primary);
-    }
-    
     /* Modal Styles */
     .modal {
       display: none;
@@ -998,6 +966,7 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      padding: 1rem;
     }
     
     .modal-content {
@@ -1006,8 +975,21 @@
       border-radius: 12px;
       width: 100%;
       max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
       box-shadow: var(--shadow);
-      position: relative;
+      animation: modalFadeIn 0.3s ease;
+    }
+    
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
     .modal-header {
@@ -1028,9 +1010,17 @@
       font-size: 1.2rem;
       cursor: pointer;
       color: var(--dark);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
     }
     
     .modal-close:hover {
+      background: var(--gray);
       color: var(--secondary);
     }
     
@@ -1041,12 +1031,68 @@
       border-radius: 8px;
       font-size: 1rem;
       transition: all 0.3s ease;
+      background: #fafafa;
     }
     
     .form-control:focus {
       outline: none;
       border-color: var(--primary-light);
       box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      background: var(--white);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+      min-width: 150px;
+    }
+    
+    .priority-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .priority-option {
+      flex: 1;
+      padding: 0.75rem;
+      text-align: center;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 80px;
+      background: var(--white);
+    }
+    
+    .priority-option:hover {
+      background: var(--light);
+      transform: translateY(-2px);
+    }
+    
+    .priority-option.selected {
+      border-color: var(--primary);
+      background: var(--light);
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .priority-option.high {
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .priority-option.medium {
+      border-left: 4px solid var(--warning);
+    }
+    
+    .priority-option.low {
+      border-left: 4px solid var(--success);
     }
     
     /* Loading State */
@@ -1055,6 +1101,22 @@
       padding: 2rem;
       font-size: 1rem;
       color: var(--dark);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 1rem;
+      color: #718096;
+      background: var(--light);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--gray);
     }
     
     /* Mobile-Specific Styles */
@@ -1168,6 +1230,14 @@
       
       .header .logo h1 {
         font-size: 1.4rem;
+      }
+      
+      .form-row .form-group {
+        min-width: 100%;
+      }
+      
+      .priority-option {
+        min-width: calc(33.333% - 6px);
       }
     }
     
@@ -1423,7 +1493,7 @@
               <button class="btn" id="add-todo-btn">Add Item</button>
             </div>
             <div class="todo-list" id="todo-list">
-              <!-- Todos will be populated dynamically -->
+              <div class="loading" id="todo-loading">Loading tasks...</div>
             </div>
           </div>
 
@@ -1451,22 +1521,56 @@
       </main>
     </div>
 
-    <!-- Add Todo Modal -->
+    <!-- Add/Edit Todo Modal -->
     <div class="modal" id="todo-modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>Add New Task</h3>
+          <h3 id="modal-title">Add New Task</h3>
           <button class="modal-close">×</button>
         </div>
         <form id="todo-form">
+          <input type="hidden" id="todo-id">
+          
           <div class="form-group">
-            <label for="todo-title">Task Description</label>
+            <label for="todo-title">Task Title</label>
             <input type="text" id="todo-title" class="form-control" required>
           </div>
+          
           <div class="form-group">
-            <label for="todo-due">Due Date</label>
-            <input type="date" id="todo-due" class="form-control">
+            <label for="todo-description">Description (Optional)</label>
+            <textarea id="todo-description" class="form-control" rows="3"></textarea>
           </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="todo-due">Due Date</label>
+              <input type="date" id="todo-due" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="todo-time">Time (Optional)</label>
+              <input type="time" id="todo-time" class="form-control">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="todo-category">Category</label>
+            <select id="todo-category" class="form-control">
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Priority</label>
+            <div class="priority-selector">
+              <div class="priority-option high" data-priority="high">High</div>
+              <div class="priority-option medium selected" data-priority="medium">Medium</div>
+              <div class="priority-option low" data-priority="low">Low</div>
+            </div>
+            <input type="hidden" id="todo-priority" value="medium">
+          </div>
+          
           <button type="submit" class="btn">Save Task</button>
         </form>
       </div>
@@ -1542,7 +1646,7 @@
             <select id="document-category" class="form-control">
               <option value="contract">Contract</option>
               <option value="proposal">Proposal</option>
-              <option value="proposal">Report</option>
+              <option value="report">Report</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -1565,9 +1669,18 @@
   };
 
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  let auth, db, storage;
+  try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    storage = firebase.storage();
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    showMessage('login-message', 'Failed to initialize application. Please try again later.', 'error');
+    document.getElementById('auth-page').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+  }
 
   // Enable email verification
   auth.useDeviceLanguage();
@@ -1766,7 +1879,6 @@
 
   function validateTodoForm() {
     const title = document.getElementById('todo-title').value;
-    const dueDate = document.getElementById('todo-due').value;
     const titleGroup = document.getElementById('todo-title').parentElement;
     let isValid = true;
 
@@ -1776,17 +1888,9 @@
     if (!title.trim()) {
       const errorText = document.createElement('div');
       errorText.className = 'error-text';
-      errorText.textContent = 'Task description is required';
+      errorText.textContent = 'Task title is required';
       titleGroup.appendChild(errorText);
       titleGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (dueDate && new Date(dueDate) < new Date()) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Due date cannot be in the past';
-      document.getElementById('todo-due').parentElement.appendChild(errorText);
       isValid = false;
     }
 
@@ -1905,90 +2009,6 @@
     return timeSinceLast > RATE_LIMIT_MS;
   }
 
-  // Persist todos to localStorage
-  function saveTodos() {
-    const todos = [];
-    document.querySelectorAll('.todo-item').forEach(item => {
-      todos.push({
-        text: item.querySelector('.todo-text').textContent,
-        completed: item.classList.contains('todo-completed')
-      });
-    });
-    localStorage.setItem('todos', JSON.stringify(todos));
-  }
-
-  function loadTodos() {
-    const todos = JSON.parse(localStorage.getItem('todos') || '[]');
-    const todoList = document.getElementById('todo-list');
-    todoList.innerHTML = ''; // Clear existing todos
-    todos.forEach(todo => {
-      const todoItem = document.createElement('div');
-      todoItem.className = `todo-item ${todo.completed ? 'todo-completed' : ''}`;
-      todoItem.innerHTML = `
-        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
-        <div class="todo-text">${todo.text}</div>
-        <div class="todo-actions">
-          <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
-          <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
-        </div>
-        <div class="edit-todo-form">
-          <input type="text" class="edit-todo-input" value="${todo.text}">
-          <button class="save-edit-btn">Save</button>
-          <button class="cancel-edit-btn">Cancel</button>
-        </div>
-      `;
-      todoList.prepend(todoItem);
-      addTodoEventListeners(todoItem);
-    });
-  }
-
-  // Add event listeners for todo items
-  function addTodoEventListeners(todoItem) {
-    const checkbox = todoItem.querySelector('.todo-checkbox');
-    const editBtn = todoItem.querySelector('.edit-todo-btn');
-    const deleteBtn = todoItem.querySelector('.delete-todo-btn');
-    const editForm = todoItem.querySelector('.edit-todo-form');
-    const saveBtn = todoItem.querySelector('.save-edit-btn');
-    const cancelBtn = todoItem.querySelector('.cancel-edit-btn');
-    const editInput = todoItem.querySelector('.edit-todo-input');
-
-    checkbox.addEventListener('change', () => {
-      todoItem.classList.toggle('todo-completed', checkbox.checked);
-      saveTodos();
-    });
-
-    editBtn.addEventListener('click', () => {
-      todoItem.querySelector('.todo-text').style.display = 'none';
-      todoItem.querySelector('.todo-actions').style.display = 'none';
-      editForm.style.display = 'flex';
-      editInput.focus();
-    });
-
-    cancelBtn.addEventListener('click', () => {
-      editForm.style.display = 'none';
-      todoItem.querySelector('.todo-text').style.display = 'block';
-      todoItem.querySelector('.todo-actions').style.display = 'flex';
-    });
-
-    saveBtn.addEventListener('click', () => {
-      const newText = editInput.value.trim();
-      if (newText) {
-        todoItem.querySelector('.todo-text').textContent = newText;
-        editForm.style.display = 'none';
-        todoItem.querySelector('.todo-text').style.display = 'block';
-        todoItem.querySelector('.todo-actions').style.display = 'flex';
-        saveTodos();
-      }
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to delete this task?')) {
-        todoItem.remove();
-        saveTodos();
-      }
-    });
-  }
-
   // Handle user popup functionality
   function setupUserPopup() {
     const userAvatar = document.getElementById('user-avatar');
@@ -2035,6 +2055,319 @@
     });
   }
 
+  // Format due date
+  function formatDueDate(dueDate) {
+    if (!dueDate) return 'No due date';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Due today';
+    if (diffDays === 1) return 'Due tomorrow';
+    if (diffDays === -1) return 'Due yesterday';
+    if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
+    if (diffDays <= 7) return `Due in ${diffDays} days`;
+
+    return `Due on ${due.toLocaleDateString()}`;
+  }
+
+  // Create todo element
+  function createTodoElement(todo) {
+    const todoItem = document.createElement('div');
+    todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
+    todoItem.dataset.id = todo.id;
+    todoItem.dataset.due = todo.dueDate;
+    todoItem.dataset.completed = todo.completed;
+    todoItem.dataset.category = todo.category;
+
+    const dueText = formatDueDate(todo.dueDate);
+    const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
+
+    todoItem.innerHTML = `
+      <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+      <div class="todo-content">
+        <div class="todo-title">${todo.title} ${categoryText}</div>
+        <div class="todo-due">
+          <i class="far fa-calendar-alt"></i> ${dueText}
+        </div>
+      </div>
+      <div class="todo-actions">
+        <button title="Edit"><i class="fas fa-edit"></i></button>
+        <button title="Delete"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+
+    return todoItem;
+  }
+
+  // Add todo event listeners
+  function addTodoEventListeners(todoItem, user) {
+    const checkbox = todoItem.querySelector('.todo-checkbox');
+    const editBtn = todoItem.querySelector('.fa-edit').parentNode;
+    const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
+
+    checkbox.addEventListener('change', async function() {
+      const todoId = todoItem.dataset.id;
+      try {
+        await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
+          completed: this.checked
+        });
+        todoItem.dataset.completed = this.checked;
+        if (this.checked) {
+          todoItem.classList.add('todo-completed');
+        } else {
+          todoItem.classList.remove('todo-completed');
+        }
+        showMessage('login-message', 'Task updated!', 'success');
+      } catch (error) {
+        console.error('Error updating task:', error);
+        showMessage('login-message', 'Error updating task: ' + error.message, 'error');
+      }
+    });
+
+    editBtn.addEventListener('click', async function() {
+      const modal = document.getElementById('todo-modal');
+      const todoId = todoItem.dataset.id;
+      try {
+        const todoDoc = await db.collection('users').doc(user.uid).collection('todos').doc(todoId).get();
+        const todo = todoDoc.data();
+
+        document.getElementById('modal-title').textContent = 'Edit Task';
+        document.getElementById('todo-id').value = todoId;
+        document.getElementById('todo-title').value = todo.title;
+        document.getElementById('todo-description').value = todo.description || '';
+        document.getElementById('todo-due').value = todo.dueDate || '';
+        document.getElementById('todo-time').value = todo.time || '';
+        document.getElementById('todo-category').value = todo.category || 'work';
+
+        document.getElementById('todo-priority').value = todo.priority;
+        document.querySelectorAll('.priority-option').forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.priority === todo.priority) {
+            opt.classList.add('selected');
+          }
+        });
+
+        modal.style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading task:', error);
+        showMessage('login-message', 'Error loading task: ' + error.message, 'error');
+      }
+    });
+
+    deleteBtn.addEventListener('click', async function() {
+      if (confirm('Are you sure you want to delete this task?')) {
+        const todoId = todoItem.dataset.id;
+        try {
+          await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
+          todoItem.remove();
+          showMessage('login-message', 'Task deleted!', 'success');
+        } catch (error) {
+          console.error('Error deleting task:', error);
+          showMessage('login-message', 'Error deleting task: ' + error.message, 'error');
+        }
+      }
+    });
+  }
+
+  // Load todos from Firestore
+  function loadTodos(user) {
+    const todoList = document.getElementById('todo-list');
+    const loadingElement = document.getElementById('todo-loading');
+    
+    todoList.innerHTML = '';
+    loadingElement.style.display = 'block';
+
+    db.collection('users').doc(user.uid).collection('todos')
+      .orderBy('dueDate', 'asc')
+      .onSnapshot(
+        (snapshot) => {
+          todoList.innerHTML = '';
+          loadingElement.style.display = 'none';
+          if (snapshot.empty) {
+            todoList.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-tasks"></i>
+                <p>No tasks found. Add a new task to get started!</p>
+              </div>
+            `;
+          } else {
+            snapshot.forEach(doc => {
+              const todo = { id: doc.id, ...doc.data() };
+              if (!todo.completed) { // Show only incomplete tasks
+                const todoItem = createTodoElement(todo);
+                todoList.appendChild(todoItem);
+                addTodoEventListeners(todoItem, user);
+              }
+            });
+          }
+        },
+        (error) => {
+          console.error('Error loading todos:', error);
+          todoList.innerHTML = '<div class="empty-state">Error loading tasks.</div>';
+          loadingElement.style.display = 'none';
+          showMessage('login-message', 'Failed to load tasks. Please try again.', 'error');
+        }
+      );
+  }
+
+  // Save todo item
+  async function saveTodoItem(user) {
+    const id = document.getElementById('todo-id').value;
+    const title = document.getElementById('todo-title').value.trim();
+    const description = document.getElementById('todo-description').value.trim();
+    const dueDate = document.getElementById('todo-due').value;
+    const time = document.getElementById('todo-time').value;
+    const priority = document.getElementById('todo-priority').value;
+    const category = document.getElementById('todo-category').value;
+
+    if (!validateTodoForm()) {
+      return;
+    }
+
+    const todoData = {
+      title,
+      description,
+      dueDate,
+      time,
+      priority,
+      category,
+      completed: false,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      if (id) {
+        await db.collection('users').doc(user.uid).collection('todos').doc(id).update(todoData);
+        showMessage('login-message', 'Task updated!', 'success');
+      } else {
+        await db.collection('users').doc(user.uid).collection('todos').add(todoData);
+        showMessage('login-message', 'Task added!', 'success');
+      }
+      document.getElementById('todo-modal').style.display = 'none';
+      document.getElementById('todo-form').reset();
+      document.getElementById('todo-id').value = '';
+      document.getElementById('modal-title').textContent = 'Add New Task';
+      document.querySelector('.priority-option.medium').classList.add('selected');
+      document.querySelectorAll('.priority-option.high, .priority-option.low').forEach(opt => opt.classList.remove('selected'));
+      document.getElementById('todo-priority').value = 'medium';
+    } catch (error) {
+      console.error('Error saving task:', error);
+      showMessage('login-message', 'Error saving task: ' + error.message, 'error');
+    }
+  }
+
+  // Create password element
+  function createPasswordElement(password) {
+    const card = document.createElement('div');
+    card.className = 'password-card';
+    card.dataset.id = password.id;
+
+    const strength = calculatePasswordStrength(decryptPassword(password.password));
+    const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
+
+    card.innerHTML = `
+      <div class="password-card-header">
+        <div class="password-name">${password.title}</div>
+        <div class="password-card-actions">
+          <button title="Copy Password"><i class="fas fa-copy"></i></button>
+          <button title="Edit"><i class="fas fa-edit"></i></button>
+          <button title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="password-details">
+        <div class="password-detail">
+          <span class="password-label">Username:</span>
+          <span class="password-value">${password.username}</span>
+        </div>
+        <div class="password-detail">
+          <span class="password-label">Password:</span>
+          <span class="password-value">
+            <input type="password" value="${decryptPassword(password.password)}" class="masked" readonly>
+            <button class="toggle-password"><i class="fas fa-eye"></i></button>
+          </span>
+        </div>
+        ${password.url ? `
+          <div class="password-detail">
+            <span class="password-label">URL:</span>
+            <span class="password-value"><a href="${password.url}" target="_blank">${password.url}</a></span>
+          </div>
+        ` : ''}
+        <div class="password-detail">
+          <span class="password-label">Category:</span>
+          <span class="password-value">${password.category}</span>
+        </div>
+      </div>
+      <div class="password-strength">
+        <div class="strength-meter" style="width: ${strength}%; background-color: ${strengthColor};"></div>
+      </div>
+    `;
+
+    return card;
+  }
+
+  // Add password event listeners
+  function addPasswordEventListeners(card, user) {
+    const copyBtn = card.querySelector('.fa-copy').parentNode;
+    const editBtn = card.querySelector('.fa-edit').parentNode;
+    const deleteBtn = card.querySelector('.fa-trash').parentNode;
+    const toggleBtn = card.querySelector('.toggle-password');
+    const passwordInput = card.querySelector('input[type="password"]');
+
+    copyBtn.addEventListener('click', function() {
+      navigator.clipboard.writeText(decryptPassword(passwordInput.value))
+        .then(() => showMessage('password-message', 'Password copied to clipboard!', 'success'))
+        .catch(() => showMessage('password-message', 'Failed to copy password.', 'error'));
+    });
+
+    toggleBtn.addEventListener('click', function() {
+      const isMasked = passwordInput.type === 'password';
+      passwordInput.type = isMasked ? 'text' : 'password';
+      toggleBtn.innerHTML = `<i class="fas ${isMasked ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+    });
+
+    editBtn.addEventListener('click', async function() {
+      const passwordId = card.dataset.id;
+      try {
+        const passwordDoc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
+        const password = passwordDoc.data();
+
+        document.getElementById('modal-title').textContent = 'Edit Password';
+        document.getElementById('password-id').value = passwordId;
+        document.getElementById('password-title').value = password.title;
+        document.getElementById('password-username').value = password.username;
+        document.getElementById('password-value').value = decryptPassword(password.password);
+        document.getElementById('password-url').value = password.url || '';
+        document.getElementById('password-category').value = password.category || 'other';
+        document.getElementById('password-notes').value = password.notes || '';
+
+        document.getElementById('password-modal').style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading password:', error);
+        showMessage('password-message', 'Error loading password: ' + error.message, 'error');
+      }
+    });
+
+    deleteBtn.addEventListener('click', async function() {
+      if (confirm('Are you sure you want to delete this password?')) {
+        const passwordId = card.dataset.id;
+        try {
+          await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
+          card.remove();
+          showMessage('password-message', 'Password deleted!', 'success');
+        } catch (error) {
+          console.error('Error deleting password:', error);
+          showMessage('password-message', 'Error deleting password: ' + error.message, 'error');
+        }
+      }
+    });
+  }
+
   // Load passwords from Firestore
   function loadPasswords(user) {
     const passwordList = document.getElementById('password-list');
@@ -2050,275 +2383,244 @@
           passwordList.innerHTML = '';
           loadingElement.style.display = 'none';
           if (snapshot.empty) {
-            passwordList.innerHTML = '<div class="password-item">No passwords found.</div>';
+            passwordList.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-lock"></i>
+                <p>No passwords found. Add a new password to get started!</p>
+              </div>
+            `;
           } else {
             snapshot.forEach(doc => {
               const password = { id: doc.id, ...doc.data() };
-              const passwordItem = document.createElement('div');
-              passwordItem.className = 'password-card';
-              const decryptedPassword = decryptPassword(password.password);
-              passwordItem.innerHTML = `
-                <div class="password-card-header">
-                  <div class="password-name">${password.name}</div>
-                  <div class="password-card-actions">
-                    <button class="edit-password-btn" data-id="${password.id}"><i class="fas fa-edit"></i></button>
-                    <button class="delete-password-btn" data-id="${password.id}"><i class="fas fa-trash"></i></button>
-                  </div>
-                </div>
-                <div class="password-details">
-                  <div class="password-detail">
-                    <span class="password-label">Username:</span>
-                    <span class="password-value">${password.username}</span>
-                  </div>
-                  <div class="password-detail">
-                    <span class="password-label">Password:</span>
-                    <span class="password-value">
-                      <input type="password" class="password-input masked" value="${decryptedPassword}" readonly>
-                      <button class="toggle-password"><i class="fas fa-eye"></i></button>
-                    </span>
-                  </div>
-                  <div class="password-detail">
-                    <span class="password-label">URL:</span>
-                    <span class="password-value">${password.url || 'N/A'}</span>
-                  </div>
-                  <div class="password-detail">
-                    <span class="password-label">Category:</span>
-                    <span class="password-value">${password.category || 'N/A'}</span>
-                  </div>
-                  <div class="password-detail">
-                    <span class="password-label">Notes:</span>
-                    <span class="password-value">${password.notes || 'N/A'}</span>
-                  </div>
-                </div>
-                <div class="password-strength">
-                  <div class="strength-meter" style="width: ${calculatePasswordStrength(decryptedPassword)}%; background-color: ${calculatePasswordStrength(decryptedPassword) < 50 ? '#ff5a5f' : calculatePasswordStrength(decryptedPassword) < 75 ? '#f6ad55' : '#38a169'};"></div>
-                </div>
-              `;
-              passwordList.appendChild(passwordItem);
-              addPasswordEventListeners(passwordItem, user);
+              const card = createPasswordElement(password);
+              passwordList.appendChild(card);
+              addPasswordEventListeners(card, user);
             });
           }
         },
         (error) => {
           console.error('Error loading passwords:', error);
-          passwordList.innerHTML = '<div class="password-item">Error loading passwords.</div>';
+          passwordList.innerHTML = '<div class="empty-state">Error loading passwords.</div>';
           loadingElement.style.display = 'none';
           showMessage('password-message', 'Failed to load passwords. Please try again.', 'error');
         }
       );
   }
 
-  // Add event listeners for password cards
-  function addPasswordEventListeners(passwordItem, user) {
-    const toggleBtn = passwordItem.querySelector('.toggle-password');
-    const passwordInput = passwordItem.querySelector('.password-input');
-    const editBtn = passwordItem.querySelector('.edit-password-btn');
-    const deleteBtn = passwordItem.querySelector('.delete-password-btn');
+  // Save password item
+  async function savePasswordItem(user) {
+    const id = document.getElementById('password-id').value;
+    const title = document.getElementById('password-title').value.trim();
+    const username = document.getElementById('password-username').value.trim();
+    const password = document.getElementById('password-value').value.trim();
+    const url = document.getElementById('password-url').value.trim();
+    const category = document.getElementById('password-category').value;
+    const notes = document.getElementById('password-notes').value.trim();
 
-    toggleBtn.addEventListener('click', () => {
-      const isMasked = passwordInput.classList.contains('masked');
-      passwordInput.classList.toggle('masked', !isMasked);
-      passwordInput.type = isMasked ? 'text' : 'password';
-      toggleBtn.innerHTML = `<i class="fas ${isMasked ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
-    });
+    if (!validatePasswordForm()) {
+      return;
+    }
 
-    editBtn.addEventListener('click', async () => {
-      const passwordId = editBtn.dataset.id;
-      try {
-        const doc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
-        if (doc.exists) {
-          const password = doc.data();
-          document.getElementById('password-id').value = passwordId;
-          document.getElementById('password-title').value = password.name;
-          document.getElementById('password-username').value = password.username;
-          document.getElementById('password-value').value = decryptPassword(password.password);
-          document.getElementById('password-url').value = password.url || '';
-          document.getElementById('password-category').value = password.category || 'other';
-          document.getElementById('password-notes').value = password.notes || '';
-          document.getElementById('modal-title').textContent = 'Edit Password';
-          document.getElementById('password-modal').style.display = 'flex';
-        }
-      } catch (error) {
-        showMessage('password-message', 'Failed to load password for editing.', 'error');
+    const passwordData = {
+      title,
+      username,
+      password: encryptPassword(password),
+      url,
+      category,
+      notes,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      if (id) {
+        await db.collection('users').doc(user.uid).collection('passwords').doc(id).update(passwordData);
+        showMessage('password-message', 'Password updated!', 'success');
+      } else {
+        await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
+        showMessage('password-message', 'Password added!', 'success');
       }
-    });
-
-    deleteBtn.addEventListener('click', async () => {
-      if (confirm('Are you sure you want to delete this password?')) {
-        try {
-          await db.collection('users').doc(user.uid).collection('passwords').doc(deleteBtn.dataset.id).delete();
-          showMessage('password-message', 'Password deleted!', 'success');
-        } catch (error) {
-          showMessage('password-message', 'Failed to delete password.', 'error');
-        }
-      }
-    });
-  }
-
-  // Initialize dashboard
-  function initializeDashboard(userData, user) {
-    const userNameElement = document.getElementById('user-name');
-    const popupUserName = document.getElementById('popup-user-name');
-    const popupUserEmail = document.getElementById('popup-user-email');
-    const userAvatar = document.getElementById('user-avatar');
-
-    if (userNameElement) userNameElement.textContent = userData.name;
-    if (popupUserName) popupUserName.textContent = userData.name;
-    if (popupUserEmail) popupUserEmail.textContent = userData.email;
-    if (userAvatar) userAvatar.textContent = userData.avatarInitials;
-
-    setupUserPopup();
-    loadTodos();
-    loadPasswords(user);
-
-    document.getElementById('logout-link').addEventListener('click', function(e) {
-      e.preventDefault();
-      handleLogout();
-    });
-
-    // Prevent default navigation for sidebar links
-    document.querySelectorAll('.sidebar-menu a').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const href = this.getAttribute('href');
-        if (href && href !== '#') {
-          history.pushState(null, '', href);
-          window.location.href = href; // Fallback for actual navigation
-        }
-      });
-    });
-
-    // Todo modal handling
-    const todoModal = document.getElementById('todo-modal');
-    const addTodoBtn = document.getElementById('add-todo-btn');
-    const todoForm = document.getElementById('todo-form');
-
-    addTodoBtn.addEventListener('click', () => {
-      todoModal.style.display = 'flex';
-    });
-
-    todoModal.querySelector('.modal-close').addEventListener('click', () => {
-      todoModal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (e) => {
-      if (e.target === todoModal) {
-        todoModal.style.display = 'none';
-      }
-    });
-
-    todoForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!validateTodoForm()) return;
-
-      const title = document.getElementById('todo-title').value;
-      const dueDate = document.getElementById('todo-due').value;
-      const todoList = document.getElementById('todo-list');
-      const todoItem = document.createElement('div');
-      todoItem.className = 'todo-item';
-      todoItem.innerHTML = `
-        <input type="checkbox" class="todo-checkbox">
-        <div class="todo-text">${title}${dueDate ? ` (Due: ${dueDate})` : ''}</div>
-        <div class="todo-actions">
-          <button class="edit-todo-btn"><i class="fas fa-edit"></i></button>
-          <button class="delete-todo-btn"><i class="fas fa-trash"></i></button>
-        </div>
-        <div class="edit-todo-form">
-          <input type="text" class="edit-todo-input" value="${title}">
-          <button class="save-edit-btn">Save</button>
-          <button class="cancel-edit-btn">Cancel</button>
-        </div>
-      `;
-      todoList.prepend(todoItem);
-      addTodoEventListeners(todoItem);
-      saveTodos();
-      todoForm.reset();
-      todoModal.style.display = 'none';
-    });
-
-    // Password modal handling
-    const passwordModal = document.getElementById('password-modal');
-    const addPasswordBtn = document.getElementById('add-password-btn');
-    const passwordForm = document.getElementById('password-form');
-
-    addPasswordBtn.addEventListener('click', () => {
-      passwordForm.reset();
+      document.getElementById('password-modal').style.display = 'none';
+      document.getElementById('password-form').reset();
       document.getElementById('password-id').value = '';
       document.getElementById('modal-title').textContent = 'Add New Password';
-      passwordModal.style.display = 'flex';
-    });
+    } catch (error) {
+      console.error('Error saving password:', error);
+      showMessage('password-message', 'Error saving password: ' + error.message, 'error');
+    }
+  }
 
-    passwordModal.querySelector('.modal-close').addEventListener('click', () => {
-      passwordModal.style.display = 'none';
-    });
+  // Create document element
+  function createDocumentElement(doc) {
+    const docItem = document.createElement('div');
+    docItem.className = 'document-item';
+    docItem.dataset.id = doc.id;
 
-    window.addEventListener('click', (e) => {
-      if (e.target === passwordModal) {
-        passwordModal.style.display = 'none';
-      }
-    });
+    docItem.innerHTML = `
+      <div class="document-title">${doc.name}</div>
+      <div class="document-details">
+        <div>Category: ${doc.category}</div>
+        <div>Uploaded: ${new Date(doc.createdAt).toLocaleDateString()}</div>
+      </div>
+      <div class="document-actions">
+        <button title="Download"><i class="fas fa-download"></i></button>
+        <button title="Delete"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
 
-    passwordForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!validatePasswordForm()) return;
+    return docItem;
+  }
 
-      const passwordId = document.getElementById('password-id').value;
-      const passwordData = {
-        name: document.getElementById('password-title').value,
-        username: document.getElementById('password-username').value,
-        password: encryptPassword(document.getElementById('password-value').value),
-        url: document.getElementById('password-url').value,
-        category: document.getElementById('password-category').value,
-        notes: document.getElementById('password-notes').value,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
+  // Add document event listeners
+  function addDocumentEventListeners(docItem, user) {
+    const downloadBtn = docItem.querySelector('.fa-download').parentNode;
+    const deleteBtn = docItem.querySelector('.fa-trash').parentNode;
 
+    downloadBtn.addEventListener('click', async function() {
+      const docId = docItem.dataset.id;
       try {
-        if (passwordId) {
-          await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
-          showMessage('password-message', 'Password updated!', 'success');
-        } else {
-          await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
-          showMessage('password-message', 'Password saved!', 'success');
-        }
-        passwordForm.reset();
-        passwordModal.style.display = 'none';
+        const docRef = await db.collection('users').doc(user.uid).collection('documents').doc(docId).get();
+        const docData = docRef.data();
+        const fileRef = storage.ref(docData.filePath);
+        const url = await fileRef.getDownloadURL();
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = docData.name;
+        a.click();
       } catch (error) {
-        showMessage('password-message', 'Failed to save password.', 'error');
+        console.error('Error downloading document:', error);
+        showMessage('login-message', 'Error downloading document: ' + error.message, 'error');
       }
     });
 
-    // Document modal handling (stub, as document upload not fully implemented)
-    const documentModal = document.getElementById('document-modal');
-    const uploadDocBtn = document.getElementById('upload-doc-btn');
-    const documentForm = document.getElementById('document-form');
-
-    uploadDocBtn.addEventListener('click', () => {
-      documentModal.style.display = 'flex';
-    });
-
-    documentModal.querySelector('.modal-close').addEventListener('click', () => {
-      documentModal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (e) => {
-      if (e.target === documentModal) {
-        documentModal.style.display = 'none';
+    deleteBtn.addEventListener('click', async function() {
+      if (confirm('Are you sure you want to delete this document?')) {
+        const docId = docItem.dataset.id;
+        try {
+          const docRef = await db.collection('users').doc(user.uid).collection('documents').doc(docId).get();
+          const docData = docRef.data();
+          await storage.ref(docData.filePath).delete();
+          await db.collection('users').doc(user.uid).collection('documents').doc(docId).delete();
+          docItem.remove();
+          showMessage('login-message', 'Document deleted!', 'success');
+        } catch (error) {
+          console.error('Error deleting document:', error);
+          showMessage('login-message', 'Error deleting document: ' + error.message, 'error');
+        }
       }
-    });
-
-    documentForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!validateDocumentForm()) return;
-      // Implement document upload logic here
-      showMessage('login-message', 'Document upload not implemented.', 'error');
-      documentModal.style.display = 'none';
     });
   }
 
-  // Authentication handling
-  document.getElementById('login').addEventListener('submit', async (e) => {
+  // Load documents from Firestore
+  function loadDocuments(user) {
+    const documentList = document.getElementById('document-list');
+    
+    documentList.innerHTML = '<div class="loading">Loading documents...</div>';
+
+    db.collection('users').doc(user.uid).collection('documents')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(
+        (snapshot) => {
+          documentList.innerHTML = '';
+          if (snapshot.empty) {
+            documentList.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-file"></i>
+                <p>No documents found. Upload a new document to get started!</p>
+              </div>
+            `;
+          } else {
+            snapshot.forEach(doc => {
+              const document = { id: doc.id, ...doc.data() };
+              const docItem = createDocumentElement(document);
+              documentList.appendChild(docItem);
+              addDocumentEventListeners(docItem, user);
+            });
+          }
+        },
+        (error) => {
+          console.error('Error loading documents:', error);
+          documentList.innerHTML = '<div class="empty-state">Error loading documents.</div>';
+          showMessage('login-message', 'Failed to load documents. Please try again.', 'error');
+        }
+      );
+  }
+
+  // Save document item
+  async function saveDocumentItem(user) {
+    const name = document.getElementById('document-name').value.trim();
+    const file = document.getElementById('document-file').files[0];
+    const category = document.getElementById('document-category').value;
+
+    if (!validateDocumentForm()) {
+      return;
+    }
+
+    try {
+      const filePath = `users/${user.uid}/documents/${Date.now()}_${file.name}`;
+      const fileRef = storage.ref(filePath);
+      await fileRef.put(file);
+      const fileUrl = await fileRef.getDownloadURL();
+
+      const documentData = {
+        name,
+        category,
+        filePath,
+        fileUrl,
+        createdAt: new Date().toISOString()
+      };
+
+      await db.collection('users').doc(user.uid).collection('documents').add(documentData);
+      showMessage('login-message', 'Document uploaded!', 'success');
+      document.getElementById('document-modal').style.display = 'none';
+      document.getElementById('document-form').reset();
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      showMessage('login-message', 'Error uploading document: ' + error.message, 'error');
+    }
+  }
+
+  // Handle authentication state
+  auth.onAuthStateChanged(user => {
+    const authPage = document.getElementById('auth-page');
+    const dashboard = document.getElementById('dashboard');
+    const userAvatar = document.getElementById('user-avatar');
+    const userName = document.getElementById('user-name');
+    const popupUserName = document.getElementById('popup-user-name');
+    const popupUserEmail = document.getElementById('popup-user-email');
+
+    if (user && user.emailVerified) {
+      authPage.style.display = 'none';
+      dashboard.style.display = 'flex';
+
+      const displayName = user.displayName || user.email.split('@')[0];
+      const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+      userAvatar.textContent = initials;
+      userName.textContent = displayName;
+      popupUserName.textContent = displayName;
+      popupUserEmail.textContent = user.email;
+
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userData', JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        displayName: displayName
+      }));
+
+      loadTodos(user);
+      loadPasswords(user);
+      loadDocuments(user);
+      setupUserPopup();
+    } else {
+      authPage.style.display = 'flex';
+      dashboard.style.display = 'none';
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('userData');
+    }
+  });
+
+  // Login form submission
+  document.getElementById('login').addEventListener('submit', function(e) {
     e.preventDefault();
     if (!validateLoginForm()) return;
 
@@ -2326,38 +2628,32 @@
     const password = document.getElementById('password').value;
     const remember = document.getElementById('remember').checked;
 
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      const user = userCredential.user;
-
-      if (!user.emailVerified) {
-        await auth.signOut();
-        showMessage('login-message', 'Please verify your email before logging in.', 'error');
-        return;
-      }
-
-      localStorage.setItem('isAuthenticated', 'true');
-      if (remember) {
-        localStorage.setItem('rememberMe', 'true');
-      }
-
-      const userDoc = await db.collection('users').doc(user.uid).get();
-      const userData = {
-        name: userDoc.exists ? userDoc.data().name : user.displayName || 'User',
-        email: user.email,
-        avatarInitials: userData.name.split(' ').map(n => n[0]).join('').toUpperCase()
-      };
-      localStorage.setItem('userData', JSON.stringify(userData));
-
-      document.getElementById('auth-page').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'flex';
-      initializeDashboard(userData, user);
-    } catch (error) {
-      showMessage('login-message', error.message, 'error');
-    }
+    auth.signInWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        if (!userCredential.user.emailVerified) {
+          auth.signOut();
+          showMessage('login-message', 'Please verify your email before logging in.', 'error');
+        } else {
+          if (remember) {
+            localStorage.setItem('rememberMe', 'true');
+          } else {
+            localStorage.removeItem('rememberMe');
+          }
+        }
+      })
+      .catch(error => {
+        let message = 'Login failed. Please try again.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          message = 'Invalid email or password.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many attempts. Please try again later.';
+        }
+        showMessage('login-message', message, 'error');
+      });
   });
 
-  document.getElementById('signup').addEventListener('submit', async (e) => {
+  // Signup form submission
+  document.getElementById('signup').addEventListener('submit', function(e) {
     e.preventDefault();
     if (!validateSignupForm()) return;
 
@@ -2365,32 +2661,29 @@
     const email = document.getElementById('email-signup').value;
     const password = document.getElementById('password-signup').value;
 
-    try {
-      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const user = userCredential.user;
-
-      await user.updateProfile({ displayName: name });
-      await user.sendEmailVerification();
-
-      await db.collection('users').doc(user.uid).set({
-        name,
-        email,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        return userCredential.user.updateProfile({ displayName: name })
+          .then(() => userCredential.user.sendEmailVerification());
+      })
+      .then(() => {
+        showMessage('signup-message', 'Account created! Please check your email to verify your account.', 'success');
+        auth.signOut();
+        toggleForms();
+      })
+      .catch(error => {
+        let message = 'Signup failed. Please try again.';
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'This email is already in use.';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'Password is too weak.';
+        }
+        showMessage('signup-message', message, 'error');
       });
-
-      showMessage('signup-message', 'Account created! Please check your email to verify.', 'success');
-      toggleForms();
-    } catch (error) {
-      showMessage('signup-message', error.message, 'error');
-    }
   });
 
-  document.getElementById('forgot-password').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('forgot-password-modal').style.display = 'flex';
-  });
-
-  document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
+  // Forgot password form submission
+  document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
     e.preventDefault();
     if (!validateForgotForm()) return;
 
@@ -2401,21 +2694,26 @@
       return;
     }
 
-    try {
-      await auth.sendPasswordResetEmail(email);
-      localStorage.setItem(`reset-attempt-${email}`, Date.now());
-      showMessage('forgot-message', 'Password reset email sent!', 'success');
-      document.getElementById('forgot-password-modal').style.display = 'none';
-    } catch (error) {
-      showMessage('forgot-message', error.message, 'error');
-    }
+    auth.sendPasswordResetEmail(email)
+      .then(() => {
+        localStorage.setItem(`reset-attempt-${email}`, Date.now());
+        showMessage('forgot-message', 'Password reset email sent! Check your inbox.', 'success');
+        document.getElementById('forgot-password-modal').style.display = 'none';
+        document.getElementById('forgot-password-form').reset();
+      })
+      .catch(error => {
+        let message = 'Failed to send reset email. Please try again.';
+        if (error.code === 'auth/user-not-found') {
+          message = 'No account found with this email.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many requests. Please try again later.';
+        }
+        showMessage('forgot-message', message, 'error');
+      });
   });
 
-  document.getElementById('forgot-password-modal').querySelector('.modal-close').addEventListener('click', () => {
-    document.getElementById('forgot-password-modal').style.display = 'none';
-  });
-
-  document.getElementById('resend-verification').addEventListener('click', async (e) => {
+  // Resend verification email
+  document.getElementById('resend-verification').addEventListener('click', function(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
 
@@ -2429,58 +2727,135 @@
       return;
     }
 
-    try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
-      const user = userCredential.user;
-
-      if (!user.emailVerified) {
-        await user.sendEmailVerification();
-        localStorage.setItem(`verification-attempt-${email}`, Date.now());
-        showMessage('login-message', 'Verification email resent! Please check your inbox.', 'success');
-      } else {
-        showMessage('login-message', 'Email is already verified.', 'success');
-      }
-    } catch (error) {
-      showMessage('login-message', error.message, 'error');
-    }
+    auth.signInWithEmailAndPassword(email, document.getElementById('password').value)
+      .then(userCredential => {
+        if (!userCredential.user.emailVerified) {
+          return userCredential.user.sendEmailVerification()
+            .then(() => {
+              localStorage.setItem(`verification-attempt-${email}`, Date.now());
+              showMessage('login-message', 'Verification email sent! Please check your inbox.', 'success');
+            });
+        } else {
+          showMessage('login-message', 'This email is already verified.', 'error');
+        }
+      })
+      .catch(error => {
+        let message = 'Failed to send verification email. Please try again.';
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          message = 'Invalid email or password.';
+        }
+        showMessage('login-message', message, 'error');
+      });
   });
 
-  // Check auth state on page load
-  auth.onAuthStateChanged(async (user) => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    const rememberMe = localStorage.getItem('rememberMe') === 'true';
-
-    if (user && isAuthenticated && user.emailVerified) {
-      try {
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        const userData = {
-          name: userDoc.exists ? userDoc.data().name : user.displayName || 'User',
-          email: user.email,
-          avatarInitials: (userDoc.exists ? userDoc.data().name : user.displayName || 'User')
-            .split(' ').map(n => n[0]).join('').toUpperCase()
-        };
-        localStorage.setItem('userData', JSON.stringify(userData));
-        document.getElementById('auth-page').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'flex';
-        initializeDashboard(userData, user);
-      } catch (error) {
-        showMessage('login-message', 'Failed to load user data.', 'error');
-        auth.signOut();
-      }
+  // Todo form submission
+  document.getElementById('todo-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (user) {
+      saveTodoItem(user);
     } else {
-      if (user && !user.emailVerified) {
-        showMessage('login-message', 'Please verify your email before logging in.', 'error');
-        await auth.signOut();
-      }
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('userData');
-      if (!rememberMe) {
-        localStorage.removeItem('rememberMe');
-      }
-      document.getElementById('auth-page').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
+      showMessage('login-message', 'You must be logged in to add a task.', 'error');
     }
   });
-</script>
+
+  // Password form submission
+  document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (user) {
+      savePasswordItem(user);
+    } else {
+      showMessage('password-message', 'You must be logged in to add a password.', 'error');
+    }
+  });
+
+  // Document form submission
+  document.getElementById('document-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (user) {
+      saveDocumentItem(user);
+    } else {
+      showMessage('login-message', 'You must be logged in to upload a document.', 'error');
+    }
+  });
+
+  // Modal handling
+  function setupModals() {
+    const modals = document.querySelectorAll('.modal');
+    const closeButtons = document.querySelectorAll('.modal-close');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const addPasswordBtn = document.getElementById('add-password-btn');
+    const uploadDocBtn = document.getElementById('upload-doc-btn');
+    const forgotPasswordLink = document.getElementById('forgot-password');
+
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const modal = btn.closest('.modal');
+        modal.style.display = 'none';
+        modal.querySelector('form')?.reset();
+        modal.querySelectorAll('.error-text').forEach(err => err.remove());
+        modal.querySelectorAll('.form-group').forEach(group => group.classList.remove('invalid'));
+        if (modal.id === 'todo-modal') {
+          document.getElementById('modal-title').textContent = 'Add New Task';
+          document.getElementById('todo-id').value = '';
+          document.querySelector('.priority-option.medium').classList.add('selected');
+          document.querySelectorAll('.priority-option.high, .priority-option.low').forEach(opt => opt.classList.remove('selected'));
+          document.getElementById('todo-priority').value = 'medium';
+        } else if (modal.id === 'password-modal') {
+          document.getElementById('modal-title').textContent = 'Add New Password';
+          document.getElementById('password-id').value = '';
+        }
+      });
+    });
+
+    modals.forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          modal.querySelector('form')?.reset();
+          modal.querySelectorAll('.error-text').forEach(err => err.remove());
+          modal.querySelectorAll('.form-group').forEach(group => group.classList.remove('invalid'));
+        }
+      });
+    });
+
+    addTodoBtn.addEventListener('click', function() {
+      document.getElementById('todo-modal').style.display = 'flex';
+    });
+
+    addPasswordBtn.addEventListener('click', function() {
+      document.getElementById('password-modal').style.display = 'flex';
+    });
+
+    uploadDocBtn.addEventListener('click', function() {
+      document.getElementById('document-modal').style.display = 'flex';
+    });
+
+    forgotPasswordLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('forgot-password-modal').style.display = 'flex';
+    });
+  }
+
+  // Priority selector
+  document.querySelectorAll('.priority-option').forEach(option => {
+    option.addEventListener('click', function() {
+      document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      document.getElementById('todo-priority').value = this.dataset.priority;
+    });
+  });
+
+  // Logout link
+  document.getElementById('logout-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    handleLogout();
+  });
+
+  // Initialize modals and other listeners
+  setupModals();
+  </script>
 </body>
 </html>
