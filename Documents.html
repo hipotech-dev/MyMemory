@@ -12,6 +12,8 @@
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -583,6 +585,34 @@
       display: none;
     }
     
+    /* Progress Bar */
+    .progress-container {
+      margin-top: 1rem;
+      display: none;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--gray);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--success);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--dark);
+    }
+    
     /* Share Modal */
     .share-options {
       margin: 1rem 0;
@@ -1049,6 +1079,13 @@
             </div>
           </div>
           
+          <div class="progress-container" id="upload-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text">0%</div>
+          </div>
+          
           <div class="form-group">
             <label for="document-category">Category</label>
             <select id="document-category" class="form-control">
@@ -1074,7 +1111,7 @@
             <textarea id="document-description" class="form-control" rows="3"></textarea>
           </div>
           
-          <button type="submit" class="btn">
+          <button type="submit" class="btn" id="upload-submit-btn">
             <i class="fas fa-upload"></i> Upload Document
           </button>
         </form>
@@ -1170,6 +1207,8 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
     // Show message
     function showMessage(message, type = 'error') {
@@ -1286,7 +1325,8 @@
           const userData = {
             name: user.displayName || user.email.split('@')[0],
             email: user.email,
-            avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
+            avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase(),
+            uid: user.uid
           };
           localStorage.setItem('userData', JSON.stringify(userData));
           localStorage.setItem('isAuthenticated', 'true');
@@ -1357,107 +1397,128 @@
       let currentSearchQuery = '';
       let currentDocumentToShare = null;
 
-      // Load data from localStorage
-      function loadData() {
-        const savedDocuments = localStorage.getItem('documents');
-        const savedFolders = localStorage.getItem('folders');
-        if (savedDocuments) {
-          documents = JSON.parse(savedDocuments);
-        } else {
-          documents = [
-            {
-              id: 'doc1',
-              name: 'Client Contract',
-              type: 'pdf',
-              category: 'contract',
-              folder: '',
-              size: 2400000,
-              modified: Date.now() - 172800000,
-              owner: userData.name,
-              shared: false,
-              content: '' // Placeholder for file content
-            },
-            {
-              id: 'doc2',
-              name: 'Project Proposal',
-              type: 'docx',
-              category: 'proposal',
-              folder: '',
-              size: 1100000,
-              modified: Date.now() - 604800000,
-              owner: userData.name,
-              shared: false,
-              content: ''
-            },
-            {
-              id: 'doc3',
-              name: 'Financial Report',
-              type: 'xlsx',
-              category: 'report',
-              folder: 'Financial',
-              size: 3700000,
-              modified: Date.now() - 1814400000,
-              owner: userData.name,
-              shared: false,
-              content: ''
-            },
-            {
-              id: 'doc4',
-              name: 'Quarterly Review',
-              type: 'pptx',
-              category: 'presentation',
-              folder: '',
-              size: 5200000,
-              modified: Date.now() - 2592000000,
-              owner: userData.name,
-              shared: true,
-              content: ''
-            }
-          ];
-        }
-        if (savedFolders) {
-          folders = JSON.parse(savedFolders);
-        } else {
-          folders = [
-            {
-              id: 'folder1',
-              name: 'Contracts',
-              color: '#003087',
-              files: 12
-            },
-            {
-              id: 'folder2',
-              name: 'Client Projects',
-              color: '#0070ba',
-              files: 8
-            },
-            {
-              id: 'folder3',
-              name: 'Financial',
-              color: '#38a169',
-              files: 15
-            },
-            {
-              id: 'folder4',
-              name: 'Personal',
-              color: '#f6ad55',
-              files: 5
-            }
-          ];
-        }
-      }
+      // Load data from Firestore
+      async function loadData() {
+        try {
+          // Load folders
+          const foldersSnapshot = await db.collection('users').doc(userData.uid).collection('folders').get();
+          folders = foldersSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
 
-      // Save data to localStorage
-      function saveData() {
-        localStorage.setItem('documents', JSON.stringify(documents));
-        localStorage.setItem('folders', JSON.stringify(folders));
+          // Load documents
+          const documentsSnapshot = await db.collection('users').doc(userData.uid).collection('documents').get();
+          documents = documentsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+
+          // If no data, initialize with defaults
+          if (folders.length === 0) {
+            folders = [
+              { id: 'folder1', name: 'Contracts', color: '#003087', files: 0 },
+              { id: 'folder2', name: 'Client Projects', color: '#0070ba', files: 0 },
+              { id: 'folder3', name: 'Financial', color: '#38a169', files: 0 },
+              { id: 'folder4', name: 'Personal', color: '#f6ad55', files: 0 }
+            ];
+            for (const folder of folders) {
+              await db.collection('users').doc(userData.uid).collection('folders').doc(folder.id).set({
+                name: folder.name,
+                color: folder.color,
+                files: folder.files
+              });
+            }
+          }
+
+          if (documents.length === 0) {
+            documents = [
+              {
+                id: 'doc1',
+                name: 'Client Contract',
+                type: 'pdf',
+                category: 'contract',
+                folder: '',
+                size: 2400000,
+                modified: Date.now() - 172800000,
+                owner: userData.name,
+                shared: false,
+                storagePath: ''
+              },
+              {
+                id: 'doc2',
+                name: 'Project Proposal',
+                type: 'docx',
+                category: 'proposal',
+                folder: '',
+                size: 1100000,
+                modified: Date.now() - 604800000,
+                owner: userData.name,
+                shared: false,
+                storagePath: ''
+              },
+              {
+                id: 'doc3',
+                name: 'Financial Report',
+                type: 'xlsx',
+                category: 'report',
+                folder: 'Financial',
+                size: 3700000,
+                modified: Date.now() - 1814400000,
+                owner: userData.name,
+                shared: false,
+                storagePath: ''
+              },
+              {
+                id: 'doc4',
+                name: 'Quarterly Review',
+                type: 'pptx',
+                category: 'presentation',
+                folder: '',
+                size: 5200000,
+                modified: Date.now() - 2592000000,
+                owner: userData.name,
+                shared: true,
+                storagePath: ''
+              }
+            ];
+            for (const doc of documents) {
+              await db.collection('users').doc(userData.uid).collection('documents').doc(doc.id).set({
+                name: doc.name,
+                type: doc.type,
+                category: doc.category,
+                folder: doc.folder,
+                size: doc.size,
+                modified: doc.modified,
+                owner: doc.owner,
+                shared: doc.shared,
+                storagePath: doc.storagePath,
+                description: doc.description || ''
+              });
+              if (doc.folder) {
+                const folder = folders.find(f => f.name === doc.folder);
+                if (folder) folder.files++;
+              }
+            }
+            // Update folder file counts
+            for (const folder of folders) {
+              await db.collection('users').doc(userData.uid).collection('folders').doc(folder.id).update({
+                files: folder.files
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error loading data:', error);
+          showMessage('Error loading documents and folders.', 'error');
+        }
       }
 
       // Initialize the documents and folders
-      loadData();
-      renderDocuments();
-      renderFolders();
-      populateFolderDropdown();
+      loadData().then(() => {
+        renderDocuments();
+        renderFolders();
+        populateFolderDropdown();
+      });
       
       // Set up modals
       setupModal('upload-doc-btn', 'upload-modal');
@@ -1528,12 +1589,11 @@
       document.getElementById('upload-form').addEventListener('submit', function(e) {
         e.preventDefault();
         uploadDocument();
-        closeModal('upload-modal');
       });
       
-      document.getElementById('folder-form').addEventListener('submit', function(e) {
+      document.getElementById('folder-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        createFolder();
+        await createFolder();
         closeModal('folder-modal');
       });
       
@@ -1560,7 +1620,7 @@
         showMessage(`Simulated email share for ${doc.name}.`, 'success');
       });
       
-      document.getElementById('share-link').addEventListener('click', function() {
+      document.getElementById('share-link').addEventListener('click', async function() {
         const shareLinkContainer = document.getElementById('share-link-container');
         const shareLinkInput = document.getElementById('share-link-input');
         
@@ -1653,7 +1713,7 @@
           folderItem.dataset.id = folder.id;
           folderItem.innerHTML = `
             <div class="folder-icon" style="background: ${folder.color}20; color: ${folder.color}">
-              <i class="fas fa-folder"></i>
+              <LazyLoadImage className="lazy-load-image" src={folder.color} alt="Folder" />
             </div>
             <div class="folder-name">${folder.name}</div>
             <div class="folder-meta">${folder.files} ${folder.files === 1 ? 'file' : 'files'}</div>
@@ -1747,6 +1807,10 @@
         const folder = document.getElementById('document-folder').value;
         const description = document.getElementById('document-description').value.trim();
         const fileInput = document.getElementById('document-file');
+        const progressContainer = document.getElementById('upload-progress');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const submitBtn = document.getElementById('upload-submit-btn');
         
         if (!name) {
           showMessage('Document name is required.', 'error');
@@ -1772,55 +1836,96 @@
           return;
         }
 
-        // Simulate file content storage (base64 for demo)
-        let content = '';
+        // Show progress bar and disable submit button
+        progressContainer.style.display = 'block';
+        submitBtn.disabled = true;
+
         try {
-          content = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
+          // Upload file to Firebase Storage
+          const storagePath = `users/${userData.uid}/documents/${Date.now()}_${file.name}`;
+          const storageRef = storage.ref().child(storagePath);
+          const uploadTask = storageRef.put(file);
+
+          // Monitor upload progress
+          uploadTask.on('state_changed',
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              progressFill.style.width = `${progress}%`;
+              progressText.textContent = `${Math.round(progress)}%`;
+            },
+            (error) => {
+              console.error('Upload error:', error);
+              showMessage('Error uploading file.', 'error');
+              progressContainer.style.display = 'none';
+              submitBtn.disabled = false;
+            },
+            async () => {
+              // Upload complete
+              const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+              
+              const newDoc = {
+                id: 'doc' + Date.now(),
+                name: name,
+                type: fileType,
+                category: category,
+                folder: folder,
+                size: file.size,
+                modified: Date.now(),
+                owner: userData.name,
+                shared: false,
+                description: description,
+                storagePath: storagePath,
+                downloadURL: downloadURL
+              };
+              
+              // Save document metadata to Firestore
+              await db.collection('users').doc(userData.uid).collection('documents').doc(newDoc.id).set({
+                name: newDoc.name,
+                type: newDoc.type,
+                category: newDoc.category,
+                folder: newDoc.folder,
+                size: newDoc.size,
+                modified: newDoc.modified,
+                owner: newDoc.owner,
+                shared: newDoc.shared,
+                description: newDoc.description,
+                storagePath: newDoc.storagePath,
+                downloadURL: newDoc.downloadURL
+              });
+              
+              documents.unshift(newDoc);
+              
+              if (folder) {
+                const folderObj = folders.find(f => f.name === folder);
+                if (folderObj) {
+                  folderObj.files++;
+                  await db.collection('users').doc(userData.uid).collection('folders').doc(folderObj.id).update({
+                    files: folderObj.files
+                  });
+                }
+              }
+              
+              renderDocuments();
+              renderFolders();
+              populateFolderDropdown();
+              
+              document.getElementById('upload-form').reset();
+              progressContainer.style.display = 'none';
+              submitBtn.disabled = false;
+              closeModal('upload-modal');
+              showMessage('Document uploaded successfully!', 'success');
+            }
+          );
         } catch (error) {
-          console.error('Error reading file:', error);
-          showMessage('Error reading file.', 'error');
-          return;
+          console.error('Error uploading document:', error);
+          showMessage('Error uploading document.', 'error');
+          progressContainer.style.display = 'none';
+          submitBtn.disabled = false;
         }
-        
-        const newDoc = {
-          id: 'doc' + Date.now(),
-          name: name,
-          type: fileType,
-          category: category,
-          folder: folder,
-          size: file.size,
-          modified: Date.now(),
-          owner: userData.name,
-          shared: false,
-          description: description,
-          content: content
-        };
-        
-        documents.unshift(newDoc);
-        
-        if (folder) {
-          const folderObj = folders.find(f => f.name === folder);
-          if (folderObj) {
-            folderObj.files++;
-          }
-        }
-        
-        saveData();
-        renderDocuments();
-        renderFolders();
-        populateFolderDropdown();
-        
-        document.getElementById('upload-form').reset();
-        showMessage('Document uploaded successfully!', 'success');
       }
       
       // Create new folder function
-      function createFolder() {
+      async function createFolder() {
         const name = document.getElementById('folder-name').value.trim();
         const color = document.getElementById('folder-color').value;
         
@@ -1841,23 +1946,33 @@
           files: 0
         };
         
-        folders.push(newFolder);
-        
-        saveData();
-        renderFolders();
-        populateFolderDropdown();
-        
-        // Reset form and color selection
-        document.getElementById('folder-form').reset();
-        document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-        document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
-        document.getElementById('folder-color').value = '#003087';
-        
-        showMessage('Folder created successfully!', 'success');
+        try {
+          await db.collection('users').doc(userData.uid).collection('folders').doc(newFolder.id).set({
+            name: newFolder.name,
+            color: newFolder.color,
+            files: newFolder.files
+          });
+          
+          folders.push(newFolder);
+          
+          renderFolders();
+          populateFolderDropdown();
+          
+          // Reset form and color selection
+          document.getElementById('folder-form').reset();
+          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+          document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
+          document.getElementById('folder-color').value = '#003087';
+          
+          showMessage('Folder created successfully!', 'success');
+        } catch (error) {
+          console.error('Error creating folder:', error);
+          showMessage('Error creating folder.', 'error');
+        }
       }
       
       // Delete folder function
-      function deleteFolder(folderId) {
+      async function deleteFolder(folderId) {
         const folder = folders.find(f => f.id === folderId);
         if (!folder) return;
         
@@ -1868,13 +1983,18 @@
         
         if (!confirm(`Are you sure you want to delete the folder "${folder.name}"?`)) return;
         
-        folders = folders.filter(f => f.id !== folderId);
-        console.log('Deleted folder:', folder.name);
-        
-        saveData();
-        renderFolders();
-        populateFolderDropdown();
-        showMessage('Folder deleted successfully!', 'success');
+        try {
+          await db.collection('users').doc(userData.uid).collection('folders').doc(folderId).delete();
+          folders = folders.filter(f => f.id !== folderId);
+          console.log('Deleted folder:', folder.name);
+          
+          renderFolders();
+          populateFolderDropdown();
+          showMessage('Folder deleted successfully!', 'success');
+        } catch (error) {
+          console.error('Error deleting folder:', error);
+          showMessage('Error deleting folder.', 'error');
+        }
       }
       
       // Add event listeners to document action buttons
@@ -1927,7 +2047,7 @@
       }
       
       // Download document function
-      function downloadDocument(docId) {
+      async function downloadDocument(docId) {
         const doc = documents.find(d => d.id === docId);
         if (!doc) {
           showMessage('Document not found.', 'error');
@@ -1935,9 +2055,9 @@
         }
         
         console.log('Downloading document:', doc.name);
-        if (doc.content) {
+        if (doc.downloadURL) {
           const a = document.createElement('a');
-          a.href = doc.content;
+          a.href = doc.downloadURL;
           a.download = `${doc.name}.${doc.type}`;
           document.body.appendChild(a);
           a.click();
@@ -1967,7 +2087,7 @@
       }
       
       // Delete document function
-      function deleteDocument(docId) {
+      async function deleteDocument(docId) {
         if (!confirm('Are you sure you want to delete this document?')) return;
         
         const docIndex = documents.findIndex(d => d.id === docId);
@@ -1978,20 +2098,35 @@
         
         const doc = documents[docIndex];
         
-        if (doc.folder) {
-          const folder = folders.find(f => f.name === doc.folder);
-          if (folder) {
-            folder.files = Math.max(0, folder.files - 1);
+        try {
+          // Delete from Storage if exists
+          if (doc.storagePath) {
+            await storage.ref().child(doc.storagePath).delete();
           }
+          
+          // Delete from Firestore
+          await db.collection('users').doc(userData.uid).collection('documents').doc(docId).delete();
+          
+          if (doc.folder) {
+            const folder = folders.find(f => f.name === doc.folder);
+            if (folder) {
+              folder.files = Math.max(0, folder.files - 1);
+              await db.collection('users').doc(userData.uid).collection('folders').doc(folder.id).update({
+                files: folder.files
+              });
+            }
+          }
+          
+          documents.splice(docIndex, 1);
+          console.log('Deleted document:', doc.name);
+          
+          renderDocuments();
+          renderFolders();
+          showMessage('Document deleted successfully!', 'success');
+        } catch (error) {
+          console.error('Error deleting document:', error);
+          showMessage('Error deleting document.', 'error');
         }
-        
-        documents.splice(docIndex, 1);
-        console.log('Deleted document:', doc.name);
-        
-        saveData();
-        renderDocuments();
-        renderFolders();
-        showMessage('Document deleted successfully!', 'success');
       }
       
       // Get appropriate icon class for file type
@@ -2088,9 +2223,6 @@
         console.log(`Closed modal: ${modalId}`);
       }
     }
-
-    // SECURITY WARNING: Storing files in localStorage is insecure and unsuitable for production.
-    // Use Firebase Storage or a secure backend for sensitive data.
   </script>
 </body>
 </html>
