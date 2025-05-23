@@ -12,6 +12,7 @@
   <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -625,7 +626,8 @@
       background: var(--success);
     }
     
-    .share-link-container {
+    .share-link-container,
+    .share-email-container {
       display: none;
       margin-top: 1rem;
     }
@@ -1006,10 +1008,10 @@
             <table class="documents-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Modified</th>
-                  <th>Size</th>
+                  <th data-sort="name" style="cursor: pointer;">Name <i class="fas fa-sort"></i></th>
+                  <th data-sort="category" style="cursor: pointer;">Category <i class="fas fa-sort"></i></th>
+                  <th data-sort="modified" style="cursor: pointer;">Modified <i class="fas fa-sort"></i></th>
+                  <th data-sort="size" style="cursor: pointer;">Size <i class="fas fa-sort"></i></th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -1128,6 +1130,15 @@
               <p>Share directly with people via email</p>
             </div>
           </div>
+          <div class="share-email-container" id="share-email-container" style="display: none;">
+            <form id="share-email-form">
+              <div class="form-group">
+                <label for="share-email-input">Recipient Email</label>
+                <input type="email" id="share-email-input" class="form-control" required>
+              </div>
+              <button type="submit" class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+            </form>
+          </div>
           <div class="share-option link-option" id="share-link">
             <i class="fas fa-link"></i>
             <div>
@@ -1144,12 +1155,25 @@
           </div>
         </div>
         
-        <div class="share-link-container" id="share-link-container">
+        <div class="share-link-container" id="share-link-container" style="display: none;">
           <p>Copy and share this link:</p>
           <div class="share-link">
             <input type="text" id="share-link-input" readonly>
             <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Document Modal -->
+    <div class="modal" id="preview-modal">
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+          <h3 id="preview-title">Document Preview</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <div id="preview-content" style="max-height: 500px; overflow-y: auto;">
+          <!-- Preview content will be injected here -->
         </div>
       </div>
     </div>
@@ -1170,6 +1194,7 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const storage = firebase.storage();
 
     // Show message
     function showMessage(message, type = 'error') {
@@ -1229,11 +1254,11 @@
 
     // Secure sidebar navigation
     function secureNavigation() {
-      let isCheckingAuth = false; // Prevent multiple simultaneous checks
+      let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
         if (link.id !== 'logout-link') {
           link.addEventListener('click', async function(e) {
-            e.preventDefault(); // Prevent default navigation
+            e.preventDefault();
             const targetUrl = this.getAttribute('href');
             console.log(`Navigation attempt to ${targetUrl}`);
 
@@ -1244,17 +1269,16 @@
             isCheckingAuth = true;
 
             try {
-              // Wait for Firebase auth state to resolve
               const user = await new Promise((resolve, reject) => {
                 const unsubscribe = auth.onAuthStateChanged(user => {
-                  unsubscribe(); // Unsubscribe immediately after getting state
+                  unsubscribe();
                   resolve(user);
                 }, reject);
               });
 
               if (user && user.emailVerified) {
                 console.log('Navigation allowed, user authenticated:', user.email);
-                window.location.href = targetUrl; // Proceed to target page
+                window.location.href = targetUrl;
               } else {
                 console.log('Navigation blocked, user not authenticated or email not verified');
                 showMessage('Please log in to access this page.', 'error');
@@ -1267,7 +1291,7 @@
               localStorage.clear();
               window.location.replace('index.html');
             } finally {
-              isCheckingAuth = false; // Reset flag
+              isCheckingAuth = false;
             }
           });
         }
@@ -1291,7 +1315,6 @@
           localStorage.setItem('userData', JSON.stringify(userData));
           localStorage.setItem('isAuthenticated', 'true');
 
-          // Show the app content and hide loading
           loadingElement.style.display = 'none';
           appContentElement.style.display = 'block';
 
@@ -1339,14 +1362,12 @@
 
       setupUserPopup();
 
-      // Logout handler for sidebar link
       document.getElementById('logout-link').addEventListener('click', function(e) {
         e.preventDefault();
         console.log('Logging out, redirecting to login');
         handleLogout();
       });
 
-      // Secure navigation
       secureNavigation();
 
       // Document and folder data
@@ -1356,6 +1377,8 @@
       let currentCategory = 'all';
       let currentSearchQuery = '';
       let currentDocumentToShare = null;
+      let sortColumn = 'modified';
+      let sortDirection = 'desc';
 
       // Load data from localStorage
       function loadData() {
@@ -1374,8 +1397,7 @@
               size: 2400000,
               modified: Date.now() - 172800000,
               owner: userData.name,
-              shared: false,
-              content: '' // Placeholder for file content
+              shared: false
             },
             {
               id: 'doc2',
@@ -1386,8 +1408,7 @@
               size: 1100000,
               modified: Date.now() - 604800000,
               owner: userData.name,
-              shared: false,
-              content: ''
+              shared: false
             },
             {
               id: 'doc3',
@@ -1398,8 +1419,7 @@
               size: 3700000,
               modified: Date.now() - 1814400000,
               owner: userData.name,
-              shared: false,
-              content: ''
+              shared: false
             },
             {
               id: 'doc4',
@@ -1410,8 +1430,7 @@
               size: 5200000,
               modified: Date.now() - 2592000000,
               owner: userData.name,
-              shared: true,
-              content: ''
+              shared: true
             }
           ];
         }
@@ -1463,26 +1482,51 @@
       setupModal('upload-doc-btn', 'upload-modal');
       setupModal('new-folder-btn', 'folder-modal');
       setupModal('share-modal-close', 'share-modal');
-      
-      // File upload area click handler
-      document.getElementById('file-upload-area').addEventListener('click', function() {
-        document.getElementById('document-file').click();
-      });
-      
-      // File input change handler
-      document.getElementById('document-file').addEventListener('change', function() {
-        if (this.files.length > 0) {
-          document.getElementById('document-name').value = 
-            this.files[0].name.split('.').slice(0, -1).join('.');
-        }
-      });
-      
+      setupModal(null, 'preview-modal');
+
+      // Setup drag-and-drop and file input
+      function setupDragAndDrop() {
+        const fileUploadArea = document.getElementById('file-upload-area');
+        const fileInput = document.getElementById('document-file');
+
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        fileUploadArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          fileUploadArea.style.borderColor = 'var(--primary)';
+          fileUploadArea.style.background = 'rgba(0, 112, 186, 0.1)';
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+          fileUploadArea.style.borderColor = 'var(--gray)';
+          fileUploadArea.style.background = 'transparent';
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          fileUploadArea.style.borderColor = 'var(--gray)';
+          fileUploadArea.style.background = 'transparent';
+
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            fileInput.files = files;
+            document.getElementById('document-name').value = files[0].name.split('.').slice(0, -1).join('.');
+            console.log('File dropped:', files[0].name);
+          }
+        });
+
+        fileInput.addEventListener('change', function() {
+          if (this.files.length > 0) {
+            document.getElementById('document-name').value = 
+              this.files[0].name.split('.').slice(0, -1).join('.');
+          }
+        });
+      }
+
       // View toggle buttons
       document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-          document.querySelectorAll('.view-btn').forEach(b => {
-            b.classList.remove('active');
-          });
+          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
           this.classList.add('active');
           
           currentView = this.dataset.view;
@@ -1501,9 +1545,7 @@
       // Category filter buttons
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-          document.querySelectorAll('.category-btn').forEach(b => {
-            b.classList.remove('active');
-          });
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
           this.classList.add('active');
           
           currentCategory = this.dataset.category;
@@ -1515,9 +1557,7 @@
       // Color selection for folders
       document.querySelectorAll('.color-option').forEach(option => {
         option.addEventListener('click', function() {
-          document.querySelectorAll('.color-option').forEach(opt => {
-            opt.classList.remove('selected');
-          });
+          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
           this.classList.add('selected');
           document.getElementById('folder-color').value = this.dataset.color;
           console.log('Folder color selected:', this.dataset.color);
@@ -1537,6 +1577,24 @@
         closeModal('folder-modal');
       });
       
+      document.getElementById('share-email-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('share-email-input').value;
+        const docId = currentDocumentToShare;
+        const doc = documents.find(d => d.id === docId);
+
+        if (!email) {
+          showMessage('Please enter a recipient email.', 'error');
+          return;
+        }
+
+        console.log(`Simulated email share of ${doc.name} to ${email}`);
+        showMessage(`Simulated email share of ${doc.name} to ${email}.`, 'success');
+        document.getElementById('share-email-form').reset();
+        document.getElementById('share-email-container').style.display = 'none';
+        closeModal('share-modal');
+      });
+      
       // Search functionality
       document.getElementById('search-btn').addEventListener('click', function() {
         currentSearchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -1554,19 +1612,18 @@
       
       // Share modal options
       document.getElementById('share-email').addEventListener('click', function() {
-        const docId = currentDocumentToShare;
-        const doc = documents.find(d => d.id === docId);
-        console.log('Simulating email share for:', doc.name);
-        showMessage(`Simulated email share for ${doc.name}.`, 'success');
+        document.getElementById('share-email-container').style.display = 'block';
+        document.getElementById('share-link-container').style.display = 'none';
       });
       
       document.getElementById('share-link').addEventListener('click', function() {
         const shareLinkContainer = document.getElementById('share-link-container');
         const shareLinkInput = document.getElementById('share-link-input');
+        document.getElementById('share-email-container').style.display = 'none';
         
         const docId = currentDocumentToShare;
         const doc = documents.find(d => d.id === docId);
-        const shareToken = btoa(docId + ':' + Date.now()); // Mock token
+        const shareToken = btoa(docId + ':' + Date.now());
         const shareLink = `https://mymemory.app/share?token=${encodeURIComponent(shareToken)}`;
         
         shareLinkInput.value = shareLink;
@@ -1609,7 +1666,7 @@
           row.className = 'document-row';
           row.dataset.id = doc.id;
           row.dataset.category = doc.category;
-          row.dataset.folder = doc.folder;
+          row.dataset.folder = doc.folder || '';
           row.innerHTML = `
             <td>
               <div style="display: flex; align-items: center;">
@@ -1629,6 +1686,7 @@
             <td>${formattedSize}</td>
             <td>
               <div class="document-actions">
+                <button title="Preview" data-action="preview" data-id="${doc.id}"><i class="fas fa-eye"></i></button>
                 <button title="Download" data-action="download" data-id="${doc.id}"><i class="fas fa-download"></i></button>
                 <button title="Share" data-action="share" data-id="${doc.id}"><i class="fas fa-share-alt"></i></button>
                 <button title="Delete" data-action="delete" data-id="${doc.id}"><i class="fas fa-trash"></i></button>
@@ -1664,18 +1722,14 @@
           
           folderItem.querySelector('.folder-icon, .folder-name, .folder-meta').addEventListener('click', function() {
             currentCategory = 'all';
-            document.querySelectorAll('.category-btn').forEach(btn => {
-              btn.classList.remove('active');
-            });
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector('.category-btn[data-category="all"]').classList.add('active');
             
             currentSearchQuery = '';
             document.getElementById('search-input').value = '';
             
             currentView = 'table';
-            document.querySelectorAll('.view-btn').forEach(btn => {
-              btn.classList.remove('active');
-            });
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector('.view-btn[data-view="table"]').classList.add('active');
             
             document.getElementById('table-view').style.display = 'block';
@@ -1707,18 +1761,9 @@
       // Filter documents based on current filters
       function filterDocuments(folderFilter = '') {
         const filteredDocs = documents.filter(doc => {
-          if (currentCategory !== 'all' && doc.category !== currentCategory) {
-            return false;
-          }
-          
-          if (currentSearchQuery && !doc.name.toLowerCase().includes(currentSearchQuery.toLowerCase())) {
-            return false;
-          }
-          
-          if (folderFilter && doc.folder !== folderFilter) {
-            return false;
-          }
-          
+          if (currentCategory !== 'all' && doc.category !== currentCategory) return false;
+          if (currentSearchQuery && !doc.name.toLowerCase().includes(currentSearchQuery.toLowerCase())) return false;
+          if (folderFilter && doc.folder !== folderFilter) return false;
           return true;
         });
         
@@ -1732,11 +1777,7 @@
           const matchesSearch = !currentSearchQuery || doc.name.toLowerCase().includes(currentSearchQuery.toLowerCase());
           const matchesFolder = !folderFilter || doc.folder === folderFilter;
           
-          if (matchesCategory && matchesSearch && matchesFolder) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
+          row.style.display = (matchesCategory && matchesSearch && matchesFolder) ? '' : 'none';
         });
       }
       
@@ -1760,7 +1801,7 @@
         
         const file = fileInput.files[0];
         const fileType = file.name.split('.').pop().toLowerCase();
-        const maxSize = 5 * 1024 * 1024; // 5MB limit
+        const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
           showMessage('File size exceeds 5MB limit.', 'error');
           return;
@@ -1772,51 +1813,44 @@
           return;
         }
 
-        // Simulate file content storage (base64 for demo)
-        let content = '';
         try {
-          content = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-        } catch (error) {
-          console.error('Error reading file:', error);
-          showMessage('Error reading file.', 'error');
-          return;
-        }
-        
-        const newDoc = {
-          id: 'doc' + Date.now(),
-          name: name,
-          type: fileType,
-          category: category,
-          folder: folder,
-          size: file.size,
-          modified: Date.now(),
-          owner: userData.name,
-          shared: false,
-          description: description,
-          content: content
-        };
-        
-        documents.unshift(newDoc);
-        
-        if (folder) {
-          const folderObj = folders.find(f => f.name === folder);
-          if (folderObj) {
-            folderObj.files++;
+          const storageRef = storage.ref(`documents/${auth.currentUser.uid}/${Date.now()}_${name}.${fileType}`);
+          const snapshot = await storageRef.put(file);
+          const downloadURL = await snapshot.ref.getDownloadURL();
+
+          const newDoc = {
+            id: 'doc' + Date.now(),
+            name: name,
+            type: fileType,
+            category: category,
+            folder: folder,
+            size: file.size,
+            modified: Date.now(),
+            owner: userData.name,
+            shared: false,
+            description: description,
+            storagePath: storageRef.fullPath,
+            downloadURL: downloadURL
+          };
+          
+          documents.unshift(newDoc);
+          
+          if (folder) {
+            const folderObj = folders.find(f => f.name === folder);
+            if (folderObj) folderObj.files++;
           }
+          
+          saveData();
+          renderDocuments();
+          renderFolders();
+          populateFolderDropdown();
+          
+          document.getElementById('upload-form').reset();
+          showMessage('Document uploaded successfully!', 'success');
+        } catch (error) {
+          console.error('Error uploading file:', error);
+          showMessage('Error uploading file.', 'error');
         }
-        
-        saveData();
-        renderDocuments();
-        renderFolders();
-        populateFolderDropdown();
-        
-        document.getElementById('upload-form').reset();
-        showMessage('Document uploaded successfully!', 'success');
       }
       
       // Create new folder function
@@ -1847,7 +1881,6 @@
         renderFolders();
         populateFolderDropdown();
         
-        // Reset form and color selection
         document.getElementById('folder-form').reset();
         document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
         document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
@@ -1881,9 +1914,15 @@
       function addDocumentEventListeners() {
         const buttons = document.querySelectorAll('.document-actions button');
         buttons.forEach(btn => {
-          // Remove existing listeners to prevent duplicates
           const newBtn = btn.cloneNode(true);
           btn.parentNode.replaceChild(newBtn, btn);
+        });
+        
+        document.querySelectorAll('[data-action="preview"]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const docId = this.dataset.id;
+            previewDocument(docId);
+          });
         });
         
         document.querySelectorAll('[data-action="download"]').forEach(btn => {
@@ -1912,14 +1951,13 @@
       function addFolderEventListeners() {
         const buttons = document.querySelectorAll('.folder-actions button');
         buttons.forEach(btn => {
-          // Remove existing listeners to prevent duplicates
           const newBtn = btn.cloneNode(true);
           btn.parentNode.replaceChild(newBtn, btn);
         });
         
         document.querySelectorAll('[data-action="delete-folder"]').forEach(btn => {
           btn.addEventListener('click', function(e) {
-            e.stopPropagation(); // Prevent folder click
+            e.stopPropagation();
             const folderId = this.dataset.id;
             deleteFolder(folderId);
           });
@@ -1927,7 +1965,7 @@
       }
       
       // Download document function
-      function downloadDocument(docId) {
+      async function downloadDocument(docId) {
         const doc = documents.find(d => d.id === docId);
         if (!doc) {
           showMessage('Document not found.', 'error');
@@ -1935,15 +1973,14 @@
         }
         
         console.log('Downloading document:', doc.name);
-        if (doc.content) {
+        if (doc.downloadURL) {
           const a = document.createElement('a');
-          a.href = doc.content;
+          a.href = doc.downloadURL;
           a.download = `${doc.name}.${doc.type}`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
         } else {
-          // Fallback for default documents
           const blob = new Blob([`This is a simulated download of ${doc.name}.${doc.type}`], { type: 'text/plain' });
           const url = URL.createObjectURL(blob);
           
@@ -1958,16 +1995,58 @@
         showMessage(`Downloaded ${doc.name}.${doc.type}`, 'success');
       }
       
+      // Preview document function
+      function previewDocument(docId) {
+        const doc = documents.find(d => d.id === docId);
+        if (!doc) {
+          showMessage('Document not found.', 'error');
+          return;
+        }
+
+        const previewModal = document.getElementById('preview-modal');
+        const previewTitle = document.getElementById('preview-title');
+        const previewContent = document.getElementById('preview-content');
+
+        previewTitle.textContent = `Preview: ${doc.name}.${doc.type}`;
+        previewContent.innerHTML = '';
+
+        const previewableTypes = ['jpg', 'jpeg', 'png', 'pdf', 'txt'];
+        if (!previewableTypes.includes(doc.type)) {
+          previewContent.innerHTML = '<p>Preview not available for this file type.</p>';
+        } else if (doc.downloadURL) {
+          if (['jpg', 'jpeg', 'png'].includes(doc.type)) {
+            previewContent.innerHTML = `<img src="${doc.downloadURL}" style="max-width: 100%; height: auto;" />`;
+          } else if (doc.type === 'pdf') {
+            previewContent.innerHTML = `<iframe src="${doc.downloadURL}" style="width: 100%; height: 500px;"></iframe>`;
+          } else if (doc.type === 'txt') {
+            fetch(doc.downloadURL)
+              .then(response => response.text())
+              .then(text => {
+                previewContent.innerHTML = `<pre style="white-space: pre-wrap;">${text}</pre>`;
+              })
+              .catch(() => {
+                previewContent.innerHTML = '<p>Error loading text preview.</p>';
+              });
+          }
+        } else {
+          previewContent.innerHTML = '<p>Preview not available for this document.</p>';
+        }
+
+        previewModal.style.display = 'flex';
+        console.log('Opened preview modal for document:', doc.name);
+      }
+      
       // Share document function
       function shareDocument(docId) {
         currentDocumentToShare = docId;
         document.getElementById('share-link-container').style.display = 'none';
+        document.getElementById('share-email-container').style.display = 'none';
         document.getElementById('share-modal').style.display = 'flex';
         console.log('Opened share modal for document ID:', docId);
       }
       
       // Delete document function
-      function deleteDocument(docId) {
+      async function deleteDocument(docId) {
         if (!confirm('Are you sure you want to delete this document?')) return;
         
         const docIndex = documents.findIndex(d => d.id === docId);
@@ -1978,11 +2057,20 @@
         
         const doc = documents[docIndex];
         
+        if (doc.storagePath) {
+          try {
+            await storage.ref(doc.storagePath).delete();
+            console.log('Deleted file from storage:', doc.storagePath);
+          } catch (error) {
+            console.error('Error deleting file from storage:', error);
+            showMessage('Error deleting file from storage.', 'error');
+            return;
+          }
+        }
+        
         if (doc.folder) {
           const folder = folders.find(f => f.name === doc.folder);
-          if (folder) {
-            folder.files = Math.max(0, folder.files - 1);
-          }
+          if (folder) folder.files = Math.max(0, folder.files - 1);
         }
         
         documents.splice(docIndex, 1);
@@ -2051,19 +2139,22 @@
       
       // Modal functions
       function setupModal(openBtnId, modalId) {
-        const openBtn = document.getElementById(openBtnId);
+        const openBtn = openBtnId ? document.getElementById(openBtnId) : null;
         const modal = document.getElementById(modalId);
         const closeBtn = modal.querySelector('.modal-close');
         
-        openBtn?.addEventListener('click', function() {
-          modal.style.display = 'flex';
-          console.log(`Opened modal: ${modalId}`);
-        });
+        if (openBtn) {
+          openBtn.addEventListener('click', function() {
+            modal.style.display = 'flex';
+            console.log(`Opened modal: ${modalId}`);
+          });
+        }
         
         closeBtn?.addEventListener('click', function() {
           modal.style.display = 'none';
           if (modalId === 'share-modal') {
             document.getElementById('share-link-container').style.display = 'none';
+            document.getElementById('share-email-container').style.display = 'none';
           }
           console.log(`Closed modal: ${modalId}`);
         });
@@ -2073,6 +2164,7 @@
             modal.style.display = 'none';
             if (modalId === 'share-modal') {
               document.getElementById('share-link-container').style.display = 'none';
+              document.getElementById('share-email-container').style.display = 'none';
             }
             console.log(`Closed modal via click outside: ${modalId}`);
           }
@@ -2084,13 +2176,63 @@
         modal.style.display = 'none';
         if (modalId === 'share-modal') {
           document.getElementById('share-link-container').style.display = 'none';
+          document.getElementById('share-email-container').style.display = 'none';
         }
         console.log(`Closed modal: ${modalId}`);
       }
-    }
 
-    // SECURITY WARNING: Storing files in localStorage is insecure and unsuitable for production.
-    // Use Firebase Storage or a secure backend for sensitive data.
+      // Setup table sorting
+      function setupTableSorting() {
+        document.querySelectorAll('.documents-table th[data-sort]').forEach(th => {
+          th.addEventListener('click', function() {
+            const column = this.dataset.sort;
+            if (sortColumn === column) {
+              sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+              sortColumn = column;
+              sortDirection = 'asc';
+            }
+
+            document.querySelectorAll('.documents-table th .fas').forEach(icon => {
+              icon.classList.remove('fa-sort-up', 'fa-sort-down');
+              icon.classList.add('fa-sort');
+            });
+            const icon = this.querySelector('.fas');
+            icon.classList.remove('fa-sort');
+            icon.classList.add(sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+
+            sortDocuments();
+            renderDocuments();
+            filterDocuments();
+            console.log(`Sorted by ${sortColumn} ${sortDirection}`);
+          });
+        });
+      }
+
+      // Sort documents
+      function sortDocuments() {
+        documents.sort((a, b) => {
+          let valA = a[sortColumn];
+          let valB = b[sortColumn];
+
+          if (sortColumn === 'name' || sortColumn === 'category') {
+            valA = valA.toLowerCase();
+            valB = valB.toLowerCase();
+          }
+
+          if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+          if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      // Initialize additional features
+      setupDragAndDrop();
+      setupTableSorting();
+
+      // SECURITY WARNING: Storing metadata in localStorage is insecure for production.
+      // Use Firebase Firestore for document and folder metadata.
+    }
   </script>
 </body>
 </html>
