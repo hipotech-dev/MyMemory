@@ -1669,18 +1669,18 @@
   };
 
   // Initialize Firebase
-  let auth, db, storage;
-  try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    db = firebase.firestore();
-    storage = firebase.storage();
-  } catch (error) {
-    console.error('Firebase initialization failed:', error);
-    showMessage('login-message', 'loading.', 'error');
-    document.getElementById('auth-page').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-  }
+ let auth, db, storage;
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  storage = firebase.storage();
+} catch (error) {
+  console.error('Firebase initialization failed:', error);
+  showMessage('login-message', 'Failed to load. Please refresh.', 'error', 'green');
+  document.getElementById('auth-page').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
 
   // Enable email verification
   auth.useDeviceLanguage();
