@@ -1731,7 +1731,7 @@
   </div>
 <script>
   // Firebase configuration
-  // Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -2199,7 +2199,8 @@ function addTodoEventListeners(todoItem, user) {
   const editBtn = todoItem.querySelector('.fa-edit').parentNode;
   const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
 
-  checkbox.addEventListener('change', async function() {
+  checkbox.addEventListener('change', async function(e) {
+    e.stopPropagation(); // Prevent card click from triggering
     const todoId = todoItem.dataset.id;
     try {
       await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
@@ -2219,7 +2220,8 @@ function addTodoEventListeners(todoItem, user) {
     }
   });
 
-  editBtn.addEventListener('click', async function() {
+  editBtn.addEventListener('click', async function(e) {
+    e.stopPropagation(); // Prevent card click from triggering
     const modal = document.getElementById('todo-modal');
     const todoId = todoItem.dataset.id;
     try {
@@ -2249,7 +2251,8 @@ function addTodoEventListeners(todoItem, user) {
     }
   });
 
-  deleteBtn.addEventListener('click', async function() {
+  deleteBtn.addEventListener('click', async function(e) {
+    e.stopPropagation(); // Prevent card click from triggering
     if (confirm('Are you sure you want to delete this task?')) {
       const todoId = todoItem.dataset.id;
       try {
@@ -2418,6 +2421,21 @@ async function loadDashboard(user) {
 
     if (todoSnapshot.empty) {
       todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+    }
+
+    // Add click event listener to todo card
+    const todoCard = document.querySelector('.todo-card');
+    if (todoCard) {
+      todoCard.style.cursor = 'pointer';
+      todoCard.addEventListener('click', function(e) {
+        // Prevent redirection if clicking on todo item interactions
+        if (e.target.closest('.todo-checkbox, .todo-actions')) {
+          return;
+        }
+        window.location.href = 'To do list.html';
+      });
+    } else {
+      console.error('Todo card not found');
     }
 
     // Load passwords
