@@ -330,16 +330,16 @@
     }
     
     .recent-card {
-      background: var(--light);
+      background: var(--white);
       padding: 1.5rem;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--card-shadow);
       transition: all 0.3s ease;
     }
     
     .recent-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
     }
     
     .recent-card h3 {
@@ -353,16 +353,51 @@
       border-radius: 8px;
       background: var(--white);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      position: relative;
+      border-left: 4px solid var(--gray);
+    }
+    
+    .recent-item.work {
+      border-left-color: var(--category-work);
+    }
+    
+    .recent-item.personal {
+      border-left-color: var(--category-personal);
+    }
+    
+    .recent-item.urgent {
+      border-left-color: var(--category-urgent);
     }
     
     .recent-item p {
       margin: 0.5rem 0;
       color: var(--dark);
+      font-size: 0.95rem;
     }
     
     .recent-item .no-data {
       color: #718096;
       font-style: italic;
+    }
+    
+    .recent-item .priority-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .recent-item .priority-high {
+      background: var(--secondary);
+    }
+    
+    .recent-item .priority-medium {
+      background: var(--warning);
+    }
+    
+    .recent-item .priority-low {
+      background: var(--success);
     }
     
     /* Modal Styles */
@@ -668,7 +703,9 @@
       }
     }
     
-    /* Prevent horizontal scrolling */
+    /* Prevent
+
+ horizontal scrolling */
     html, body {
       max-width: 100%;
       overflow-x: hidden;
@@ -857,8 +894,15 @@
       loadingElement.style.display = 'none';
     }
 
-    // Check authentication state with timeout
+    // Check authentication state with timeout and single execution
+    let isAuthChecking = false;
     function checkAuthState(eventType) {
+      if (isAuthChecking) {
+        console.log(`Auth check already in progress, skipping ${eventType}`);
+        return;
+      }
+      isAuthChecking = true;
+
       console.log(`Checking auth state on ${eventType}`);
       const loadingElement = document.getElementById('loading');
       const appContentElement = document.getElementById('app-content');
@@ -867,9 +911,9 @@
         console.error('Authentication check timed out');
         hideLoading();
         showMessage('Authentication timed out. Please try again.', 'error');
-        localStorage.clear();
+        isAuthChecking = false;
         window.location.replace('index.html');
-      }, 7000);
+      }, 10000); // Increased timeout to 10s for better reliability
 
       auth.onAuthStateChanged((user) => {
         clearTimeout(authTimeout);
@@ -897,15 +941,15 @@
               console.error('Sign out error:', error);
             });
           }
-          localStorage.clear();
           window.location.replace('index.html');
         }
+        isAuthChecking = false;
       }, error => {
         clearTimeout(authTimeout);
         console.error('Error checking auth state:', error);
         hideLoading();
         showMessage('Error verifying authentication. Please log in again.', 'error');
-        localStorage.clear();
+        isAuthChecking = false;
         window.location.replace('index.html');
       });
     }
@@ -924,18 +968,18 @@
 
     // Secure sidebar navigation
     function secureNavigation() {
-      let isCheckingAuth = false;
+      let isCheckingNav = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
         link.addEventListener('click', async function(e) {
           e.preventDefault();
           const targetUrl = this.getAttribute('href');
           console.log(`Navigation attempt to ${targetUrl}`);
 
-          if (isCheckingAuth) {
-            console.log('Auth check already in progress, skipping');
+          if (isCheckingNav) {
+            console.log('Navigation check in progress, skipping');
             return;
           }
-          isCheckingAuth = true;
+          isCheckingNav = true;
 
           try {
             const user = await new Promise((resolve, reject) => {
@@ -951,16 +995,14 @@
             } else {
               console.log('Navigation blocked, user not authenticated or email not verified');
               showMessage('Please log in to access this page.', 'error');
-              localStorage.clear();
               window.location.replace('index.html');
             }
           } catch (error) {
             console.error('Error checking auth state for navigation:', error);
             showMessage('Error verifying authentication. Please log in again.', 'error');
-            localStorage.clear();
             window.location.replace('index.html');
           } finally {
-            isCheckingAuth = false;
+            isCheckingNav = false;
           }
         });
       });
@@ -1086,10 +1128,12 @@
         const taskElement = document.getElementById('recent-task');
         if (!todosSnapshot.empty) {
           const todo = todosSnapshot.docs[0].data();
+          taskElement.classList.add(todo.category);
           taskElement.innerHTML = `
             <p><strong>Title:</strong> ${todo.title}</p>
             <p><strong>Category:</strong> ${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</p>
             <p><strong>Due:</strong> ${formatDueDate(todo.dueDate)}</p>
+            <p><strong>Priority:</strong> <span class="priority-indicator priority-${todo.priority}"></span>${todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1)}</p>
           `;
         }
 
@@ -1122,7 +1166,7 @@
       }
     }
 
-    // Format due date (reused from To do list.html)
+    // Format due date
     function formatDueDate(dueDate) {
       if (!dueDate) return 'No due date';
 
