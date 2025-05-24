@@ -213,6 +213,10 @@
     .btn:active {
       transform: translateY(0);
     }
+    .btn, .card-actions a {
+  cursor: pointer;
+  pointer-events: auto;
+}
 
     .social-login {
       display: flex;
@@ -1867,7 +1871,7 @@
     const passwordGroup = document.getElementById('password-group');
     const emailError = document.getElementById('email-error');
     const passwordError = document.getElementById('password-error');
-    let isValid = true;
+ídas
 
     emailGroup.classList.remove('invalid');
     passwordGroup.classList.remove('invalid');
@@ -2620,8 +2624,8 @@
           });
         }
         document.getElementById('todo-count').textContent = todoCount;
-        document.getElementById('todo-urgent').textContent = urgentCount;
         document.getElementById('todo-recent').textContent = recentTodoCount;
+        document.getElementById('todo-urgent').textContent = urgentCount;
         todoLoading.style.display = 'none';
       } catch (error) {
         console.error('Error loading todos:', error);
@@ -2719,23 +2723,56 @@
     const uploadDocBtn = document.getElementById('upload-doc-btn');
     const viewAllDocsBtn = document.querySelector('.document-card .card-actions a');
 
+    // Debug to ensure elements are found
+    console.log('addTodoBtn:', addTodoBtn);
+    console.log('viewAllTasksBtn:', viewAllTasksBtn);
+
     if (addTodoBtn) {
-      addTodoBtn.addEventListener('click', () => {
-        document.getElementById('modal-title').textContent = 'Add New Task';
-        document.getElementById('todo-id').value = '';
-        document.getElementById('todo-form').reset();
-        document.querySelector('.priority-option.medium').classList.add('selected');
-        document.querySelectorAll('.priority-option:not(.medium)').forEach(opt => opt.classList.remove('selected'));
+      // Remove any existing listeners to prevent duplicates
+      addTodoBtn.removeEventListener('click', handleAddTodo);
+      addTodoBtn.addEventListener('click', handleAddTodo);
+    } else {
+      console.error('add-todo-btn not found in DOM');
+    }
+
+    function handleAddTodo() {
+      console.log('Add Task button clicked');
+      const modal = document.getElementById('todo-modal');
+      if (!modal) {
+        console.error('todo-modal not found in DOM');
+        showMessage('login-message', 'Error: Task modal not found.', 'error');
+        return;
+      }
+      document.getElementById('modal-title').textContent = 'Add New Task';
+      document.getElementById('todo-id').value = '';
+      const todoForm = document.getElementById('todo-form');
+      if (todoForm) todoForm.reset();
+      const priorityOption = document.querySelector('.priority-option.medium');
+      if (priorityOption) {
+        document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+        priorityOption.classList.add('selected');
         document.getElementById('todo-priority').value = 'medium';
-        document.getElementById('todo-modal').style.display = 'flex';
-      });
+      }
+      modal.style.display = 'flex';
     }
 
     if (viewAllTasksBtn) {
-      viewAllTasksBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'To do list.html';
-      });
+      // Remove any existing listeners
+      viewAllTasksBtn.removeEventListener('click', handleViewAllTasks);
+      viewAllTasksBtn.addEventListener('click', handleViewAllTasks);
+    } else {
+      console.error('View All Tasks link not found in DOM');
+    }
+
+    function handleViewAllTasks(e) {
+      console.log('View All Tasks link clicked');
+      // Do not prevent default to allow natural link navigation
+      const href = viewAllTasksBtn.getAttribute('href');
+      if (href) {
+        window.location.href = href;
+      } else {
+        console.error('View All Tasks href attribute missing');
+      }
     }
 
     if (addPasswordBtn) {
@@ -2749,7 +2786,6 @@
 
     if (viewAllPasswordsBtn) {
       viewAllPasswordsBtn.addEventListener('click', (e) => {
-        e.preventDefault();
         window.location.href = 'Password Manager.html';
       });
     }
@@ -2763,7 +2799,6 @@
 
     if (viewAllDocsBtn) {
       viewAllDocsBtn.addEventListener('click', (e) => {
-        e.preventDefault();
         window.location.href = 'Documents.html';
       });
     }
