@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MyMemory | Dashboard</title>
-  <!-- Prevent Caching -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="-1" />
   <meta http-equiv="Vary" content="*" />
-  <!-- Firebase scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <base href="https://hipotech-dev.github.io/MyMemory/">
+  <title>MyMemory - Your Personal Productivity App</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -26,6 +26,13 @@
       --white: #ffffff;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --category-work: #007bff;
+      --category-personal: #28a745;
+      --category-urgent: #dc3545;
+      --warning: #f6ad55;
+      --gradient-todo: linear-gradient(135deg, #667eea, #764ba2);
+      --gradient-password: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      --gradient-document: linear-gradient(135deg, #36d1dc, #5b86e5);
     }
 
     * {
@@ -36,16 +43,318 @@
     }
 
     body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--light);
+    }
+
+    /* Authentication Page Styles */
+    .auth-page {
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+      position: relative;
+    }
+
+    .auth-container {
+      background: var(--white);
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      margin: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .auth-container:hover {
+      transform: translateY(-5px);
+    }
+
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo img {
+      height: 60px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .logo img[src=""] {
+      background: url('amnesia.png') no-repeat center;
+      background-size: contain;
+      height: 60px;
+      width: 60px;
+    }
+
+    .logo h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .message {
+      display: none;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-align: center;
+      animation: slideIn 0.3s ease;
+    }
+
+    .message.success {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .message.error {
+      background: var(--secondary);
+      color: var(--white);
+    }
+
+    .error-text {
+      color: var(--secondary);
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .form-group.invalid input {
+      border-color: var(--secondary);
+    }
+
+    .form-group.invalid .error-text {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 2.5rem;
+      color: #6b7280;
+      font-size: 1.1rem;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      border: 1px solid var(--gray);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      background: var(--white);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      border: none;
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .social-login {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .social-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      border: 1px solid var(--gray);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .social-btn:hover {
+      background: var(--light);
+      transform: scale(1.1);
+    }
+
+    .social-btn i {
+      font-size: 1.3rem;
+      color: var(--dark);
+    }
+
+    .password-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      color: var(--dark);
+    }
+
+    .remember-me input {
+      margin-right: 0.5rem;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+
+    .forgot-password a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid var(--gray);
+    }
+
+    .divider::before {
+      margin-right: 1rem;
+    }
+
+    .divider::after {
+      margin-left: 1rem;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+
+    .switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .switch a:hover {
+      text-decoration: underline;
+    }
+
+    .terms {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    .terms a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .terms a:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .dashboard {
       background: url('hipo.jpg') no-repeat center center fixed;
       background-size: cover;
       min-height: 100vh;
-      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .header {
       background: var(--white);
-      box-shadow: var(--shadow);
       padding: 1rem 2rem;
+      box-shadow: var(--shadow);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -54,26 +363,24 @@
       z-index: 1000;
     }
 
-    .logo {
-      display: flex;
+    .header .logo {
+      flex-direction: row;
       align-items: center;
       gap: 1rem;
     }
 
-    .logo img {
+    .header .logo img {
       height: 50px;
     }
 
-    .logo img[src=""] {
-      background: url('https://cdn-icons-png.flaticon.com/512/7660/7660733.png') no-repeat center;
-      background-size: contain;
+    .header .logo img[src=""] {
       height: 50px;
       width: 50px;
     }
 
-    .logo h1 {
-      color: var(--primary);
+    .header .logo h1 {
       font-size: 1.6rem;
+      color: var(--primary);
     }
 
     .user-menu {
@@ -86,91 +393,445 @@
     .user-avatar {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
       background: var(--primary);
       color: var(--white);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid var(--primary-light);
+    }
+
+    .user-avatar:hover {
+      background: var(--primary-light);
+      transform: scale(1.05);
+      box-shadow: 0 0 8px rgba(0, 112, 186, 0.3);
     }
 
     .user-popup {
       display: none;
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background: var(--white);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      width: 220px;
+      flex-direction: column;
+      align-items: center;
       padding: 1rem;
-      z-index: 1000;
+      width: 200px;
+      right: 10px;
+      top: 50px;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      z-index: 1001;
+      animation: slideIn 0.2s ease-out;
+      position: absolute;
+      border: 1px solid var(--gray);
+    }
+
+    .user-popup::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: 15px;
+      border: 5px solid transparent;
+      border-bottom-color: var(--gray);
+    }
+
+    .user-popup::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: 15px;
+      border: 5px solid transparent;
+      border-bottom-color: var(--white);
     }
 
     .user-popup.active {
-      display: block;
+      display: flex;
     }
 
     .user-popup .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 1rem;
+      width: 100%;
+      text-align: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--gray);
+      margin-bottom: 0.75rem;
     }
 
-    .user-popup .user-info .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    .user-popup .user-info .details h4 {
-      font-size: 1rem;
+    .user-popup .user-name {
+      font-size: 1.1rem;
+      font-weight: 600;
       color: var(--dark);
-      margin: 0;
+      margin-bottom: 0.25rem;
     }
 
-    .user-popup .user-info .details p {
+    .user-popup .user-email {
       font-size: 0.85rem;
-      color: #718096;
-      margin: 0;
+      color: #6b7280;
+      word-break: break-all;
     }
 
     .user-popup .logout-btn {
       width: 100%;
-      padding: 8px;
+      padding: 0.6rem;
       background: var(--secondary);
-      color: white;
       border: none;
-      border-radius: 6px;
+      color: var(--white);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      justify-content: center;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .user-popup .logout-btn:hover {
-      background: #e04e53;
+      background: #e53e3e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .password-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .password-card {
+      background: var(--light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray);
+      box-shadow: var(--card-shadow);
+    }
+
+    .password-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .password-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .password-name {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .password-card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .password-card-actions button {
+      background: none;
+      border: none;
+      color: var(--dark);
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .password-card-actions button:hover {
+      background: var(--gray);
+      color: var(--primary);
+    }
+
+    .password-details {
+      margin-top: 0.75rem;
+    }
+
+    .password-detail {
+      display: flex;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+
+    .password-label {
+      font-weight: 500;
+      min-width: 80px;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .password-value {
+      flex: 1;
+      position: relative;
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+
+    .password-value input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .password-value .masked {
+      -webkit-text-security: disc;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--dark);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .toggle-password:hover {
+      color: var(--primary);
+    }
+
+    .password-strength {
+      height: 4px;
+      background: var(--gray);
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+
+    .strength-meter {
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .todo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--light);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .todo-item:hover {
+      background: var(--gray);
+    }
+
+    .todo-item.todo-completed .todo-title {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .todo-checkbox {
+      width: 1.2rem;
+      height: 1.2rem;
+      cursor: pointer;
+    }
+
+    .todo-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .todo-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+      word-break: break-word;
+      color: var(--dark);
+    }
+
+    .todo-due {
+      font-size: 0.85rem;
+      color: #718096;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .todo-category {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      color: var(--white);
+      margin-left: 8px;
+    }
+
+    .category-work {
+      background: var(--category-work);
+    }
+
+    .category-personal {
+      background: var(--category-personal);
+    }
+
+    .category-urgent {
+      background: var(--category-urgent);
+    }
+
+    .todo-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .todo-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--dark);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .todo-actions button:hover {
+      background: var(--gray);
+      color: var(--primary);
+    }
+
+    .priority-high {
+      border-left: 4px solid var(--secondary);
+    }
+
+    .priority-medium {
+      border-left: 4px solid var(--warning);
+    }
+
+    .priority-low {
+      border-left: 4px solid var(--success);
+    }
+
+    @media (max-width: 768px) {
+      .user-popup {
+        width: 180px;
+        right: 5px;
+        top: 45px;
+        padding: 0.75rem;
+      }
+
+      .user-popup::before, .user-popup::after {
+        right: 10px;
+      }
+
+      .user-popup .user-name {
+        font-size: 1rem;
+      }
+
+      .user-popup .user-email {
+        font-size: 0.8rem;
+      }
+
+      .user-popup .logout-btn {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+      }
+
+      .password-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .password-detail {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-start;
+      }
+
+      .password-label {
+        min-width: 100%;
+      }
+
+      .password-name, .password-value {
+        word-break: break-word;
+      }
+
+      .password-strength {
+        display: none;
+      }
+
+      .todo-item {
+        flex-wrap: wrap;
+      }
+
+      .todo-content {
+        min-width: calc(100% - 44px);
+      }
+
+      .todo-actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .user-popup {
+        width: 160px;
+        right: 5px;
+        top: 40px;
+        padding: 0.6rem;
+      }
+
+      .user-popup::before, .user-popup::after {
+        right: 10px;
+      }
+
+      .user-popup .user-name {
+        font-size: 0.95rem;
+      }
+
+      .user-popup .user-email {
+        font-size: 0.75rem;
+      }
+
+      .user-popup .logout-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+      }
+
+      .password-card-actions button {
+        width: 35px;
+        height: 35px;
+      }
     }
 
     .container {
       display: flex;
-      min-height: calc(100vh - 72px);
-      max-width: 1400px;
-      margin: 0 auto;
+      flex: 1;
       padding: 2rem;
       gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .sidebar {
@@ -214,7 +875,7 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .sidebar-menu i {
+    .sidebar-menu a i {
       font-size: 1.1rem;
     }
 
@@ -226,115 +887,348 @@
       box-shadow: var(--shadow);
     }
 
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .welcome-banner {
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      color: var(--white);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .welcome-banner h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-banner p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
       margin-bottom: 2rem;
     }
 
-    .page-title {
-      color: var(--primary);
-      font-size: 1.8rem;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .dashboard-card {
-      background: var(--light);
+    .card {
+      background: var(--white);
       border-radius: 12px;
+      box-shadow: var(--card-shadow);
       padding: 1.5rem;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
       border: 1px solid var(--gray);
-      box-shadow: var(--card-shadow);
-      cursor: pointer;
     }
 
-    .dashboard-card:hover {
+    .card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .card.todo-card {
+      background: var(--gradient-todo);
+      color: var(--white);
+    }
+
+    .card.password-card {
+      background: var(--gradient-password);
+      color: var(--white);
+    }
+
+    .card.document-card {
+      background: var(--gradient-document);
+      color: var(--white);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover::before {
+      opacity: 1;
     }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
     }
 
-    .card-title {
+    .card-header h3 {
+      font-size: 1.4rem;
       font-weight: 600;
-      color: var(--primary);
-      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
     }
 
     .card-content {
-      margin-top: 0.75rem;
-    }
-
-    .card-detail {
-      display: flex;
-      margin-bottom: 0.75rem;
-      align-items: center;
-    }
-
-    .card-label {
-      font-weight: 500;
-      min-width: 80px;
-      color: #718096;
-      font-size: 0.9rem;
-    }
-
-    .card-value {
-      flex: 1;
       font-size: 0.95rem;
-      color: var(--dark);
+      line-height: 1.5;
+      margin-bottom: 1rem;
     }
 
-    .message {
-      display: none;
-      padding: 0.75rem;
-      margin: 1rem auto;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      text-align: center;
-      max-width: 500px;
-      animation: slideIn 0.3s ease;
+    .card-content p {
+      margin: 0.5rem 0;
     }
 
-    .message.success {
-      background: var(--success);
-      color: var(--white);
-    }
-
-    .message.error {
-      background: var(--secondary);
-      color: var(--white);
-    }
-
-    #loading {
+    .card-actions {
       display: flex;
-      justify-content: center;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .card-actions .btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      width: auto;
+      display: inline-flex;
       align-items: center;
-      height: 100vh;
-      font-size: 1.2rem;
+      gap: 0.5rem;
+    }
+
+    .card-actions .btn i {
+      font-size: 1rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-header h3 {
+      font-size: 1.3rem;
       color: var(--dark);
     }
 
-    #app-content {
-      display: none;
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--dark);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
     }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .modal-close:hover {
+      background: var(--gray);
+      color: var(--secondary);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      background: var(--white);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .priority-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .priority-option {
+      flex: 1;
+      padding: 0.75rem;
+      text-align: center;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 80px;
+      background: var(--white);
+    }
+
+    .priority-option:hover {
+      background: var(--light);
+      transform: translateY(-2px);
+    }
+
+    .priority-option.selected {
+      border-color: var(--primary);
+      background: var(--light);
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .priority-option.high {
+      border-left: 4px solid var(--secondary);
+    }
+
+    .priority-option.medium {
+      border-left: 4px solid var(--warning);
+    }
+
+    .priority-option.low {
+      border-left: 4px solid var(--success);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      font-size: 1rem;
+      color: var(--dark);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 1rem;
+      color: #718096;
+      background: var(--light);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--gray);
     }
 
     @media (max-width: 768px) {
+      .auth-page {
+        padding: 1rem;
+      }
+
+      .auth-container {
+        max-width: 95%;
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+
+      .logo img {
+        height: 50px;
+      }
+
+      .logo img[src=""] {
+        height: 50px;
+        width: 50px;
+      }
+
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+        font-size: 0.95rem;
+      }
+
+      .input-icon {
+        top: 2.4rem;
+      }
+
+      .btn {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+      }
+
+      .social-btn {
+        width: 45px;
+        height: 45px;
+      }
+
+      .social-btn i {
+        font-size: 1.2rem;
+      }
+
+      .password-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
       .container {
         flex-direction: column;
         padding: 1rem;
@@ -343,7 +1237,7 @@
       .sidebar {
         width: 100%;
         border-radius: 10px;
-        padding: 0.5rem;
+        padding: 1rem;
       }
 
       .sidebar-menu {
@@ -358,71 +1252,111 @@
       }
 
       .sidebar-menu a {
+        white-space: nowrap;
         padding: 0.5rem;
         font-size: 0.9rem;
-        white-space: nowrap;
       }
 
       .main-content {
         padding: 1.5rem;
       }
 
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-
-      .dashboard-grid {
+      .dashboard-cards {
         grid-template-columns: 1fr;
-        gap: 1rem;
       }
 
       .header {
         padding: 1rem;
       }
 
-      .logo img {
+      .header .logo img {
         height: 40px;
       }
 
-      .logo img[src=""] {
+      .header .logo img[src=""] {
         height: 40px;
         width: 40px;
       }
 
-      .logo h1 {
+      .header .logo h1 {
         font-size: 1.4rem;
       }
 
-      .user-popup {
-        width: 200px;
-        top: 48px;
+      .form-row .form-group {
+        min-width: 100%;
+      }
+
+      .priority-option {
+        min-width: calc(33.333% - 6px);
       }
     }
 
     @media (max-width: 480px) {
-      .header {
-        padding: 0.75rem 1rem;
+      .auth-container {
+        padding: 1.25rem;
+      }
+
+      .logo img {
+        height: 45px;
+      }
+
+      .logo img[src=""] {
+        height: 45px;
+        width: 45px;
       }
 
       .logo h1 {
         font-size: 1.3rem;
       }
 
-      .user-avatar {
-        width: 35px;
-        height: 35px;
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .btn {
+        padding: 0.8rem;
         font-size: 0.9rem;
       }
 
-      .page-title {
-        font-size: 1.5rem;
+      .social-login {
+        gap: 0.75rem;
       }
 
-      .user-popup {
-        width: 180px;
-        top: 80px;
+      .social-btn {
+        width: 40px;
+        height: 40px;
+      }
+
+      .social-btn i {
+        font-size: 1.1rem;
+      }
+
+      .divider {
+        font-size: 0.85rem;
+      }
+
+      .switch {
+        font-size: 0.9rem;
+      }
+
+      .terms {
+        font-size: 0.8rem;
+      }
+
+      .welcome-banner h2 {
+        font-size: 1.4rem;
+      }
+
+      .welcome-banner p {
+        font-size: 0.9rem;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+
+      .card-header h3 {
+        font-size: 1.2rem;
       }
     }
 
@@ -431,33 +1365,139 @@
       overflow-x: hidden;
     }
 
-    button, a, input[type="checkbox"], .dashboard-card {
-      min-height: 44px;
+    button, a, input[type="checkbox"] {
       touch-action: manipulation;
     }
 
-    input, select, textarea {
-      font-size: 16px;
-      touch-action: manipulation;
+    .resend-verification {
+      text-align: center;
+      margin: 1rem 0;
+      font-size: 0.85rem;
     }
 
-    @media screen and (-webkit-min-device-pixel-ratio:0) {
-      select:focus, textarea:focus, input:focus {
-        font-size: 16px;
-      }
+    .resend-verification a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .resend-verification a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <!-- Message Container -->
-  <div class="message" id="auth-message"></div>
+  <!-- Authentication Page -->
+  <div class="auth-page" id="auth-page">
+    <div class="auth-container" id="login-form">
+      <div class="logo">
+        <img src="amnesia.png" alt="MyMemory Logo">
+        <h1>MyMemory</h1>
+      </div>
+      <div class="message" id="login-message"></div>
+      <form id="login">
+        <div class="form-group" id="email-group">
+          <label for="email">Email Address</label>
+          <i class="fas fa-envelope input-icon"></i>
+          <input type="email" id="email" placeholder="you@example.com" required />
+          <div class="error-text" id="email-error"></div>
+        </div>
+        
+        <div class="form-group" id="password-group">
+          <label for="password">Password</label>
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password" placeholder="••••••••" required />
+          <div class="error-text" id="password-error"></div>
+          <div class="password-actions">
+            <div class="remember-me">
+              <input type="checkbox" id="remember" checked>
+              <label for="remember">Remember me</label>
+            </div>
+            <div class="forgot-password">
+              <a href="#" id="forgot-password">Forgot password?</a>
+            </div>
+          </div>
+        </div>
+        <div class="resend-verification">
+          <a href="#" id="resend-verification">Resend Verification Email</a>
+        </div>
+        <button type="submit" class="btn">Log In</button>
+      </form>
+      <div class="switch">
+        Don't have an account?
+        <a href="#" onclick="toggleForms()">Sign Up</a>
+      </div>
+    </div>
 
-  <!-- Loading State -->
-  <div id="loading">Loading...</div>
+    <div class="auth-container" id="signup-form" style="display: none;">
+      <div class="logo">
+        <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
+        <h1>MyMemory</h1>
+      </div>
+      
+      <h2>Create Account</h2>
+      <div class="message" id="signup-message"></div>
+      
+      <form id="signup">
+        <div class="form-group" id="name-group">
+          <label for="name">Full Name</label>
+          <i class="fas fa-user input-icon"></i>
+          <input type="text" id="name" placeholder="John Doe" required />
+          <div class="error-text" id="name-error"></div>
+        </div>
+        
+        <div class="form-group" id="email-signup-group">
+          <label for="email-signup">Email Address</label>
+          <i class="fas fa-envelope input-icon"></i>
+          <input type="email" id="email-signup" placeholder="you@example.com" required />
+          <div class="error-text" id="email-signup-error"></div>
+        </div>
+        
+        <div class="form-group" id="password-signup-group">
+          <label for="password-signup">Password</label>
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" id="password-signup" placeholder="Create a password" required />
+          <div class="error-text" id="password-signup-error"></div>
+          <div class="password-strength">
+            <div class="strength-meter" id="strength-meter"></div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn">Sign Up</button>
+      </form>
+      
+      <div class="terms">
+        By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </div>
+      
+      <div class="switch">
+        Already have an account?
+        <a href="#" onclick="toggleForms()">Log In</a>
+      </div>
+    </div>
 
-  <!-- Main App Content -->
-  <div id="app-content">
-    <!-- Header -->
+    <div class="modal" id="forgot-password-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Reset Password</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <div class="message" id="forgot-message"></div>
+        <form id="forgot-password-form">
+          <div class="form-group" id="forgot-email-group">
+            <label for="forgot-email">Email Address</label>
+            <i class="fas fa-envelope input-icon"></i>
+            <input type="email" id="forgot-email" class="form-control" placeholder="you@example.com" required>
+            <div class="error-text" id="forgot-email-error"></div>
+          </div>
+          <button type="submit" class="btn">Send Reset Email</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard" id="dashboard" style="display: none;">
     <header class="header">
       <div class="logo">
         <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
@@ -467,22 +1507,15 @@
         <div class="user-avatar" id="user-avatar"></div>
         <div class="user-popup" id="user-popup">
           <div class="user-info">
-            <div class="avatar" id="popup-user-avatar"></div>
-            <div class="details">
-              <h4 id="popup-user-name"></h4>
-              <p id="popup-user-email"></p>
-            </div>
+            <div class="user-name" id="popup-user-name"></div>
+            <div class="user-email" id="popup-user-email"></div>
           </div>
-          <button class="logout-btn" id="popup-logout-btn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </button>
+          <button class="logout-btn" id="popup-logout-btn">Logout</button>
         </div>
       </div>
     </header>
 
-    <!-- Main Container -->
     <div class="container">
-      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
           <li><a href="index.html" class="active" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -490,85 +1523,245 @@
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
           <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
-      <!-- Main Content -->
       <main class="main-content">
-        <div class="page-header">
-          <h2 class="page-title">Dashboard</h2>
+        <div class="welcome-banner">
+          <h2>Welcome back, <span id="user-name"></span>!</h2>
+          <p>Here's what's happening with your account today.</p>
         </div>
-        <div class="dashboard-grid">
-          <!-- Password Manager Card -->
-          <div class="dashboard-card" id="password-card">
+
+        <div class="dashboard-cards">
+          <div class="card todo-card">
             <div class="card-header">
-              <div class="card-title">Password Manager</div>
-              <i class="fas fa-lock"></i>
+              <h3><i class="fas fa-tasks"></i> To-Do List</h3>
             </div>
             <div class="card-content">
-              <div class="card-detail">
-                <span class="card-label">Total Passwords:</span>
-                <span class="card-value" id="password-count">0</span>
-              </div>
-              <div class="card-detail">
-                <span class="card-label">Recent:</span>
-                <span class="card-value" id="password-recent">No passwords yet</span>
-              </div>
-              <div class="card-detail" id="password-loading" style="display: none;">
-                <span class="card-value">Loading...</span>
-              </div>
+              <p><strong id="todo-count">0</strong> tasks pending</p>
+              <p><strong id="todo-urgent">0</strong> urgent tasks due today</p>
             </div>
           </div>
-          <!-- Other Cards (To-Do, Documents, etc.) -->
-          <div class="dashboard-card">
+
+          <div class="card password-card">
             <div class="card-header">
-              <div class="card-title">To-Do List</div>
-              <i class="fas fa-tasks"></i>
+              <h3><i class="fas fa-lock"></i> Password Manager</h3>
             </div>
             <div class="card-content">
-              <div class="card-detail">
-                <span class="card-label">Tasks:</span>
-                <span class="card-value" id="todo-count">0</span>
-              </div>
+              <p><strong id="password-count">0</strong> passwords stored</p>
+              <p><strong id="password-recent">0</strong> recently added</p>
             </div>
           </div>
-          <div class="dashboard-card">
+
+          <div class="card document-card">
             <div class="card-header">
-              <div class="card-title">Documents</div>
-              <i class="fas fa-file-contract"></i>
+              <h3><i class="fas fa-file-contract"></i> Documents</h3>
             </div>
             <div class="card-content">
-              <div class="card-detail">
-                <span class="card-label">Documents:</span>
-                <span class="card-value" id="document-count">0</span>
-              </div>
+              <p><strong id="document-count">0</strong> documents stored</p>
+              <p><strong id="document-recent">0</strong> recently uploaded</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Tasks</h3>
+            </div>
+            <div class="todo-list" id="todo-list">
+              <div class="loading" id="todo-loading">Loading tasks...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Passwords</h3>
+            </div>
+            <div class="password-list">
+              <div class="password-grid" id="password-list"></div>
+              <div class="loading" id="password-loading">Loading passwords...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Documents</h3>
+            </div>
+            <div class="document-list" id="document-list">
+              <div class="loading">Loading documents...</div>
             </div>
           </div>
         </div>
       </main>
     </div>
+
+    <!-- Modals -->
+    <div class="modal" id="todo-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-title">Add New Task</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <form id="todo-form">
+          <input type="hidden" id="todo-id">
+          
+          <div class="form-group">
+            <label for="todo-title">Task Title</label>
+            <input type="text" id="todo-title" class="form-control" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="todo-description">Description (Optional)</label>
+            <textarea id="todo-description" class="form-control" rows="3"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="todo-due">Due Date</label>
+              <input type="date" id="todo-due" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="todo-time">Time (Optional)</label>
+              <input type="time" id="todo-time" class="form-control">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="todo-category">Category</label>
+            <select id="todo-category" class="form-control">
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Priority</label>
+            <div class="priority-selector">
+              <div class="priority-option high" data-priority="high">High</div>
+              <div class="priority-option medium selected" data-priority="medium">Medium</div>
+              <div class="priority-option low" data-priority="low">Low</div>
+            </div>
+            <input type="hidden" id="todo-priority" value="medium">
+          </div>
+          
+          <button type="submit" class="btn">Save Task</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="password-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-title">Add New Password</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <div class="message" id="password-message"></div>
+        <form id="password-form">
+          <div class="form-group">
+            <label for="password-title">Title</label>
+            <input type="text" id="password-title" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="password-username">Username/Email</label>
+            <input type="text" id="password-username" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="password-value">Password</label>
+            <input type="password" id="password-value" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="password-url">Website URL</label>
+            <input type="url" id="password-url" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="password-category">Category</label>
+            <select id="password-category" class="form-control">
+              <option value="email">Email</option>
+              <option value="banking">Banking</option>
+              <option value="social">Social</option>
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="password-notes">Notes</label>
+            <textarea id="password-notes" class="form-control" rows="3"></textarea>
+          </div>
+          <input type="hidden" id="password-id">
+          <div class="form-actions">
+            <button type="button" class="btn" style="background: var(--gray); color: var(--dark);">Cancel</button>
+            <button type="submit" class="btn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="document-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Upload Document</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <form id="document-form">
+          <div class="form-group">
+            <label for="document-name">Document Name</label>
+            <input type="text" id="document-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="document-file">Select File</label>
+            <input type="file" id="document-file" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="document-category">Category</label>
+            <select id="document-category" class="form-control">
+              <option value="contract">Contract</option>
+              <option value="proposal">Proposal</option>
+              <option value="report">Report</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">Upload Document</button>
+        </form>
+      </div>
+    </div>
   </div>
-
-  <script>
+<script>
   // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-    authDomain: "mymemory-ddc21.firebaseapp.com",
-    projectId: "mymemory-ddc21",
-    storageBucket: "mymemory-ddc21.firebasestorage.app",
-    messagingSenderId: "875926928384",
-    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-    measurementId: "G-8XZZNJB0QD"
-  };
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+  authDomain: "mymemory-ddc21.firebaseapp.com",
+  projectId: "mymemory-ddc21",
+  storageBucket: "mymemory-ddc21.firebasestorage.app",
+  messagingSenderId: "875926928384",
+  appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+  measurementId: "G-8XZZNJB0QD"
+};
 
-  // Initialize Firebase
+// Initialize Firebase
+let auth, db, storage;
+try {
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  auth = firebase.auth();
+  db = firebase.firestore();
+  storage = firebase.storage();
+} catch (error) {
+  console.error('Firebase initialization failed:', error);
+  document.getElementById('auth-page').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
 
-  // Show message
-  function showMessage(message, type = 'success') {
-    const messageElement = document.getElementById('auth-message');
+// Enable email verification
+auth.useDeviceLanguage();
+
+// Show message (success or error)
+function showMessage(elementId, message, type = 'success') {
+  const messageElement = document.getElementById(elementId);
+  if (messageElement) {
     messageElement.textContent = message;
     messageElement.className = `message ${type}`;
     messageElement.style.display = 'block';
@@ -576,168 +1769,1020 @@
       messageElement.style.display = 'none';
     }, 5000);
   }
+}
 
-  // Decrypt password
-  function decryptPassword(encryptedPassword) {
-    try {
-      return atob(encryptedPassword);
-    } catch {
-      return 'Error decrypting';
-    }
+// Validate email format
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Validate URL format
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Calculate password strength
+function calculatePasswordStrength(password) {
+  let strength = 0;
+  if (password.length >= 8) strength += 25;
+  if (password.length >= 12) strength += 25;
+  if (/[A-Z]/.test(password)) strength += 15;
+  if (/[0-9]/.test(password)) strength += 15;
+  if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+  return Math.min(strength, 100);
+}
+
+// Encrypt and decrypt password
+function encryptPassword(password) {
+  return btoa(password);
+}
+
+function decryptPassword(encryptedPassword) {
+  try {
+    return atob(encryptedPassword);
+  } catch {
+    return 'Error decrypting';
+  }
+}
+
+// Toggle between login and signup forms
+function toggleForms() {
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const loginMessage = document.getElementById('login-message');
+  const signupMessage = document.getElementById('signup-message');
+
+  if (loginForm.style.display === 'none') {
+    loginForm.style.display = 'block';
+    signupForm.style.display = 'none';
+    signupMessage.style.display = 'none';
+  } else {
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'block';
+    loginMessage.style.display = 'none';
   }
 
-  // Load dashboard data with real-time updates
-  function loadDashboard(uid) {
-    const passwordCount = document.getElementById('password-count');
-    const passwordRecent = document.getElementById('password-recent');
-    const passwordLoading = document.getElementById('password-loading');
+  const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
+  activeForm.classList.add('fade-in');
+  setTimeout(() => activeForm.classList.remove('fade-in'), 300);
+}
 
-    // Show loading state
-    passwordLoading.style.display = 'block';
-    passwordCount.textContent = '0';
-    passwordRecent.textContent = 'No passwords yet';
+// Password strength indicator
+const passwordInput = document.getElementById('password-signup');
+const strengthMeter = document.getElementById('strength-meter');
 
-    // Real-time listener for total password count
-    const countUnsubscribe = db.collection('users').doc(uid).collection('passwords')
-      .onSnapshot(
-        (snapshot) => {
-          passwordCount.textContent = snapshot.size;
-        },
-        (error) => {
-          console.error('Error fetching password count:', error);
-          passwordCount.textContent = 'Error';
-          showMessage('Failed to load password count.', 'error');
+if (passwordInput && strengthMeter) {
+  passwordInput.addEventListener('input', function() {
+    const password = this.value;
+    let strength = calculatePasswordStrength(password);
+    strengthMeter.style.width = strength + '%';
+    strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' : 
+                                        strength < 75 ? '#f6ad55' : '#38a169';
+  });
+}
+
+// Form validation functions
+function validateLoginForm() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const emailGroup = document.getElementById('email-group');
+  const passwordGroup = document.getElementById('password-group');
+  const emailError = document.getElementById('email-error');
+  const passwordError = document.getElementById('password-error');
+  let isValid = true;
+
+  emailGroup.classList.remove('invalid');
+  passwordGroup.classList.remove('invalid');
+  emailError.style.display = 'none';
+  passwordError.style.display = 'none';
+
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    emailError.textContent = 'Please enter a valid email address';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password) {
+    passwordError.textContent = 'Password is required';
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateSignupForm() {
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email-signup').value;
+  const password = document.getElementById('password-signup').value;
+  const nameGroup = document.getElementById('name-group');
+  const emailGroup = document.getElementById('email-signup-group');
+  const passwordGroup = document.getElementById('password-signup-group');
+  const nameError = document.getElementById('name-error');
+  const emailError = document.getElementById('email-signup-error');
+  const passwordError = document.getElementById('password-signup-error');
+  let isValid = true;
+
+  nameGroup.classList.remove('invalid');
+  emailGroup.classList.remove('invalid');
+  passwordGroup.classList.remove('invalid');
+  nameError.style.display = 'none';
+  emailError.style.display = 'none';
+  passwordError.style.display = 'none';
+
+  if (!name) {
+    nameError.textContent = 'Full name is required';
+    nameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    emailError.textContent = 'Please enter a valid email address';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password) {
+    passwordError.textContent = 'Password is required';
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  } else if (password.length < 8) {
+    passwordError.textContent = 'Password must be at least 8 characters';
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateForgotForm() {
+  const email = document.getElementById('forgot-email').value;
+  const emailGroup = document.getElementById('forgot-email-group');
+  const emailError = document.getElementById('forgot-email-error');
+  let isValid = true;
+
+  emailGroup.classList.remove('invalid');
+  emailError.style.display = 'none';
+
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    emailError.textContent = 'Please enter a valid email address';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateTodoForm() {
+  const title = document.getElementById('todo-title').value;
+  const titleGroup = document.getElementById('todo-title').parentElement;
+  let isValid = true;
+
+  titleGroup.classList.remove('invalid');
+  titleGroup.querySelector('.error-text')?.remove();
+
+  if (!title.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Task title is required';
+    titleGroup.appendChild(errorText);
+    titleGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validatePasswordForm() {
+  const title = document.getElementById('password-title').value;
+  const username = document.getElementById('password-username').value;
+  const password = document.getElementById('password-value').value;
+  const url = document.getElementById('password-url').value;
+  const titleGroup = document.getElementById('password-title').parentElement;
+  const usernameGroup = document.getElementById('password-username').parentElement;
+  const passwordGroup = document.getElementById('password-value').parentElement;
+  const urlGroup = document.getElementById('password-url').parentElement;
+  let isValid = true;
+
+  [titleGroup, usernameGroup, passwordGroup, urlGroup].forEach(group => {
+    group.classList.remove('invalid');
+    group.querySelector('.error-text')?.remove();
+  });
+
+  if (!title.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Title is required';
+    titleGroup.appendChild(errorText);
+    titleGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!username.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Username or email is required';
+    usernameGroup.appendChild(errorText);
+    usernameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Password is required';
+    passwordGroup.appendChild(errorText);
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (url && !isValidUrl(url)) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Please enter a valid URL';
+    urlGroup.appendChild(errorText);
+    urlGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateDocumentForm() {
+  const name = document.getElementById('document-name').value;
+  const file = document.getElementById('document-file').files[0];
+  const nameGroup = document.getElementById('document-name').parentElement;
+  const fileGroup = document.getElementById('document-file').parentElement;
+  let isValid = true;
+
+  [nameGroup, fileGroup].forEach(group => {
+    group.classList.remove('invalid');
+    group.querySelector('.error-text')?.remove();
+  });
+
+  if (!name.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Document name is required';
+    nameGroup.appendChild(errorText);
+    nameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!file) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Please select a file';
+    fileGroup.appendChild(errorText);
+    fileGroup.classList.add('invalid');
+    isValid = false;
+  } else if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'File size must be less than 5MB';
+    fileGroup.appendChild(errorText);
+    fileGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+// Rate limiting for password reset and verification email
+const RATE_LIMIT_MS = 30 * 1000; // 30 seconds
+
+function canSendPasswordReset(email) {
+  const lastReset = localStorage.getItem(`reset-attempt-${email}`);
+  if (!lastReset) return true;
+  const timeSinceLast = Date.now() - parseInt(lastReset);
+  return timeSinceLast > RATE_LIMIT_MS;
+}
+
+function canResendVerification(email) {
+  const lastAttempt = localStorage.getItem(`verification-attempt-${email}`);
+  if (!lastAttempt) return true;
+  const timeSinceLast = Date.now() - parseInt(lastAttempt);
+  return timeSinceLast > RATE_LIMIT_MS;
+}
+
+// Handle user popup functionality
+function setupUserPopup() {
+  const userAvatar = document.getElementById('user-avatar');
+  const userPopup = document.getElementById('user-popup');
+  const logoutBtn = document.getElementById('popup-logout-btn');
+
+  if (!userAvatar || !userPopup || !logoutBtn) {
+    console.error('User popup elements not found');
+    return;
+  }
+
+  function toggleUserPopup(e) {
+    e.stopPropagation();
+    userPopup.classList.toggle('active');
+  }
+
+  function closeUserPopup() {
+    userPopup.classList.remove('active');
+  }
+
+  userAvatar.addEventListener('click', toggleUserPopup);
+
+  document.addEventListener('click', function(e) {
+    if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+      closeUserPopup();
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeUserPopup();
+    }
+  });
+
+  logoutBtn.addEventListener('click', handleLogout);
+}
+
+// Handle logout
+function handleLogout(e) {
+  e.preventDefault();
+  console.log('Logout function triggered');
+  if (!auth) {
+    console.error('Firebase auth not initialized');
+    showMessage('login-message', 'Authentication service not available', 'error');
+    return;
+  }
+
+  auth.signOut().then(() => {
+    console.log('User signed out successfully');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('rememberMe');
+    document.getElementById('auth-page').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    window.location.href = 'index.html';
+  }).catch((error) => {
+    console.error('Logout error:', error.code, error.message);
+    showMessage('login-message', `Logout failed: ${error.message}`, 'error');
+  });
+}
+
+// Format due date
+function formatDueDate(dueDate) {
+  if (!dueDate) return 'No due date';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+
+  const diffTime = due - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Due today';
+  if (diffDays === 1) return 'Due tomorrow';
+  if (diffDays === -1) return 'Due yesterday';
+  if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
+  if (diffDays <= 7) return `Due in ${diffDays} days`;
+
+  return `Due on ${due.toLocaleDateString()}`;
+}
+
+// Create todo element
+function createTodoElement(todo) {
+  const todoItem = document.createElement('div');
+  todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
+  todoItem.dataset.id = todo.id;
+  todoItem.dataset.due = todo.dueDate;
+  todoItem.dataset.completed = todo.completed;
+  todoItem.dataset.category = todo.category;
+
+  const dueText = formatDueDate(todo.dueDate);
+  const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
+
+  todoItem.innerHTML = `
+    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+    <div class="todo-content">
+      <div class="todo-title">${todo.title} ${categoryText}</div>
+      <div class="todo-due">
+        <i class="far fa-calendar-alt"></i> ${dueText}
+      </div>
+    </div>
+    <div class="todo-actions">
+      <button title="Edit"><i class="fas fa-edit"></i></button>
+      <button title="Delete"><i class="fas fa-trash"></i></button>
+    </div>
+  `;
+
+  return todoItem;
+}
+
+// Add todo event listeners
+function addTodoEventListeners(todoItem, user) {
+  const checkbox = todoItem.querySelector('.todo-checkbox');
+  const editBtn = todoItem.querySelector('.fa-edit').parentNode;
+  const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
+
+  checkbox.addEventListener('change', async function(e) {
+    e.stopPropagation(); // Prevent card click from triggering
+    const todoId = todoItem.dataset.id;
+    try {
+      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
+        completed: this.checked,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      todoItem.dataset.completed = this.checked;
+      if (this.checked) {
+        todoItem.classList.add('todo-completed');
+      } else {
+        todoItem.classList.remove('todo-completed');
+      }
+      showMessage('login-message', 'Task updated!', 'success');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      showMessage('login-message', 'Error updating task: ' + error.message, 'error');
+    }
+  });
+
+  editBtn.addEventListener('click', async function(e) {
+    e.stopPropagation(); // Prevent card click from triggering
+    const modal = document.getElementById('todo-modal');
+    const todoId = todoItem.dataset.id;
+    try {
+      const todoDoc = await db.collection('users').doc(user.uid).collection('todos').doc(todoId).get();
+      const todo = todoDoc.data();
+
+      document.getElementById('modal-title').textContent = 'Edit Task';
+      document.getElementById('todo-id').value = todoId;
+      document.getElementById('todo-title').value = todo.title;
+      document.getElementById('todo-description').value = todo.description || '';
+      document.getElementById('todo-due').value = todo.dueDate || '';
+      document.getElementById('todo-time').value = todo.time || '';
+      document.getElementById('todo-category').value = todo.category || 'work';
+
+      document.getElementById('todo-priority').value = todo.priority;
+      document.querySelectorAll('.priority-option').forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.dataset.priority === todo.priority) {
+          opt.classList.add('selected');
         }
-      );
+      });
 
-    // Real-time listener for recent passwords
-    const recentUnsubscribe = db.collection('users').doc(uid).collection('passwords')
+      modal.style.display = 'flex';
+    } catch (error) {
+      console.error('Error loading task:', error);
+      showMessage('login-message', 'Error loading task: ' + error.message, 'error');
+    }
+  });
+
+  deleteBtn.addEventListener('click', async function(e) {
+    e.stopPropagation(); // Prevent card click from triggering
+    if (confirm('Are you sure you want to delete this task?')) {
+      const todoId = todoItem.dataset.id;
+      try {
+        await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
+        todoItem.remove();
+        showMessage('login-message', 'Task deleted!', 'success');
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        showMessage('login-message', 'Error deleting task: ' + error.message, 'error');
+      }
+    }
+  });
+}
+
+// Create password element
+function createPasswordElement(password) {
+  const card = document.createElement('div');
+  card.className = 'password-card';
+  card.dataset.id = password.id;
+
+  const strength = calculatePasswordStrength(decryptPassword(password.password));
+  const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
+
+  card.innerHTML = `
+    <div class="password-card-header">
+      <div class="password-name">${password.title}</div>
+      <div class="password-card-actions">
+        <button title="Copy Username"><i class="fas fa-user"></i></button>
+        <button title="Copy Password"><i class="fas fa-key"></i></button>
+        <button title="Edit"><i class="fas fa-edit"></i></button>
+        <button title="Delete"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="password-details">
+      <div class="password-detail">
+        <span class="password-label">Username:</span>
+        <div class="password-value">${password.username}</div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">Password:</span>
+        <div class="password-value">
+          <input type="password" value="${decryptPassword(password.password)}" class="masked" readonly>
+          <button class="toggle-password"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">URL:</span>
+        <div class="password-value">${password.url || 'N/A'}</div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">Category:</span>
+        <div class="password-value">${password.category || 'N/A'}</div>
+      </div>
+    </div>
+    <div class="password-strength">
+      <div class="strength-meter" style="width: ${strength}%; background-color: ${strengthColor};"></div>
+    </div>
+  `;
+
+  return card;
+}
+
+// Add password event listeners
+function addPasswordEventListeners(card, user) {
+  const copyUsernameBtn = card.querySelector('.fa-user').parentNode;
+  const copyPasswordBtn = card.querySelector('.fa-key').parentNode;
+  const togglePasswordBtn = card.querySelector('.toggle-password');
+  const editBtn = card.querySelector('.fa-edit').parentNode;
+  const deleteBtn = card.querySelector('.fa-trash').parentNode;
+  const passwordInput = card.querySelector('.password-value input');
+
+  copyUsernameBtn.addEventListener('click', function() {
+    const username = card.querySelector('.password-detail:nth-child(1) .password-value').textContent;
+    navigator.clipboard.writeText(username).then(() => {
+      showMessage('login-message', 'Username copied to clipboard!', 'success');
+    });
+  });
+
+  copyPasswordBtn.addEventListener('click', function() {
+    const password = decryptPassword(card.dataset.password);
+    navigator.clipboard.writeText(password).then(() => {
+      showMessage('login-message', 'Password copied to clipboard!', 'success');
+    });
+  });
+
+  togglePasswordBtn.addEventListener('click', function() {
+    const isMasked = passwordInput.classList.contains('masked');
+    passwordInput.classList.toggle('masked');
+    this.innerHTML = isMasked ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+    passwordInput.type = isMasked ? 'text' : 'password';
+  });
+
+  editBtn.addEventListener('click', async function() {
+    const modal = document.getElementById('password-modal');
+    const passwordId = card.dataset.id;
+    try {
+      const passwordDoc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
+      const password = passwordDoc.data();
+
+      document.getElementById('modal-title').textContent = 'Edit Password';
+      document.getElementById('password-id').value = passwordId;
+      document.getElementById('password-title').value = password.title;
+      document.getElementById('password-username').value = password.username;
+      document.getElementById('password-value').value = decryptPassword(password.password);
+      document.getElementById('password-url').value = password.url || '';
+      document.getElementById('password-category').value = password.category || 'other';
+      document.getElementById('password-notes').value = password.notes || '';
+
+      modal.style.display = 'flex';
+    } catch (error) {
+      console.error('Error loading password:', error);
+      showMessage('login-message', 'Error loading password: ' + error.message, 'error');
+    }
+  });
+
+  deleteBtn.addEventListener('click', async function() {
+    if (confirm('Are you sure you want to delete this password?')) {
+      const passwordId = card.dataset.id;
+      try {
+        await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
+        card.remove();
+        showMessage('login-message', 'Password deleted!', 'success');
+      } catch (error) {
+        console.error('Error deleting password:', error);
+        showMessage('login-message', 'Error deleting password: ' + error.message, 'error');
+      }
+    }
+  });
+}
+
+// Load dashboard data
+async function loadDashboard(user) {
+  try {
+    // Load todos
+    const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
+
+    const todoList = document.getElementById('todo-list');
+    const todoCount = document.getElementById('todo-count');
+    const todoUrgent = document.getElementById('todo-urgent');
+    todoList.innerHTML = '';
+
+    let urgentCount = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    todoSnapshot.forEach(doc => {
+      const todo = { id: doc.id, ...doc.data() };
+      const todoElement = createTodoElement(todo);
+      addTodoEventListeners(todoElement, user);
+      todoList.appendChild(todoElement);
+
+      if (todo.dueDate) {
+        const dueDate = new Date(todo.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        if (dueDate <= today && !todo.completed) {
+          urgentCount++;
+        }
+      }
+    });
+
+    todoCount.textContent = todoSnapshot.size;
+    todoUrgent.textContent = urgentCount;
+
+    if (todoSnapshot.empty) {
+      todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+    }
+
+    // Add click event listener to todo card
+    const todoCard = document.querySelector('.todo-card');
+    if (todoCard) {
+      todoCard.style.cursor = 'pointer';
+      todoCard.addEventListener('click', function(e) {
+        // Prevent redirection if clicking on todo item interactions
+        if (e.target.closest('.todo-checkbox, .todo-actions')) {
+          return;
+        }
+        window.location.href = 'To do list.html';
+      });
+    } else {
+      console.error('Todo card not found');
+    }
+
+    // Load passwords
+    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
       .orderBy('createdAt', 'desc')
       .limit(3)
-      .onSnapshot(
-        (snapshot) => {
-          passwordRecent.innerHTML = '';
-          if (snapshot.empty) {
-            passwordRecent.textContent = 'No passwords yet';
-          } else {
-            const passwords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            passwords.forEach(password => {
-              const passwordItem = document.createElement('div');
-              passwordItem.className = 'card-detail';
-              passwordItem.innerHTML = `
-                <span class="card-label">${password.name}:</span>
-                <span class="card-value">${decryptPassword(password.password)}</span>
-              `;
-              passwordRecent.appendChild(passwordItem);
-            });
-          }
-          passwordLoading.style.display = 'none';
-        },
-        (error) => {
-          console.error('Error fetching recent passwords:', error);
-          passwordRecent.textContent = 'Error loading passwords';
-          passwordLoading.style.display = 'none';
-          showMessage('Failed to load recent passwords.', 'error');
-        }
-      );
+      .get();
 
-    // Make password card clickable
-    const passwordCard = document.getElementById('password-card');
-    passwordCard.addEventListener('click', (e) => {
-      // Prevent redirect if clicking on buttons or other interactive elements
-      if (!e.target.closest('button, a, input, select, textarea')) {
-        window.location.href = 'Password Manager.html';
+    const passwordList = document.getElementById('password-list');
+    const passwordCount = document.getElementById('password-count');
+    const passwordRecent = document.getElementById('password-recent');
+    passwordList.innerHTML = '';
+
+    let recentCount = 0;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    passwordSnapshot.forEach(doc => {
+      const password = { id: doc.id, ...doc.data() };
+      const passwordElement = createPasswordElement(password);
+      passwordElement.dataset.password = password.password;
+      addPasswordEventListeners(passwordElement, user);
+      passwordList.appendChild(passwordElement);
+
+      if (password.createdAt.toDate() > oneWeekAgo) {
+        recentCount++;
       }
     });
 
-    // Return unsubscribe functions to clean up listeners
-    return () => {
-      countUnsubscribe();
-      recentUnsubscribe();
-    };
+    passwordCount.textContent = passwordSnapshot.size;
+    passwordRecent.textContent = recentCount;
+
+    if (passwordSnapshot.empty) {
+      passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
+    }
+
+    // Hide loading indicators
+    document.getElementById('todo-loading').style.display = 'none';
+    document.getElementById('password-loading').style.display = 'none';
+
+  } catch (error) {
+    console.error('Error loading dashboard:', error);
+    showMessage('login-message', 'Error loading dashboard: ' + error.message, 'error');
   }
+}
 
-  // Setup user menu
-  function setupUserMenu() {
-    const userAvatar = document.getElementById('user-avatar');
-    const userPopup = document.getElementById('user-popup');
-    const logoutBtn = document.getElementById('popup-logout-btn');
+// Handle authentication state
+auth.onAuthStateChanged(async user => {
+  const authPage = document.getElementById('auth-page');
+  const dashboard = document.getElementById('dashboard');
 
-    userAvatar.addEventListener('click', (e) => {
-      e.stopPropagation();
-      userPopup.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-        userPopup.classList.remove('active');
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        userPopup.classList.remove('active');
-      }
-    });
-
-    logoutBtn.addEventListener('click', () => {
-      auth.signOut().then(() => {
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('userData');
-        window.location.href = 'index.html';
-      }).catch((error) => {
-        showMessage('Logout failed: ' + error.message, 'error');
-      });
-    });
-  }
-
-  // Initialize app
-  function initializeApp(userData, user) {
-    const cachedUserData = JSON.parse(localStorage.getItem('userData')) || userData;
-    document.getElementById('popup-user-name').textContent = cachedUserData.name;
-    document.getElementById('popup-user-email').textContent = cachedUserData.email;
-    document.getElementById('user-avatar').textContent = cachedUserData.avatarInitials;
-    document.getElementById('popup-user-avatar').textContent = cachedUserData.avatarInitials;
-
-    setupUserMenu();
-    loadDashboard(user.uid);
-
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
-  }
-
-  // Auth state listener with timeout
-  document.addEventListener('DOMContentLoaded', () => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      window.location.href = 'index.html';
+  if (user) {
+    if (!user.emailVerified) {
+      showMessage('login-message', 'Please verify your email address.', 'error');
+      await auth.signOut();
+      authPage.style.display = 'flex';
+      dashboard.style.display = 'none';
       return;
     }
 
-    const authTimeout = setTimeout(() => {
-      showMessage('Authentication timed out. Please log in again.', 'error');
-      document.getElementById('loading').style.display = 'none';
-      window.location.href = 'index.html';
-    }, 10000);
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || 'User'
+    };
 
-    auth.onAuthStateChanged(user => {
-      clearTimeout(authTimeout);
-      if (user && user.emailVerified) {
-        const userData = {
-          name: user.displayName || 'User',
-          email: user.email,
-          avatarInitials: user.displayName ? user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'US'
-        };
-        localStorage.setItem('userData', JSON.stringify(userData));
-        initializeApp(userData, user);
-      } else {
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('userData');
-        document.getElementById('loading').style.display = 'none';
-        window.location.href = 'index.html';
-      }
-    });
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    document.getElementById('user-name').textContent = userData.displayName;
+    document.getElementById('popup-user-name').textContent = userData.displayName;
+    document.getElementById('popup-user-email').textContent = userData.email;
+
+    const avatar = document.getElementById('user-avatar');
+    avatar.textContent = userData.displayName.charAt(0).toUpperCase();
+
+    authPage.style.display = 'none';
+    dashboard.style.display = 'flex';
+
+    setupUserPopup();
+    loadDashboard(user);
+
+    // Attach logout event listener to sidebar
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', handleLogout);
+    } else {
+      console.error('Logout link not found');
+    }
+  } else {
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    if (!isAuthenticated) {
+      authPage.style.display = 'flex';
+      dashboard.style.display = 'none';
+    }
+  }
+});
+
+// Handle login form submission
+document.getElementById('login').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validateLoginForm()) return;
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
+
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    if (remember) {
+      localStorage.setItem('rememberMe', 'true');
+    }
+    showMessage('login-message', 'Login successful!', 'success');
+  } catch (error) {
+    console.error('Login error:', error.code, error.message);
+    showMessage('login-message', `Login failed: ${error.message}`, 'error');
+  }
+});
+
+// Handle signup form submission
+document.getElementById('signup').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validateSignupForm()) return;
+
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email-signup').value;
+  const password = document.getElementById('password-signup').value;
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    await userCredential.user.updateProfile({ displayName: name });
+    await userCredential.user.sendEmailVerification();
+    showMessage('signup-message', 'Account created! Please verify your email.', 'success');
+    await auth.signOut();
+  } catch (error) {
+    console.error('Signup error:', error.code, error.message);
+    showMessage('signup-message', `Signup failed: ${error.message}`, 'error');
+  }
+});
+
+// Handle forgot password
+document.getElementById('forgot-password').addEventListener('click', function(e) {
+  e.preventDefault();
+  document.getElementById('forgot-password-modal').style.display = 'flex';
+});
+
+document.getElementById('forgot-password-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validateForgotForm()) return;
+
+  const email = document.getElementById('forgot-email').value;
+
+  if (!canSendPasswordReset(email)) {
+    showMessage('forgot-message', 'Please wait before requesting another reset.', 'error');
+    return;
+  }
+
+  try {
+    await auth.sendPasswordResetEmail(email);
+    localStorage.setItem(`reset-attempt-${email}`, Date.now());
+    showMessage('forgot-message', 'Password reset email sent!', 'success');
+    document.getElementById('forgot-password-modal').style.display = 'none';
+  } catch (error) {
+    console.error('Password reset error:', error.code, error.message);
+    showMessage('forgot-message', `Failed to send reset email: ${error.message}`, 'error');
+  }
+});
+
+// Handle resend verification email
+document.getElementById('resend-verification').addEventListener('click', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+
+  if (!isValidEmail(email)) {
+    showMessage('login-message', 'Please enter a valid email address.', 'error');
+    return;
+  }
+
+  if (!canResendVerification(email)) {
+    showMessage('login-message', 'Please wait before requesting another verification email.', 'error');
+    return;
+  }
+
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      await user.sendEmailVerification();
+      localStorage.setItem(`verification-attempt-${email}`, Date.now());
+      showMessage('login-message', 'Verification email sent!', 'success');
+      await auth.signOut();
+    } else {
+      showMessage('login-message', 'Email is already verified.', 'success');
+    }
+  } catch (error) {
+    console.error('Resend verification error:', error.code, error.message);
+    showMessage('login-message', `Failed to send verification email: ${error.message}`, 'error');
+  }
+});
+
+// Close modals
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.closest('.modal').style.display = 'none';
   });
-  </script>
+});
+
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+    }
+  });
+});
+
+// Handle todo form submission
+document.getElementById('todo-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validateTodoForm()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('login-message', 'You must be logged in to add tasks.', 'error');
+    return;
+  }
+
+  const todoId = document.getElementById('todo-id').value;
+  const todoData = {
+    title: document.getElementById('todo-title').value,
+    description: document.getElementById('todo-description').value,
+    dueDate: document.getElementById('todo-due').value,
+    time: document.getElementById('todo-time').value,
+    category: document.getElementById('todo-category').value,
+    priority: document.getElementById('todo-priority').value,
+    completed: false,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    if (todoId) {
+      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update(todoData);
+      showMessage('login-message', 'Task updated!', 'success');
+    } else {
+      todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('users').doc(user.uid).collection('todos').add(todoData);
+      showMessage('login-message', 'Task added!', 'success');
+    }
+    document.getElementById('todo-modal').style.display = 'none';
+    document.getElementById('todo-form').reset();
+    document.getElementById('todo-id').value = '';
+    loadDashboard(user);
+  } catch (error) {
+    console.error('Error saving task:', error);
+    showMessage('login-message', 'Error saving task: ' + error.message, 'error');
+  }
+});
+
+// Priority selector
+document.querySelectorAll('.priority-option').forEach(option => {
+  option.addEventListener('click', function() {
+    document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+    this.classList.add('selected');
+    document.getElementById('todo-priority').value = this.dataset.priority;
+  });
+});
+
+// Handle password form submission
+document.getElementById('password-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validatePasswordForm()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('password-message', 'You must be logged in to add passwords.', 'error');
+    return;
+  }
+
+  const passwordId = document.getElementById('password-id').value;
+  const passwordData = {
+    title: document.getElementById('password-title').value,
+    username: document.getElementById('password-username').value,
+    password: encryptPassword(document.getElementById('password-value').value),
+    url: document.getElementById('password-url').value,
+    category: document.getElementById('password-category').value,
+    notes: document.getElementById('password-notes').value,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    if (passwordId) {
+      await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
+      showMessage('password-message', 'Password updated!', 'success');
+    } else {
+      passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
+      showMessage('password-message', 'Password added!', 'success');
+    }
+    document.getElementById('password-modal').style.display = 'none';
+    document.getElementById('password-form').reset();
+    document.getElementById('password-id').value = '';
+    loadDashboard(user);
+  } catch (error) {
+    console.error('Error saving password:', error);
+    showMessage('password-message', 'Error saving password: ' + error.message, 'error');
+  }
+});
+
+// Handle document form submission
+document.getElementById('document-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validateDocumentForm()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('login-message', 'You must be logged in to upload documents.', 'error');
+    return;
+  }
+
+  const file = document.getElementById('document-file').files[0];
+  const documentData = {
+    name: document.getElementById('document-name').value,
+    category: document.getElementById('document-category').value,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    const storageRef = storage.ref(`users/${user.uid}/documents/${file.name}`);
+    const uploadTask = await storageRef.put(file);
+    const downloadURL = await uploadTask.ref.getDownloadURL();
+
+    documentData.url = downloadURL;
+    documentData.fileName = file.name;
+
+    await db.collection('users').doc(user.uid).collection('documents').add(documentData);
+    showMessage('login-message', 'Document uploaded!', 'success');
+    document.getElementById('document-modal').style.display = 'none';
+    document.getElementById('document-form').reset();
+    loadDashboard(user);
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    showMessage('login-message', 'Error uploading document: ' + error.message, 'error');
+  }
+});
+    // Initialize modals and other listeners
+  setupModals();
+</script>
 </body>
 </html>
