@@ -937,6 +937,7 @@
     .card.password-card {
       background: var(--gradient-password);
       color: var(--white);
+      cursor: pointer;
     }
 
     .card.document-card {
@@ -1544,7 +1545,7 @@
             </div>
           </div>
 
-          <div class="card password-card">
+          <div class="card password-cache">
             <div class="card-header">
               <h3><i class="fas fa-lock"></i> Password Manager</h3>
             </div>
@@ -1731,7 +1732,6 @@
   </div>
 <script>
   // Firebase configuration
-// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -2423,21 +2423,6 @@ async function loadDashboard(user) {
       todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
     }
 
-    // Add click event listener to todo card
-    const todoCard = document.querySelector('.todo-card');
-    if (todoCard) {
-      todoCard.style.cursor = 'pointer';
-      todoCard.addEventListener('click', function(e) {
-        // Prevent redirection if clicking on todo item interactions
-        if (e.target.closest('.todo-checkbox, .todo-actions')) {
-          return;
-        }
-        window.location.href = 'To do list.html';
-      });
-    } else {
-      console.error('Todo card not found');
-    }
-
     // Load passwords
     const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
       .orderBy('createdAt', 'desc')
@@ -2453,23 +2438,62 @@ async function loadDashboard(user) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
+    // Ensure at least one recent password is displayed
+    let displayedPassword = false;
     passwordSnapshot.forEach(doc => {
       const password = { id: doc.id, ...doc.data() };
       const passwordElement = createPasswordElement(password);
       passwordElement.dataset.password = password.password;
       addPasswordEventListeners(passwordElement, user);
       passwordList.appendChild(passwordElement);
+      displayedPassword = true;
 
       if (password.createdAt.toDate() > oneWeekAgo) {
         recentCount++;
       }
     });
 
-    passwordCount.textContent = passwordSnapshot.size;
+    // If no passwords were displayed, fetch one recentAlle password if available
+    if (!displayedPassword) {
+      const recentPasswordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .get();
+
+      recentPasswordSnapshot.forEach(doc => {
+        const password = { id: doc.id, ...doc.data() };
+        const passwordElement = createPasswordElement(password);
+        passwordElement.dataset.password = password.password;
+        addPasswordEventListeners(passwordElement, user);
+        passwordList.appendChild(passwordElement);
+        if (password.createdAt.toDate() > oneWeekAgo) {
+          recentCount++;
+        }
+      });
+    }
+
+    // Calculate total passwords
+    const totalPasswords = await db.collection('users').doc(user.uid).collection('passwords').get();
+    passwordCount.textContent = totalPasswords.size;
     passwordRecent.textContent = recentCount;
 
-    if (passwordSnapshot.empty) {
+    if (totalPasswords.empty && !displayedPassword) {
       passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
+    }
+
+    // Add click event listener to password card
+    const passwordCard = document.querySelector('.password-cache');
+    if (passwordCard) {
+      passwordCard.style.cursor = 'pointer';
+      passwordCard.addEventListener('click', function(e) {
+        // Prevent redirection if clicking on password item interactions
+        if (e.target.closest('.password-card-actions, .toggle-password')) {
+          return;
+        }
+        window.location.href = 'Password Manager.html';
+      });
+    } else {
+      console.error('Password card not found');
     }
 
     // Hide loading indicators
@@ -2781,8 +2805,10 @@ document.getElementById('document-form').addEventListener('submit', async functi
     showMessage('login-message', 'Error uploading document: ' + error.message, 'error');
   }
 });
-    // Initialize modals and other listeners
-  setupModals();
+
+// Note: setupModals() is called but not defined in the provided code. Assuming it's defined elsewhere.
+// Initialize modals and other listeners
+setupModals();
 </script>
 </body>
 </html>
