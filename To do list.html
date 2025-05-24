@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard | MyMemory</title>
+  <title>To-Do List | MyMemory</title>
   <!-- Prevent Caching -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -259,11 +259,30 @@
       margin: 0;
     }
     
-    /* Dashboard Actions */
-    .dashboard-actions {
+    /* Todo List Styles */
+    .todo-container {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+    }
+    
+    .todo-container:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    .todo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    
+    .todo-actions {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
     }
     
     .btn {
@@ -321,48 +340,162 @@
       left: 100%;
     }
     
-    /* Recent Items Section */
-    .recent-items {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-    
-    .recent-card {
-      background: var(--light);
-      padding: 1.5rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-    }
-    
-    .recent-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    .recent-card h3 {
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
       color: var(--primary);
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
     }
     
-    .recent-item {
+    .btn-outline:hover {
+      background: var(--light);
+    }
+    
+    .todo-filter {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      background: var(--white);
+      border: 1px solid var(--gray);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      min-height: 36px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-btn:hover {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    .filter-btn.active {
+      background: var(--primary);
+      color: var(--white);
+      border-color: var(--primary);
+    }
+    
+    .todo-list {
+      list-style: none;
+    }
+    
+    .todo-item {
+      display: flex;
+      align-items: center;
       padding: 12px;
       border-radius: 8px;
-      background: var(--white);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      margin-bottom: 8px;
+      background: var(--light);
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
     
-    .recent-item p {
-      margin: 0.5rem 0;
+    .todo-item:hover {
+      background: #e6f0fa;
+      transform: translateY(-2px);
+    }
+    
+    .todo-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    
+    .todo-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .todo-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+      word-break: break-word;
       color: var(--dark);
     }
     
-    .recent-item .no-data {
+    .todo-due {
+      font-size: 0.85rem;
       color: #718096;
-      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .todo-category {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      color: var(--white);
+      margin-left: 8px;
+    }
+    
+    .category-work {
+      background: var(--category-work);
+    }
+    
+    .category-personal {
+      background: var(--category-personal);
+    }
+    
+    .category-urgent {
+      background: var(--category-urgent);
+    }
+    
+    .todo-completed .todo-title {
+      text-decoration: line-through;
+      color: #718096;
+    }
+    
+    .todo-completed .todo-due,
+    .todo-completed .todo-category {
+      color: #cbd5e0;
+    }
+    
+    .todo-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    
+    .todo-actions button {
+      background: none;
+      border: none;
+      color: #718096;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .todo-actions button:hover {
+      background: var(--gray);
+      color: var(--primary);
+    }
+    
+    /* Priority Indicators */
+    .priority-high {
+      border-left: 4px solid var(--secondary);
+    }
+    
+    .priority-medium {
+      border-left: 4px solid var(--warning);
+    }
+    
+    .priority-low {
+      border-left: 4px solid var(--success);
     }
     
     /* Modal Styles */
@@ -524,6 +657,22 @@
       border-left: 4px solid var(--success);
     }
     
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #718096;
+      background: var(--light);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: var(--gray);
+    }
+    
     /* Message Styles for Authentication Errors */
     .message {
       display: none;
@@ -594,8 +743,13 @@
         padding: 1.5rem;
       }
       
-      .dashboard-actions {
+      .todo-filter {
         gap: 6px;
+      }
+      
+      .filter-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
       }
       
       .btn {
@@ -631,8 +785,20 @@
         font-size: 1.4rem;
       }
       
-      .recent-items {
-        grid-template-columns: 1fr;
+      .todo-item {
+        flex-wrap: wrap;
+      }
+      
+      .todo-content {
+        min-width: calc(100% - 44px);
+      }
+      
+      .todo-actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
       }
       
       .form-row .form-group {
@@ -717,8 +883,8 @@
       <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
-          <li><a href="index.html" class="active" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="To do list.html" class="active" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
           <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
@@ -728,43 +894,32 @@
       <!-- Main Content -->
       <main class="main-content">
         <div class="page-header">
-          <h2 class="page-title">Dashboard</h2>
-          <div class="dashboard-actions">
-            <button class="btn" id="add-todo-btn"><i class="fas fa-plus"></i> Add Task</button>
-            <button class="btn" id="view-todos-btn"><i class="fas fa-tasks"></i> View All Tasks</button>
-            <button class="btn" id="add-password-btn"><i class="fas fa-lock"></i> Add Password</button>
-            <button class="btn" id="view-passwords-btn"><i class="fas fa-list"></i> View All Passwords</button>
-            <button class="btn" id="add-document-btn"><i class="fas fa-file"></i> Add Document</button>
-            <button class="btn" id="view-documents-btn"><i class="fas fa-folder"></i> View All Documents</button>
+          <h2 class="page-title">My To-Do List</h2>
+          <div class="todo-actions">
+            <button class="btn" id="add-todo-btn">
+              <i class="fas fa-plus"></i> Add Task
+            </button>
           </div>
         </div>
-
-        <!-- Recent Items Section -->
-        <div class="recent-items">
-          <div class="recent-card">
-            <h3>Recent Task</h3>
-            <div class="recent-item" id="recent-task">
-              <p class="no-data">No tasks available.</p>
-            </div>
-          </div>
-          <div class="recent-card">
-            <h3>Recent Password</h3>
-            <div class="recent-item" id="recent-password">
-              <p class="no-data">No passwords available.</p>
-            </div>
-          </div>
-          <div class="recent-card">
-            <h3>Recent Document</h3>
-            <div class="recent-item" id="recent-document">
-              <p class="no-data">No documents available.</p>
-            </div>
-          </div>
+        
+        <div class="todo-filter">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="today">Today</button>
+          <button class="filter-btn" data-filter="week">This Week</button>
+          <button class="filter-btn" data-filter="completed">Completed</button>
+          <button class="filter-btn" data-filter="work">Work</button>
+          <button class="filter-btn" data-filter="personal">Personal</button>
+          <button class="filter-btn" data-filter="urgent">Urgent</button>
+        </div>
+        
+        <div class="todo-container">
+          <ul class="todo-list" id="todo-list"></ul>
         </div>
       </main>
     </div>
   </div>
 
-  <!-- Add Task Modal -->
+  <!-- Add/Edit Todo Modal -->
   <div class="modal" id="todo-modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -773,14 +928,17 @@
       </div>
       <form id="todo-form">
         <input type="hidden" id="todo-id">
+        
         <div class="form-group">
           <label for="todo-title">Task Title</label>
           <input type="text" id="todo-title" class="form-control" required>
         </div>
+        
         <div class="form-group">
           <label for="todo-description">Description (Optional)</label>
           <textarea id="todo-description" class="form-control" rows="3"></textarea>
         </div>
+        
         <div class="form-row">
           <div class="form-group">
             <label for="todo-due">Due Date</label>
@@ -791,6 +949,7 @@
             <input type="time" id="todo-time" class="form-control">
           </div>
         </div>
+        
         <div class="form-group">
           <label for="todo-category">Category</label>
           <select id="todo-category" class="form-control">
@@ -799,6 +958,7 @@
             <option value="urgent">Urgent</option>
           </select>
         </div>
+        
         <div class="form-group">
           <label>Priority</label>
           <div class="priority-selector">
@@ -808,6 +968,7 @@
           </div>
           <input type="hidden" id="todo-priority" value="medium">
         </div>
+        
         <button type="submit" class="btn">
           <i class="fas fa-save"></i> Save Task
         </button>
@@ -1017,8 +1178,12 @@
       document.getElementById('user-avatar').textContent = userData.avatarInitials;
       setupUserPopup(userData);
       secureNavigation();
-      setupDashboardActions();
-      loadRecentItems(user.uid);
+
+      loadTodos(user.uid).catch((error) => {
+        console.error('Failed to load todos:', error);
+        showMessage('Failed to load tasks. Please try again.', 'error');
+      });
+
       setupModal('add-todo-btn', 'todo-modal');
 
       document.querySelectorAll('.priority-option').forEach(option => {
@@ -1036,93 +1201,136 @@
         saveTodoItem(user.uid);
         closeModal('todo-modal');
       });
-    }
 
-    // Setup dashboard action buttons
-    function setupDashboardActions() {
-      document.getElementById('add-todo-btn').addEventListener('click', () => {
-        const modal = document.getElementById('todo-modal');
-        document.getElementById('modal-title').textContent = 'Add New Task';
-        document.getElementById('todo-form').reset();
-        document.getElementById('todo-id').value = '';
-        document.getElementById('todo-priority').value = 'medium';
-        document.getElementById('todo-category').value = 'work';
-        document.querySelectorAll('.priority-option').forEach(opt => {
-          opt.classList.remove('selected');
-          if (opt.dataset.priority === 'medium') {
-            opt.classList.add('selected');
-          }
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('active');
+          });
+          this.classList.add('active');
+          filterTodos(this.dataset.filter);
         });
-        modal.style.display = 'flex';
-      });
-
-      document.getElementById('view-todos-btn').addEventListener('click', () => {
-        window.location.href = 'To do list.html';
-      });
-
-      document.getElementById('add-password-btn').addEventListener('click', () => {
-        window.location.href = 'Password Manager.html';
-      });
-
-      document.getElementById('view-passwords-btn').addEventListener('click', () => {
-        window.location.href = 'Password Manager.html';
-      });
-
-      document.getElementById('add-document-btn').addEventListener('click', () => {
-        window.location.href = 'Documents.html';
-      });
-
-      document.getElementById('view-documents-btn').addEventListener('click', () => {
-        window.location.href = 'Documents.html';
       });
     }
 
-    // Load recent items
-    async function loadRecentItems(uid) {
+    async function loadTodos(uid) {
       try {
-        // Load recent task
-        const todosSnapshot = await db.collection('users').doc(uid).collection('todos')
-          .orderBy('createdAt', 'desc').limit(1).get();
-        const taskElement = document.getElementById('recent-task');
-        if (!todosSnapshot.empty) {
-          const todo = todosSnapshot.docs[0].data();
-          taskElement.innerHTML = `
-            <p><strong>Title:</strong> ${todo.title}</p>
-            <p><strong>Category:</strong> ${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</p>
-            <p><strong>Due:</strong> ${formatDueDate(todo.dueDate)}</p>
-          `;
-        }
+        const todosSnapshot = await db.collection('users').doc(uid).collection('todos').orderBy('dueDate', 'asc').get();
+        let todos = [];
+        if (todosSnapshot.empty) {
+          const today = new Date();
+          const tomorrow = new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000);
+          const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-        // Load recent password (assuming passwords collection exists)
-        const passwordsSnapshot = await db.collection('users').doc(uid).collection('passwords')
-          .orderBy('createdAt', 'desc').limit(1).get();
-        const passwordElement = document.getElementById('recent-password');
-        if (!passwordsSnapshot.empty) {
-          const password = passwordsSnapshot.docs[0].data();
-          passwordElement.innerHTML = `
-            <p><strong>Service:</strong> ${password.service || 'N/A'}</p>
-            <p><strong>Username:</strong> ${password.username || 'N/A'}</p>
-          `;
-        }
+          const defaultTodos = [
+            {
+              title: 'Fix critical server issue',
+              description: '',
+              dueDate: today.toISOString().split('T')[0],
+              time: '',
+              priority: 'high',
+              category: 'urgent',
+              completed: false
+            },
+            {
+              title: 'Client meeting preparation',
+              description: '',
+              dueDate: today.toISOString().split('T')[0],
+              time: '',
+              priority: 'medium',
+              category: 'work',
+              completed: true
+            },
+            {
+              title: 'Update project documentation',
+              description: '',
+              dueDate: tomorrow.toISOString().split('T')[0],
+              time: '',
+              priority: 'low',
+              category: 'work',
+              completed: false
+            },
+            {
+              title: 'Review team performance',
+              description: '',
+              dueDate: nextWeek.toISOString().split('T')[0],
+              time: '',
+              priority: 'medium',
+              category: 'personal',
+              completed: false
+            }
+          ];
 
-        // Load recent document (assuming documents collection exists)
-        const documentsSnapshot = await db.collection('users').doc(uid).collection('documents')
-          .orderBy('createdAt', 'desc').limit(1).get();
-        const documentElement = document.getElementById('recent-document');
-        if (!documentsSnapshot.empty) {
-          const document = documentsSnapshot.docs[0].data();
-          documentElement.innerHTML = `
-            <p><strong>Title:</strong> ${document.title || 'N/A'}</p>
-            <p><strong>Type:</strong> ${document.type || 'N/A'}</p>
-          `;
+          for (const todo of defaultTodos) {
+            const docRef = await db.collection('users').doc(uid).collection('todos').add(todo);
+            todos.push({ id: docRef.id, ...todo });
+          }
+        } else {
+          todosSnapshot.forEach(doc => {
+            todos.push({ id: doc.id, ...doc.data() });
+          });
         }
+        renderTodos(todos);
       } catch (error) {
-        console.error('Error loading recent items:', error);
-        showMessage('Error loading recent items.', 'error');
+        console.error('Error loading todos:', error);
+        throw error;
       }
     }
 
-    // Format due date (reused from To do list.html)
+    function renderTodos(todos) {
+      const todoList = document.getElementById('todo-list');
+      todoList.innerHTML = '';
+
+      if (todos.length === 0) {
+        todoList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-tasks"></i>
+            <p>No tasks found. Add a new task to get started!</p>
+          </div>
+        `;
+        return;
+      }
+
+      todos.forEach(todo => {
+        const todoItem = createTodoElement(todo);
+        todoList.appendChild(todoItem);
+      });
+
+      const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+      filterTodos(activeFilter);
+    }
+
+    function createTodoElement(todo) {
+      const todoItem = document.createElement('li');
+      todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
+      todoItem.dataset.id = todo.id;
+      todoItem.dataset.due = todo.dueDate;
+      todoItem.dataset.completed = todo.completed;
+      todoItem.dataset.category = todo.category;
+
+      const dueText = formatDueDate(todo.dueDate);
+      const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
+
+      todoItem.innerHTML = `
+        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+        <div class="todo-content">
+          <div class="todo-title">${todo.title} ${categoryText}</div>
+          <div class="todo-due">
+            <i class="far fa-calendar-alt"></i> ${dueText}
+          </div>
+        </div>
+        <div class="todo-actions">
+          <button title="Edit"><i class="fas fa-edit"></i></button>
+          <button title="Delete"><i class="fas fa-trash"></i></button>
+          <button title="Priority"><i class="fas fa-flag"></i></button>
+        </div>
+      `;
+
+      addTodoEventListeners(todoItem);
+
+      return todoItem;
+    }
+
     function formatDueDate(dueDate) {
       if (!dueDate) return 'No due date';
 
@@ -1143,11 +1351,128 @@
       return `Due on ${due.toLocaleDateString()}`;
     }
 
-    // Modal setup
+    function filterTodos(filterType) {
+      const todoItems = document.querySelectorAll('.todo-item');
+
+      todoItems.forEach(item => {
+        const dueDate = item.dataset.due;
+        const isCompleted = item.dataset.completed === 'true';
+        const category = item.dataset.category;
+        let shouldShow = true;
+
+        switch(filterType) {
+          case 'today':
+            const today = new Date().toISOString().split('T')[0];
+            shouldShow = dueDate === today && !isCompleted;
+            break;
+          case 'week':
+            const todayObj = new Date();
+            const nextWeek = new Date(todayObj.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const dueDateObj = new Date(dueDate);
+            shouldShow = dueDateObj >= todayObj && dueDateObj <= nextWeek && !isCompleted;
+            break;
+          case 'completed':
+            shouldShow = isCompleted;
+            break;
+          case 'work':
+          case 'personal':
+          case 'urgent':
+            shouldShow = category === filterType && !isCompleted;
+            break;
+          case 'all':
+          default:
+            shouldShow = true;
+        }
+
+        item.style.display = shouldShow ? 'flex' : 'none';
+      });
+    }
+
+    function addTodoEventListeners(item) {
+      const checkbox = item.querySelector('.todo-checkbox');
+      const editBtn = item.querySelector('.fa-edit').parentNode;
+      const deleteBtn = item.querySelector('.fa-trash').parentNode;
+      const priorityBtn = item.querySelector('.fa-flag').parentNode;
+
+      checkbox.addEventListener('change', async function() {
+        const todoId = item.dataset.id;
+        try {
+          await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).update({
+            completed: this.checked
+          });
+          item.dataset.completed = this.checked;
+          if (this.checked) {
+            item.classList.add('todo-completed');
+          } else {
+            item.classList.remove('todo-completed');
+          }
+          showMessage('Task updated!', 'success');
+          filterTodos(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+        } catch (error) {
+          console.error('Error updating task:', error);
+          showMessage('Error updating task: ' + error.message, 'error');
+        }
+      });
+
+      editBtn.addEventListener('click', function() {
+        openEditModal(item);
+      });
+
+      deleteBtn.addEventListener('click', async function() {
+        if (confirm('Are you sure you want to delete this task?')) {
+          const todoId = item.dataset.id;
+          try {
+            await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).delete();
+            item.remove();
+            showMessage('Task deleted!', 'success');
+            filterTodos(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+          } catch (error) {
+            console.error('Error deleting task:', error);
+            showMessage('Error deleting task: ' + error.message, 'error');
+          }
+        }
+      });
+
+      priorityBtn.addEventListener('click', async function() {
+        const todoId = item.dataset.id;
+        const priorities = ['low', 'medium', 'high'];
+        const currentTodo = (await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).get()).data();
+        const currentPriority = currentTodo.priority;
+        const nextPriority = priorities[(priorities.indexOf(currentPriority) + 1) % 3];
+
+        try {
+          await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).update({
+            priority: nextPriority
+          });
+          item.classList.remove(`priority-${currentPriority}`);
+          item.classList.add(`priority-${nextPriority}`);
+          showMessage(`Priority changed to ${nextPriority}!`, 'success');
+        } catch (error) {
+          console.error('Error updating priority:', error);
+          showMessage('Error updating priority: ' + error.message, 'error');
+        }
+      });
+    }
+
     function setupModal(openBtnId, modalId) {
       const openBtn = document.getElementById(openBtnId);
       const modal = document.getElementById(modalId);
       const closeBtn = modal.querySelector('.modal-close');
+
+      openBtn?.addEventListener('click', function() {
+        document.getElementById('modal-title').textContent = 'Add New Task';
+        document.getElementById('todo-form').reset();
+        document.getElementById('todo-id').value = '';
+        document.getElementById('todo-priority').value = 'medium';
+        document.getElementById('todo-category').value = 'work';
+        document.querySelectorAll('.priority-option').forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.priority === 'medium') {
+            opt.classList.add('selected');
+          }
+        });
+        modal.style.display = 'flex';
+      });
 
       closeBtn?.addEventListener('click', function() {
         modal.style.display = 'none';
@@ -1160,7 +1485,40 @@
       });
     }
 
-    // Save todo item
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    async function openEditModal(item) {
+      const modal = document.getElementById('todo-modal');
+      const todoId = item.dataset.id;
+      try {
+        const todoDoc = await db.collection('users').doc(auth.currentUser.uid).collection('todos').doc(todoId).get();
+        const todo = todoDoc.data();
+
+        document.getElementById('modal-title').textContent = 'Edit Task';
+        document.getElementById('todo-id').value = todoId;
+        document.getElementById('todo-title').value = todo.title;
+        document.getElementById('todo-description').value = todo.description || '';
+        document.getElementById('todo-due').value = todo.dueDate || '';
+        document.getElementById('todo-time').value = todo.time || '';
+        document.getElementById('todo-category').value = todo.category || 'work';
+
+        document.getElementById('todo-priority').value = todo.priority;
+        document.querySelectorAll('.priority-option').forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.priority === todo.priority) {
+            opt.classList.add('selected');
+          }
+        });
+
+        modal.style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading task:', error);
+        showMessage('Error loading task: ' + error.message, 'error');
+      }
+    }
+
     async function saveTodoItem(uid) {
       const id = document.getElementById('todo-id').value;
       const title = document.getElementById('todo-title').value.trim();
@@ -1198,17 +1556,25 @@
           todoId = docRef.id;
         }
 
-        // Refresh recent task
-        loadRecentItems(uid);
+        const todoDoc = await db.collection('users').doc(uid).collection('todos').doc(todoId).get();
+        const updatedTodo = { id: todoDoc.id, ...todoDoc.data() };
+
+        const todoList = document.getElementById('todo-list');
+        const existingItem = document.querySelector(`.todo-item[data-id="${todoId}"]`);
+        if (existingItem) {
+          const newTodoItem = createTodoElement(updatedTodo);
+          existingItem.replaceWith(newTodoItem);
+        } else {
+          const newTodoItem = createTodoElement(updatedTodo);
+          todoList.insertBefore(newTodoItem, todoList.firstChild);
+        }
+
+        const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+        filterTodos(activeFilter);
       } catch (error) {
         console.error('Error saving task:', error);
         showMessage('Error saving task: ' + error.message, 'error');
       }
-    }
-
-    // Close modal
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = 'none';
     }
   </script>
 </body>
