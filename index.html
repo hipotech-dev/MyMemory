@@ -1534,48 +1534,48 @@
         </div>
 
         <div class="dashboard-cards">
-          <div class="card todo-card">
-            <div class="card-header">
-              <h3><i class="fas fa-tasks"></i> To-Do List</h3>
-              <button class="btn" id="add-todo-btn"><i class="fas fa-plus"></i> Add Task</button>
-            </div>
-            <div class="card-content">
-              <p><strong id="todo-count">0</strong> tasks pending</p>
-              <p><strong id="todo-urgent">0</strong> urgent tasks due today</p>
-            </div>
-            <div class="card-actions">
-              <a href="To do list.html" class="btn"><i class="fas fa-arrow-right"></i> View All Tasks</a>
-            </div>
-          </div>
+    <div class="card todo-card">
+  <div class="card-header">
+    <h3><i class="fas fa-tasks"></i> To-Do List</h3>
+    <button class="btn" id="add-todo-btn"><i class="fas fa-plus"></i> Add Task</button>
+  </div>
+  <div class="card-content">
+    <p><strong id="todo-count">0</strong> tasks total</p>
+    <p><strong id="todo-recent">0</strong> recently added</p>
+    <p><strong id="todo-urgent">0</strong> urgent tasks due today</p>
+   </div>
+   <div class="card-actions">
+    <a href="To do list.html" class="btn"><i class="fas fa-arrow-right"></i> View All Tasks</a>
+   </div>
+   </div>
 
           <div class="card password-card">
-            <div class="card-header">
-              <h3><i class="fas fa-lock"></i> Password Manager</h3>
-              <button class="btn" id="add-password-btn"><i class="fas fa-plus"></i> Add Password</button>
-            </div>
-            <div class="card-content">
-              <p><strong id="password-count">0</strong> passwords stored</p>
-              <p><strong id="password-recent">0</strong> recently added</p>
-            </div>
-            <div class="card-actions">
-              <a href="Password Manager.html" class="btn"><i class="fas fa-arrow-right"></i> Manage Passwords</a>
-            </div>
-          </div>
+  <div class="card-header">
+    <h3><i class="fas fa-lock"></i> Password Manager</h3>
+    <button class="btn" id="add-password-btn"><i class="fas fa-plus"></i> Add Password</button>
+  </div>
+  <div class="card-content">
+    <p><strong id="password-count">0</strong> passwords total</p>
+    <p><strong id="password-recent">0</strong> recently added</p>
+  </div>
+  <div class="card-actions">
+    <a href="Password Manager.html" class="btn"><i class="fas fa-arrow-right"></i> Manage Passwords</a>
+  </div>
+</div>
 
           <div class="card document-card">
-            <div class="card-header">
-              <h3><i class="fas fa-file-contract"></i> Documents</h3>
-              <button class="btn" id="upload-doc-btn"><i class="fas fa-upload"></i> Upload</button>
-            </div>
-            <div class="card-content">
-              <p><strong id="document-count">0</strong> documents stored</p>
-              <p><strong id="document-recent">0</strong> recently uploaded</p>
-            </div>
-            <div class="card-actions">
-              <a href="Documents.html" class="btn"><i class="fas fa-arrow-right"></i> View Documents</a>
-            </div>
-          </div>
-        </div>
+  <div class="card-header">
+    <h3><i class="fas fa-file-contract"></i> Documents</h3>
+    <button class="btn" id="upload-doc-btn"><i class="fas fa-upload"></i> Upload</button>
+  </div>
+  <div class="card-content">
+    <p><strong id="document-count">0</strong> documents total</p>
+    <p><strong id="document-recent">0</strong> recently uploaded</p>
+  </div>
+  <div class="card-actions">
+    <a href="Documents.html" class="btn"><i class="fas fa-arrow-right"></i> View Documents</a>
+  </div>
+</div>
 
         <div class="dashboard-content">
           <div class="card">
@@ -1812,9 +1812,8 @@
     return Math.min(strength, 100);
   }
 
-  // Improved encryption (Note: For production, use CryptoJS AES or server-side encryption)
+  // Encryption (Note: For production, use CryptoJS AES or server-side encryption)
   function encryptPassword(password) {
-    // Using base64 as placeholder; recommend AES encryption in production
     return btoa(password);
   }
 
@@ -2110,14 +2109,12 @@
   }
 
   function setupModals() {
-    // Close modals with close button
     document.querySelectorAll('.modal-close').forEach(button => {
       button.addEventListener('click', () => {
         closeModal(button.closest('.modal').id);
       });
     });
 
-    // Close modals by clicking outside
     document.querySelectorAll('.modal').forEach(modal => {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -2126,7 +2123,6 @@
       });
     });
 
-    // Close modals with Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         document.querySelectorAll('.modal').forEach(modal => {
@@ -2137,7 +2133,6 @@
       }
     });
 
-    // Initialize priority selector
     document.querySelectorAll('.priority-option').forEach(option => {
       option.addEventListener('click', () => {
         document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
@@ -2422,18 +2417,15 @@
     const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
     sidebarLinks.forEach(link => {
       link.addEventListener('click', (e) => {
-        // Allow logout link to handle its own behavior
         if (link.id === 'logout-link') {
           e.preventDefault();
           handleLogout();
           return;
         }
 
-        // Prevent default only for navigation links
         e.preventDefault();
         sidebarLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
-        // Simulate navigation (since other pages are not implemented)
         const href = link.getAttribute('href');
         if (href && href !== '#') {
           window.location.href = href;
@@ -2595,23 +2587,32 @@
       document.getElementById('popup-user-email').textContent = user.email || userData.email || '';
       document.getElementById('user-avatar').textContent = (user.displayName || userData.name || 'U').charAt(0).toUpperCase();
 
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
       // Load Todos
       const todoList = document.getElementById('todo-list');
       const todoLoading = document.getElementById('todo-loading');
       let todoCount = 0;
       let urgentCount = 0;
+      let recentTodoCount = 0;
 
       try {
-        const todosSnapshot = await db.collection('users').doc(user.uid).collection('todos')
-          .orderBy('createdAt', 'desc').limit(5).get();
-        
+        const todosSnapshot = await db.collection('users').doc(user.uid).collection('todos').get();
+        const recentTodosSnapshot = await db.collection('users').doc(user.uid).collection('todos')
+          .where('createdAt', '>=', oneWeekAgo)
+          .orderBy('createdAt', 'desc')
+          .limit(5)
+          .get();
+
+        todoCount = todosSnapshot.size;
         todoList.innerHTML = '';
-        if (todosSnapshot.empty) {
-          todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+        if (recentTodosSnapshot.empty) {
+          todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No recent tasks found.</p></div>';
         } else {
-          todosSnapshot.forEach(doc => {
+          recentTodosSnapshot.forEach(doc => {
             const todo = { id: doc.id, ...doc.data() };
-            todoCount++;
+            recentTodoCount++;
             if (todo.category === 'urgent') urgentCount++;
             const todoItem = createTodoElement(todo);
             addTodoEventListeners(todoItem, user);
@@ -2620,6 +2621,7 @@
         }
         document.getElementById('todo-count').textContent = todoCount;
         document.getElementById('todo-urgent').textContent = urgentCount;
+        document.getElementById('todo-recent').textContent = recentTodoCount;
         todoLoading.style.display = 'none';
       } catch (error) {
         console.error('Error loading todos:', error);
@@ -2632,21 +2634,23 @@
       const passwordLoading = document.getElementById('password-loading');
       let passwordCount = 0;
       let recentPasswordCount = 0;
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
       try {
-        const passwordsSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
-          .orderBy('createdAt', 'desc').limit(3).get();
-        
+        const passwordsSnapshot = await db.collection('users').doc(user.uid).collection('passwords').get();
+        const recentPasswordsSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
+          .where('createdAt', '>=', oneWeekAgo)
+          .orderBy('createdAt', 'desc')
+          .limit(3)
+          .get();
+
+        passwordCount = passwordsSnapshot.size;
         passwordList.innerHTML = '';
-        if (passwordsSnapshot.empty) {
-          passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
+        if (recentPasswordsSnapshot.empty) {
+          passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No recent passwords found.</p></div>';
         } else {
-          passwordsSnapshot.forEach(doc => {
+          recentPasswordsSnapshot.forEach(doc => {
             const password = { id: doc.id, ...doc.data() };
-            passwordCount++;
-            if (password.createdAt && password.createdAt.toDate() > oneWeekAgo) recentPasswordCount++;
+            recentPasswordCount++;
             const passwordCard = createPasswordElement(password);
             addPasswordEventListeners(passwordCard, user);
             passwordList.appendChild(passwordCard);
@@ -2667,17 +2671,21 @@
       let recentDocumentCount = 0;
 
       try {
-        const documentsSnapshot = await db.collection('users').doc(user.uid).collection('documents')
-          .orderBy('createdAt', 'desc').limit(3).get();
-        
+        const documentsSnapshot = await db.collection('users').doc(user.uid).collection('documents').get();
+        const recentDocumentsSnapshot = await db.collection('users').doc(user.uid).collection('documents')
+          .where('createdAt', '>=', oneWeekAgo)
+          .orderBy('createdAt', 'desc')
+          .limit(3)
+          .get();
+
+        documentCount = documentsSnapshot.size;
         documentList.innerHTML = '';
-        if (documentsSnapshot.empty) {
-          documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file"></i><p>No documents found.</p></div>';
+        if (recentDocumentsSnapshot.empty) {
+          documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file"></i><p>No recent documents found.</p></div>';
         } else {
-          documentsSnapshot.forEach(doc => {
+          recentDocumentsSnapshot.forEach(doc => {
             const docData = { id: doc.id, ...doc.data() };
-            documentCount++;
-            if (docData.createdAt && docData.createdAt.toDate() > oneWeekAgo) recentDocumentCount++;
+            recentDocumentCount++;
             const docElement = document.createElement('div');
             docElement.className = 'document-item';
             docElement.innerHTML = `
@@ -2703,27 +2711,63 @@
   });
 
   // Modal Button Handlers
-  document.getElementById('add-todo-btn').addEventListener('click', () => {
-    document.getElementById('modal-title').textContent = 'Add New Task';
-    document.getElementById('todo-id').value = '';
-    document.getElementById('todo-form').reset();
-    document.querySelector('.priority-option.medium').classList.add('selected');
-    document.querySelectorAll('.priority-option:not(.medium)').forEach(opt => opt.classList.remove('selected'));
-    document.getElementById('todo-priority').value = 'medium';
-    document.getElementById('todo-modal').style.display = 'flex';
-  });
+  function setupCardButtons() {
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const viewAllTasksBtn = document.querySelector('.todo-card .card-actions a');
+    const addPasswordBtn = document.getElementById('add-password-btn');
+    const viewAllPasswordsBtn = document.querySelector('.password-card .card-actions a');
+    const uploadDocBtn = document.getElementById('upload-doc-btn');
+    const viewAllDocsBtn = document.querySelector('.document-card .card-actions a');
 
-  document.getElementById('add-password-btn').addEventListener('click', () => {
-    document.getElementById('modal-title').textContent = 'Add New Password';
-    document.getElementById('password-id').value = '';
-    document.getElementById('password-form').reset();
-    document.getElementById('password-modal').style.display = 'flex';
-  });
+    if (addTodoBtn) {
+      addTodoBtn.addEventListener('click', () => {
+        document.getElementById('modal-title').textContent = 'Add New Task';
+        document.getElementById('todo-id').value = '';
+        document.getElementById('todo-form').reset();
+        document.querySelector('.priority-option.medium').classList.add('selected');
+        document.querySelectorAll('.priority-option:not(.medium)').forEach(opt => opt.classList.remove('selected'));
+        document.getElementById('todo-priority').value = 'medium';
+        document.getElementById('todo-modal').style.display = 'flex';
+      });
+    }
 
-  document.getElementById('upload-doc-btn').addEventListener('click', () => {
-    document.getElementById('document-form').reset();
-    document.getElementById('document-modal').style.display = 'flex';
-  });
+    if (viewAllTasksBtn) {
+      viewAllTasksBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'To do list.html';
+      });
+    }
+
+    if (addPasswordBtn) {
+      addPasswordBtn.addEventListener('click', () => {
+        document.getElementById('modal-title').textContent = 'Add New Password';
+        document.getElementById('password-id').value = '';
+        document.getElementById('password-form').reset();
+        document.getElementById('password-modal').style.display = 'flex';
+      });
+    }
+
+    if (viewAllPasswordsBtn) {
+      viewAllPasswordsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'Password Manager.html';
+      });
+    }
+
+    if (uploadDocBtn) {
+      uploadDocBtn.addEventListener('click', () => {
+        document.getElementById('document-form').reset();
+        document.getElementById('document-modal').style.display = 'flex';
+      });
+    }
+
+    if (viewAllDocsBtn) {
+      viewAllDocsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'Documents.html';
+      });
+    }
+  }
 
   // Form Submission Handlers
   document.getElementById('todo-form').addEventListener('submit', async (e) => {
@@ -2841,6 +2885,7 @@
     setupModals();
     setupUserPopup();
     setupSidebarNavigation();
+    setupCardButtons();
 
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     if (!isAuthenticated) {
