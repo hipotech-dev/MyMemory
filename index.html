@@ -1809,7 +1809,61 @@ function decryptPassword(encryptedPassword) {
     return 'Error decrypting';
   }
 }
+// Function to calculate password statistics
+async function calculatePasswordStats(user) {
+  try {
+    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
+      .orderBy('createdAt', 'desc')
+      .get();
 
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    let recentCount = 0;
+    let strengthData = {
+      weak: 0,
+      medium: 0,
+      strong: 0
+    };
+
+    passwordSnapshot.forEach(doc => {
+      const password = doc.data();
+      // Count recent passwords
+      if (password.createdAt.toDate() > oneWeekAgo) {
+        recentCount++;
+      }
+      
+      // Calculate password strength distribution
+      const decryptedPassword = decryptPassword(password.password);
+      const strength = calculatePasswordStrength(decryptedPassword);
+      
+      if (strength < 50) {
+        strengthData.weak++;
+      } else if (strength < 75) {
+        strengthData.medium++;
+      } else {
+        strengthData.strong++;
+      }
+    });
+
+    return {
+      total: passwordSnapshot.size,
+      recent: recentCount,
+      strength: strengthData
+    };
+  } catch (error) {
+    console.error('Error calculating password stats:', error);
+    return {
+      total: 0,
+      recent: 0,
+      strength: {
+        weak: 0,
+        medium: 0,
+        strong: 0
+      }
+    };
+  }
+}
 // Toggle between login and signup forms
 function toggleForms() {
   const loginForm = document.getElementById('login-form');
@@ -2384,45 +2438,30 @@ function addPasswordEventListeners(card, user) {
 }
 
 // Load dashboard data
-async function loadDashboard(user) {
-  try {
-    // Load todos
-    const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
+    // Load passwords
+    const passwordStats = await calculatePasswordStats(user);
+    document.getElementById('password-count').textContent = passwordStats.total;
+    document.getElementById('password-recent').textContent = passwordStats.recent;
+
+    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
       .orderBy('createdAt', 'desc')
-      .limit(5)
+      .limit(3)
       .get();
 
-    const todoList = document.getElementById('todo-list');
-    const todoCount = document.getElementById('todo-count');
-    const todoUrgent = document.getElementById('todo-urgent');
-    todoList.innerHTML = '';
+    const passwordList = document.getElementById('password-list');
+    passwordList.innerHTML = '';
 
-    let urgentCount = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    todoSnapshot.forEach(doc => {
-      const todo = { id: doc.id, ...doc.data() };
-      const todoElement = createTodoElement(todo);
-      addTodoEventListeners(todoElement, user);
-      todoList.appendChild(todoElement);
-
-      if (todo.dueDate) {
-        const dueDate = new Date(todo.dueDate);
-        dueDate.setHours(0, 0, 0, 0);
-        if (dueDate <= today && !todo.completed) {
-          urgentCount++;
-        }
-      }
+    passwordSnapshot.forEach(doc => {
+      const password = { id: doc.id, ...doc.data() };
+      const passwordElement = createPasswordElement(password);
+      passwordElement.dataset.password = password.password;
+      addPasswordEventListeners(passwordElement, user);
+      passwordList.appendChild(passwordElement);
     });
 
-    todoCount.textContent = todoSnapshot.size;
-    todoUrgent.textContent = urgentCount;
-
-    if (todoSnapshot.empty) {
-      todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+    if (passwordSnapshot.empty) {
+      passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
     }
-
     // Add click event listener to todo card
     const todoCard = document.querySelector('.todo-card');
     if (todoCard) {
@@ -2734,10 +2773,15 @@ document.getElementById('password-form').addEventListener('submit', async functi
       await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
       showMessage('password-message', 'Password added!', 'success');
     }
+    
     document.getElementById('password-modal').style.display = 'none';
     document.getElementById('password-form').reset();
     document.getElementById('password-id').value = '';
-    loadDashboard(user);
+    
+    // Refresh dashboard if it's open
+    if (document.getElementById('dashboard').style.display !== 'none') {
+      loadDashboard(user);
+    }
   } catch (error) {
     console.error('Error saving password:', error);
     showMessage('password-message', 'Error saving password: ' + error.message, 'error');
