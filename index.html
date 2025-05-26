@@ -1814,6 +1814,79 @@
     }
   }
 
+  // Calculate password statistics
+  async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
+    try {
+      const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      const now = new Date();
+      const oneWeekAgo = new Date(now);
+      oneWeekAgo.setDate(now.getDate() - 7);
+
+      let recentCount = 0;
+      let strengthData = { weak: 0, medium: 0, strong: 0 };
+
+      passwordSnapshot.forEach(doc => {
+        const password = doc.data();
+        if (!password.createdAt) {
+          console.warn(`Password ${doc.id} missing createdAt`);
+          return;
+        }
+        let createdDate;
+        try {
+          createdDate = password.createdAt.toDate();
+        } catch (e) {
+          console.warn(`Invalid createdAt for password ${doc.id}`);
+          return;
+        }
+        if (createdDate > oneWeekAgo) {
+          recentCount++;
+        }
+        let decryptedPassword;
+        try {
+          decryptedPassword = decryptPassword(password.password || '');
+        } catch (e) {
+          console.warn(`Failed to decrypt password ${doc.id}`);
+          decryptedPassword = '';
+        }
+        const strength = calculatePasswordStrength(decryptedPassword);
+        if (strength < 50) {
+          strengthData.weak++;
+        } else if (strength < 75) {
+          strengthData.medium++;
+        } else {
+          strengthData.strong++;
+        }
+      });
+
+      return {
+        total: passwordSnapshot.size,
+        recent: recentCount,
+        strength: strengthData,
+        lastUpdated: now.toLocaleString()
+      };
+    } catch (error) {
+      console.error(`Stats attempt ${attempt} failed:`, {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return calculatePasswordStats(uid, attempt + 1, maxAttempts);
+      }
+      showMessage('login-message', `Failed to load password stats: ${error.message}`, 'error');
+      return {
+        total: 0,
+        recent: 0,
+        strength: { weak: 0, medium: 0, strong: 0 },
+        lastUpdated: 'Error'
+      };
+    }
+  }
+
   // Toggle between login and signup forms
   function toggleForms() {
     const loginForm = document.getElementById('login-form');
@@ -2379,6 +2452,7 @@
           await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
           card.remove();
           showMessage('login-message', 'Password deleted!', 'success');
+          loadDashboard(user); // Reload to update stats
         } catch (error) {
           console.error('Error deleting password:', error);
           showMessage('login-message', 'Error deleting password: ' + error.message, 'error');
@@ -2390,6 +2464,18 @@
   // Load dashboard data
   async function loadDashboard(user) {
     try {
+      // Load password stats
+      const passwordStats = await calculatePasswordStats(user.uid);
+      const passwordCount = document.getElementById('password-count');
+      const passwordRecent = document.getElementById('password-recent');
+      const passwordWeak = document.getElementById('password-weak');
+
+      passwordCount.textContent = passwordStats.total;
+      passwordRecent.textContent = passwordStats.recent;
+      if (passwordWeak) {
+        passwordWeak.textContent = passwordStats.strength.weak;
+      }
+
       // Load todos
       const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
         .orderBy('createdAt', 'desc')
@@ -2448,13 +2534,7 @@
         .get();
 
       const passwordList = document.getElementById('password-list');
-      const passwordCount = document.getElementById('password-count');
-      const passwordRecent = document.getElementById('password-recent');
       passwordList.innerHTML = '';
-
-      let recentCount = 0;
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
       passwordSnapshot.forEach(doc => {
         const password = { id: doc.id, ...doc.data() };
@@ -2462,14 +2542,7 @@
         passwordElement.dataset.password = password.password;
         addPasswordEventListeners(passwordElement, user);
         passwordList.appendChild(passwordElement);
-
-        if (password.createdAt.toDate() > oneWeekAgo) {
-          recentCount++;
-        }
       });
-
-      passwordCount.textContent = passwordSnapshot.size;
-      passwordRecent.textContent = recentCount;
 
       if (passwordSnapshot.empty) {
         passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
