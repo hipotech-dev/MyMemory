@@ -1753,26 +1753,28 @@
     console.error('Firebase initialization failed:', error);
     document.getElementById('auth-page').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
-    showMessage('login-message', 'Failed to connect to services. Please try again later.', 'error');
+    showMessage('authentication', 'Failed to connect to services. Please try again later.', 'error');
   }
 
   // Global error handler
   window.addEventListener('error', function(event) {
     console.error('Global error:', event.error);
-    showMessage('login-message', 'An unexpected error occurred. Please try again.', 'error');
+    showMessage('authentication', 'An unexpected error occurred. Please try again.', 'error');
   });
 
-  // Show message (success or error)
+  // Show message (success or error))
   function showMessage(elementId, message, type = 'success') {
     const messageElement = document.getElementById(elementId);
     if (messageElement) {
-      messageElement.textContent = message;
-      messageElement.className = `message ${type}`;
-      messageElement.style.display = 'block';
-      setTimeout(() => {
-        messageElement.style.display = 'none';
-      }, 5000);
+      console.error(`Message element ${elementId} not found`);
+      return;
     }
+    messageElement.textContent = `message ${type}`;
+    messageElement.className = `message ${type}`;
+    messageElement.style.display = 'block';
+    setTimeout(() => {
+      messageElement.style.display = 'none';
+    }, 5000);
   }
 
   // Validate email format
@@ -1877,7 +1879,7 @@
         await new Promise(resolve => setTimeout(resolve, 1000));
         return calculatePasswordStats(uid, attempt + 1, maxAttempts);
       }
-      showMessage('login-message', `Failed to load password stats: ${error.message}`, 'error');
+      showMessage('authentication', `Failed to load password stats: ${error.message}`, 'error');
       return {
         total: 0,
         recent: 0,
@@ -2202,7 +2204,7 @@
     console.log('Logout function triggered');
     if (!auth) {
       console.error('Firebase auth not initialized');
-      showMessage('login-message', 'Authentication service not available', 'error');
+      showMessage('authentication', 'Authentication service not available', 'error');
       return;
     }
 
@@ -2216,7 +2218,7 @@
       window.location.href = 'index.html';
     }).catch((error) => {
       console.error('Logout error:', error.code, error.message);
-      showMessage('login-message', `Logout failed: ${error.message}`, 'error');
+      showMessage('authentication', `Logout failed: ${error.message}`, 'error');
     });
   }
 
@@ -2290,10 +2292,10 @@
         } else {
           todoItem.classList.remove('todo-completed');
         }
-        showMessage('login-message', 'Task updated!', 'success');
+        showMessage('authentication', 'Task updated!', 'success');
       } catch (error) {
         console.error('Error updating task:', error);
-        showMessage('login-message', 'Error updating task: ' + error.message, 'error');
+        showMessage('authentication', 'Error updating task: ' + error.message, 'error');
       }
     });
 
@@ -2324,7 +2326,7 @@
         modal.style.display = 'flex';
       } catch (error) {
         console.error('Error loading task:', error);
-        showMessage('login-message', 'Error loading task: ' + error.message, 'error');
+        showMessage('authentication', 'Error loading task: ' + error.message, 'error');
       }
     });
 
@@ -2335,10 +2337,10 @@
         try {
           await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
           todoItem.remove();
-          showMessage('login-message', 'Task deleted!', 'success');
+          showMessage('authentication', 'Task deleted!', 'success');
         } catch (error) {
           console.error('Error deleting task:', error);
-          showMessage('login-message', 'Error deleting task: ' + error.message, 'error');
+          showMessage('authentication', 'Error deleting task: ' + error.message, 'error');
         }
       }
     });
@@ -2350,12 +2352,15 @@
     card.className = 'password-card';
     card.dataset.id = password.id;
 
-    const strength = calculatePasswordStrength(decryptPassword(password.password));
+    const title = password.title || 'Untitled Password'; // Fallback for missing title
+    console.log(`Creating password element for ID ${password.id}:`, { title, username: password.username }); // Debug log
+
+    const strength = calculatePasswordStrength(decryptPassword(password.password || ''));
     const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
 
     card.innerHTML = `
       <div class="password-card-header">
-        <div class="password-name">${password.title}</div>
+        <div class="password-name">${title}</div>
         <div class="password-card-actions">
           <button title="Copy Username"><i class="fas fa-user"></i></button>
           <button title="Copy Password"><i class="fas fa-key"></i></button>
@@ -2366,12 +2371,12 @@
       <div class="password-details">
         <div class="password-detail">
           <span class="password-label">Username:</span>
-          <div class="password-value">${password.username}</div>
+          <div class="password-value">${password.username || 'N/A'}</div>
         </div>
         <div class="password-detail">
           <span class="password-label">Password:</span>
           <div class="password-value">
-            <input type="password" value="${decryptPassword(password.password)}" class="masked" readonly>
+            <input type="password" value="${decryptPassword(password.password || '')}" class="masked" readonly>
             <button class="toggle-password"><i class="fas fa-eye"></i></button>
           </div>
         </div>
@@ -2404,14 +2409,14 @@
     copyUsernameBtn.addEventListener('click', function() {
       const username = card.querySelector('.password-detail:nth-child(1) .password-value').textContent;
       navigator.clipboard.writeText(username).then(() => {
-        showMessage('login-message', 'Username copied to clipboard!', 'success');
+        showMessage('authentication', 'Username copied to clipboard!', 'success');
       });
     });
 
     copyPasswordBtn.addEventListener('click', function() {
-      const password = decryptPassword(card.dataset.password);
+      const password = decryptPassword(card.dataset.password || '');
       navigator.clipboard.writeText(password).then(() => {
-        showMessage('login-message', 'Password copied to clipboard!', 'success');
+        showMessage('authentication', 'Password copied to clipboard!', 'success');
       });
     });
 
@@ -2431,9 +2436,9 @@
 
         document.getElementById('modal-title').textContent = 'Edit Password';
         document.getElementById('password-id').value = passwordId;
-        document.getElementById('password-title').value = password.title;
-        document.getElementById('password-username').value = password.username;
-        document.getElementById('password-value').value = decryptPassword(password.password);
+        document.getElementById('password-title').value = password.title || '';
+        document.getElementById('password-username').value = password.username || '';
+        document.getElementById('password-value').value = decryptPassword(password.password || '');
         document.getElementById('password-url').value = password.url || '';
         document.getElementById('password-category').value = password.category || 'other';
         document.getElementById('password-notes').value = password.notes || '';
@@ -2441,7 +2446,7 @@
         modal.style.display = 'flex';
       } catch (error) {
         console.error('Error loading password:', error);
-        showMessage('login-message', 'Error loading password: ' + error.message, 'error');
+        showMessage('authentication', 'Error loading password: ' + error.message, 'error');
       }
     });
 
@@ -2451,11 +2456,11 @@
         try {
           await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
           card.remove();
-          showMessage('login-message', 'Password deleted!', 'success');
+          showMessage('authentication', 'Password deleted!', 'success');
           loadDashboard(user); // Reload to update stats
         } catch (error) {
           console.error('Error deleting password:', error);
-          showMessage('login-message', 'Error deleting password: ' + error.message, 'error');
+          showMessage('authentication', 'Error deleting password: ' + error.message, 'error');
         }
       }
     });
@@ -2538,8 +2543,13 @@
 
       passwordSnapshot.forEach(doc => {
         const password = { id: doc.id, ...doc.data() };
+        console.log(`Fetched password ID ${doc.id}:`, password); // Debug log
+        if (!password.title) {
+          console.warn(`Password ${doc.id} has no title, setting default`);
+          password.title = 'Untitled Password';
+        }
         const passwordElement = createPasswordElement(password);
-        passwordElement.dataset.password = password.password;
+        passwordElement.dataset.password = password.password || '';
         addPasswordEventListeners(passwordElement, user);
         passwordList.appendChild(passwordElement);
       });
@@ -2572,7 +2582,7 @@
 
     } catch (error) {
       console.error('Error loading dashboard:', error);
-      showMessage('login-message', 'Error loading dashboard: ' + error.message, 'error');
+      showMessage('authentication', 'Error loading dashboard: ' + error.message, 'error');
     }
   }
 
@@ -2583,7 +2593,7 @@
 
     if (user) {
       if (!user.emailVerified) {
-        showMessage('login-message', 'Please verify your email address.', 'error');
+        showMessage('authentication', 'Please verify your email address.', 'error');
         await auth.signOut();
         authPage.style.display = 'flex';
         dashboard.style.display = 'none';
@@ -2639,10 +2649,10 @@
       if (remember) {
         localStorage.setItem('rememberMe', 'true');
       }
-      showMessage('login-message', 'Login successful!', 'success');
+      showMessage('authentication', 'Login successful!', 'success');
     } catch (error) {
       console.error('Login error:', error.code, error.message);
-      showMessage('login-message', `Login failed: ${error.message}`, 'error');
+      showMessage('authentication', `Login failed: ${error.message}`, 'error');
     }
   });
 
@@ -2701,12 +2711,12 @@
     const email = document.getElementById('email').value;
 
     if (!isValidEmail(email)) {
-      showMessage('login-message', 'Please enter a valid email address.', 'error');
+      showMessage('authentication', 'Please enter a valid email address.', 'error');
       return;
     }
 
     if (!canResendVerification(email)) {
-      showMessage('login-message', 'Please wait before requesting another verification email.', 'error');
+      showMessage('authentication', 'Please wait before requesting another verification email.', 'error');
       return;
     }
 
@@ -2717,14 +2727,14 @@
       if (!user.emailVerified) {
         await user.sendEmailVerification();
         localStorage.setItem(`verification-attempt-${email}`, Date.now());
-        showMessage('login-message', 'Verification email sent!', 'success');
+        showMessage('authentication', 'Verification email sent!', 'success');
         await auth.signOut();
       } else {
-        showMessage('login-message', 'Email is already verified.', 'success');
+        showMessage('authentication', 'Email is already verified.', 'success');
       }
     } catch (error) {
       console.error('Resend verification error:', error.code, error.message);
-      showMessage('login-message', `Failed to send verification email: ${error.message}`, 'error');
+      showMessage('authentication', `Failed to send verification email: ${error.message}`, 'error');
     }
   });
 
@@ -2750,7 +2760,7 @@
 
     const user = auth.currentUser;
     if (!user) {
-      showMessage('login-message', 'You must be logged in to add tasks.', 'error');
+      showMessage('authentication', 'You must be logged in to add tasks.', 'error');
       return;
     }
 
@@ -2769,11 +2779,11 @@
     try {
       if (todoId) {
         await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update(todoData);
-        showMessage('login-message', 'Task updated!', 'success');
+        showMessage('authentication', 'Task updated!', 'success');
       } else {
         todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
         await db.collection('users').doc(user.uid).collection('todos').add(todoData);
-        showMessage('login-message', 'Task added!', 'success');
+        showMessage('authentication', 'Task added!', 'success');
       }
       document.getElementById('todo-modal').style.display = 'none';
       document.getElementById('todo-form').reset();
@@ -2781,7 +2791,7 @@
       loadDashboard(user);
     } catch (error) {
       console.error('Error saving task:', error);
-      showMessage('login-message', 'Error saving task: ' + error.message, 'error');
+      showMessage('authentication', 'Error saving task: ' + error.message, 'error');
     }
   });
 
@@ -2842,7 +2852,7 @@
 
     const user = auth.currentUser;
     if (!user) {
-      showMessage('login-message', 'You must be logged in to upload documents.', 'error');
+      showMessage('authentication', 'You must be logged in to upload documents.', 'error');
       return;
     }
 
@@ -2863,13 +2873,13 @@
       documentData.fileName = file.name;
 
       await db.collection('users').doc(user.uid).collection('documents').add(documentData);
-      showMessage('login-message', 'Document uploaded!', 'success');
+      showMessage('authentication', 'Document uploaded!', 'success');
       document.getElementById('document-modal').style.display = 'none';
       document.getElementById('document-form').reset();
       loadDashboard(user);
     } catch (error) {
       console.error('Error uploading document:', error);
-      showMessage('login-message', 'Error uploading document: ' + error.message, 'error');
+      showMessage('authentication', 'Error uploading document: ' + error.message, 'error');
     }
   });
 </script>
