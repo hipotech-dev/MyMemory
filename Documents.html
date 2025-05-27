@@ -863,88 +863,6 @@
     }
 
     // Load documents
-    async function loadDocuments(userId, category = 'all', searchQuery = '') {
-      try {
-        const tableBody = document.getElementById('documents-table-body');
-        tableBody.innerHTML = '';
-        let query = db.collection('users').doc(userId).collection('documents');
-        if (category !== 'all') {
-          query = query.where('category', '==', category);
-        }
-        if (searchQuery) {
-          query = query.where('name', '>=', searchQuery).where('name', '<=', searchQuery + '\uf8ff');
-        }
-        const docQuery = await query.get();
-        docQuery.forEach(doc => {
-          const docData = doc.data();
-          const row = document.createElement('tr');
-          row.className = 'document-row';
-          row.innerHTML = `
-            <td>
-              <div style="display: flex; align-items: center;">
-                <div class="document-icon"><i class="fas fa-file"></i></div>
-                <div class="document-info">
-                  <div class="document-name">${docData.name}</div>
-                  <div class="document-meta">
-                    <span><i class="fas fa-folder"></i> ${docData.folder || 'None'}</span>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>${docData.category.charAt(0).toUpperCase() + docData.category.slice(1)}</td>
-            <td>${formatDate(docData.modified)}</td>
-            <td>${formatFileSize(docData.size)}</td>
-            <td>
-              <div class="document-actions">
-                <button class="download-btn" data-url="${docData.downloadURL}"><i class="fas fa-download"></i></button>
-              </div>
-            </td>
-          `;
-          tableBody.appendChild(row);
-        });
-
-        // Attach download event listeners
-        document.querySelectorAll('.download-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const url = btn.dataset.url;
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = '';
-            link.click();
-          });
-        });
-      } catch (error) {
-        console.error('Error loading documents:', error);
-        showMessage('Failed to load documents.', 'error');
-      }
-    }
-
-    // Load folder view
-    async function loadFolderView(userId) {
-      try {
-        const folderView = document.getElementById('folder-view');
-        folderView.innerHTML = '';
-        const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
-        folderQuery.forEach(doc => {
-          const folder = doc.data();
-          const item = document.createElement('div');
-          item.className = 'folder-item';
-          item.innerHTML = `
-            <div class="folder-icon" style="background: ${folder.color}; color: white;">
-              <i class="fas fa-folder"></i>
-            </div>
-            <div class="folder-name">${folder.name}</div>
-            <div class="folder-meta">${folder.files || 0} files</div>
-          `;
-          folderView.appendChild(item);
-        });
-      } catch (error) {
-        console.error('Error loading folder view:', error);
-        showMessage('Failed to load folders.', 'error');
-      }
-    }
-
-    // Upload document with progress
   async function uploadDocument() {
   const nameInput = document.getElementById('document-name');
   const categoryInput = document.getElementById('document-category');
@@ -1000,11 +918,13 @@
     console.log('User:', user.email, user.uid);
 
     const timestamp = Date.now();
-    const fileName = `${name.replace(/\s+/g, '_')}_${timestamp}.${fileType}`;
+    const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const fileName = `${sanitizedName}_${timestamp}.${fileType}`;
     const storagePath = `users/${user.uid}/documents/${fileName}`;
-    const bucketName = 'documents'; // Replace with your actual bucket name if different
+    const bucketName = 'documents';
 
-    // Upload file
+    console.log('Uploading to:', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`);
+
     const response = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`, true);
@@ -1019,19 +939,28 @@
       };
       xhr.onload = () => {
         if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
-        else reject(new Error(`Upload failed: ${xhr.statusText}`));
+        else reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
       };
       xhr.onerror = () => reject(new Error('Upload error'));
       xhr.send(file);
     });
 
-    console.log('Upload successful:', response);
+    console.log('Upload response:', response);
 
-    // Generate public URL
     const { data: { publicUrl } } = supabase.storage
       .from(bucketName)
       .getPublicUrl(storagePath);
     console.log('Generated downloadURL:', publicUrl);
+
+    try {
+      const testResponse = await fetch(publicUrl, { method: 'HEAD' });
+      if (!testResponse.ok) {
+        throw new Error(`Download URL invalid: ${testResponse.statusText}`);
+      }
+    } catch (urlError) {
+      console.error('URL test failed:', urlError);
+      throw urlError;
+    }
 
     const newDoc = {
       id: `doc${timestamp}`,
@@ -1048,7 +977,7 @@
       downloadURL: publicUrl
     };
 
-    console.log('Saving metadata');
+    console.log('Saving metadata:', newDoc);
     await db.collection('users')
       .doc(user.uid)
       .collection('documents')
@@ -1094,6 +1023,64 @@
     } catch (deleteError) {
       console.error('Cleanup error:', deleteError);
     }
+  }
+}
+
+async function loadDocuments(userId, category = 'all', searchQuery = '') {
+  try {
+    const tableBody = document.getElementById('documents-table-body');
+    tableBody.innerHTML = '';
+    let query = db.collection('users').doc(userId).collection('documents');
+    if (category !== 'all') {
+      query = query.where('category', '==', category);
+    }
+    if (searchQuery) {
+      query = query.where('name', '>=', searchQuery).where('name', '<=', searchQuery + '\uf8ff');
+    }
+    const docQuery = await query.get();
+    console.log('Documents found:', docQuery.size);
+    docQuery.forEach(doc => {
+      const docData = doc.data();
+      console.log('Document downloadURL:', docData.downloadURL);
+      const row = document.createElement('tr');
+      row.className = 'document-row';
+      row.innerHTML = `
+        <td>
+          <div style="display: flex; align-items: center;">
+            <div class="document-icon"><i class="fas fa-file"></i></div>
+            <div class="document-info">
+              <div class="document-name">${docData.name}</div>
+              <div class="document-meta">
+                <span><i class="fas fa-folder"></i> ${docData.folder || 'None'}</span>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>${docData.category.charAt(0).toUpperCase() + docData.category.slice(1)}</td>
+        <td>${formatDate(docData.modified)}</td>
+        <td>${formatFileSize(docData.size)}</td>
+        <td>
+          <div class="document-actions">
+            <button class="download-btn" data-url="${docData.downloadURL}"><i class="fas fa-download"></i></button>
+          </div>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    document.querySelectorAll('.download-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        console.log('Download URL:', btn.dataset.url);
+        const url = btn.dataset.url;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = '';
+        link.click();
+      });
+    });
+  } catch (error) {
+    console.error('Error loading documents:', error);
+    showMessage('Failed to load documents.', 'error');
   }
 }
     // Create folder
