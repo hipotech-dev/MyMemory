@@ -18,7 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Your existing CSS (unchanged) */
+    /* Your existing CSS (unchanged for brevity) */
     :root {
       --primary: #003087;
       --primary-light: #0070ba;
@@ -30,13 +30,7 @@
       --white: #ffffff;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: url('hipo.jpg') no-repeat center center fixed;
@@ -44,8 +38,6 @@
       min-height: 100vh;
       margin: 0;
     }
-    
-    /* Fixed Header Styles */
     .header {
       background: white;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -54,38 +46,26 @@
       justify-content: space-between;
       align-items: center;
       height: 60px;
-      position: relative;
     }
-
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
-      height: 100%;
     }
-
     .logo img {
       height: 36px;
       width: auto;
       object-fit: contain;
-      vertical-align: middle;
     }
-
     .logo h1 {
       color: var(--primary);
       font-size: 1.5rem;
       margin: 0;
-      line-height: 1;
-      vertical-align: middle;
     }
-
     .user-menu {
       display: flex;
       align-items: center;
-      height: 100%;
-      position: relative;
     }
-
     .user-avatar {
       width: 36px;
       height: 36px;
@@ -96,11 +76,8 @@
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      margin: 0;
-      vertical-align: middle;
       cursor: pointer;
     }
-
     .user-popup {
       display: none;
       position: absolute;
@@ -113,31 +90,15 @@
       width: 200px;
       z-index: 1000;
     }
-
-    .user-popup.active {
-      display: block;
-    }
-
+    .user-popup.active { display: block; }
     .user-info {
       display: flex;
       flex-direction: column;
       margin-bottom: 0.5rem;
     }
-
-    .user-info span {
-      font-size: 0.9rem;
-    }
-
-    .user-info .name {
-      font-weight: 600;
-      color: var(--dark);
-    }
-
-    .user-info .email {
-      color: #718096;
-      word-break: break-all;
-    }
-
+    .user-info span { font-size: 0.9rem; }
+    .user-info .name { font-weight: 600; color: var(--dark); }
+    .user-info .email { color: #718096; word-break: break-all; }
     .popup-btn {
       display: flex;
       align-items: center;
@@ -150,14 +111,8 @@
       cursor: pointer;
       width: 100%;
       font-size: 0.9rem;
-      transition: background 0.2s;
     }
-
-    .popup-btn:hover {
-      background: var(--primary-light);
-    }
-    
-    /* Main Container */
+    .popup-btn:hover { background: var(--primary-light); }
     .container {
       display: flex;
       min-height: calc(100vh - 60px);
@@ -166,8 +121,6 @@
       padding: 2rem;
       gap: 2rem;
     }
-    
-    /* Sidebar */
     .sidebar {
       width: 250px;
       background: var(--primary);
@@ -175,15 +128,8 @@
       border-radius: 12px;
       box-shadow: var(--shadow);
     }
-    
-    .sidebar-menu {
-      list-style: none;
-    }
-    
-    .sidebar-menu li {
-      margin-bottom: 5px;
-    }
-    
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin-bottom: 5px; }
     .sidebar-menu a {
       display: flex;
       align-items: center;
@@ -191,112 +137,78 @@
       color: var(--white);
       text-decoration: none;
       border-radius: 6px;
-      transition: all 0.3s ease;
       font-size: 0.95rem;
       font-weight: 500;
     }
-    
     .sidebar-menu a:hover {
       background: var(--primary-light);
       transform: translateX(5px);
     }
-    
     .sidebar-menu a.active {
       background: var(--white);
       color: var(--primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    
-    .sidebar-menu i {
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-      color: var(--white);
-    }
-    
-    .sidebar-menu a.active i {
-      color: var(--primary);
-    }
-    
-    /* Main Content Area */
+    .sidebar-menu a.active i { color: var(--primary); }
     .main-content {
       flex: 1;
       padding: 2rem;
     }
-    
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
     }
-    
     .page-title {
       color: var(--primary);
       font-size: 1.8rem;
     }
-    
-    /* Documents Manager Styles */
     .documents-container {
       background: white;
       border-radius: 10px;
       padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 10px rgba(0, 0,0.05);
     }
-    
     .documents-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
     }
-    
     .documents-actions {
       display: flex;
       gap: 10px;
     }
-    
     .btn {
-      padding: 8px 15px;
+      padding: 12px;
       background-color: var(--primary);
       border: none;
       color: white;
       border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s;
       font-size: 14px;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 12px;
     }
-    
     .btn-outline {
       background: transparent;
       border: 1px solid var(--primary);
       color: var(--primary);
     }
-    
-    .btn:hover {
-      background-color: var(--primary-light);
-    }
-    
-    .btn-outline:hover {
-      background: var(--light);
-    }
-    
+    .btn:hover { background-color: var(--primary-light); }
+    .btn-outline:hover { background: var(--light); }
     .search-bar {
       display: flex;
       margin-bottom: 1.5rem;
     }
-    
     .search-bar input {
       flex: 1;
-      padding: 10px 15px;
+      padding: 10px;
       border: 1px solid var(--gray);
       border-radius: 6px 0 0 6px;
       font-size: 14px;
     }
-    
     .search-bar button {
       padding: 0 15px;
       background: var(--primary);
@@ -305,36 +217,29 @@
       border-radius: 0 6px 6px 0;
       cursor: pointer;
     }
-    
     .category-filter {
-      display: flex;
+      display: inline-block;
       gap: 10px;
       margin-bottom: 1.5rem;
       flex-wrap: wrap;
     }
-    
     .category-btn {
       padding: 6px 12px;
       border-radius: 20px;
       background: transparent;
       border: 1px solid var(--gray);
       cursor: pointer;
-      transition: all 0.2s;
       font-size: 0.85rem;
     }
-    
     .category-btn.active, .category-btn:hover {
       background: var(--primary);
       color: white;
       border-color: var(--primary);
     }
-    
-    /* Documents Table */
     .documents-table {
       width: 100%;
       border-collapse: collapse;
     }
-    
     .documents-table th {
       text-align: left;
       padding: 12px 15px;
@@ -343,17 +248,12 @@
       font-weight: 600;
       border-bottom: 2px solid var(--gray);
     }
-    
     .documents-table td {
       padding: 12px 15px;
       border-bottom: 1px solid var(--gray);
       vertical-align: middle;
     }
-    
-    .document-row:hover {
-      background: rgba(0, 112, 186, 0.05);
-    }
-    
+    .document-row:hover { background: rgba(0, 112, 186, 0.05); }
     .document-icon {
       width: 40px;
       height: 40px;
@@ -365,34 +265,23 @@
       color: var(--primary);
       font-size: 1.2rem;
     }
-    
-    .document-info {
-      margin-left: 10px;
-    }
-    
+    .document-info { margin-left: 10px; }
     .document-name {
       font-weight: 600;
       margin-bottom: 3px;
     }
-    
     .document-meta {
       color: #718096;
       font-size: 0.85rem;
       display: flex;
       gap: 15px;
     }
-    
     .document-meta span {
       display: flex;
       align-items: center;
       gap: 5px;
     }
-    
-    .document-actions {
-      display: flex;
-      gap: 10px;
-    }
-    
+    .document-actions { display: flex; gap: 10px; }
     .document-actions button {
       background: none;
       border: none;
@@ -404,37 +293,29 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
     }
-    
     .document-actions button:hover {
       background: rgba(0, 0, 0, 0.05);
       color: var(--primary);
     }
-    
-    /* Folder View */
     .folder-view {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 20px;
     }
-    
     .folder-item {
       background: white;
       border-radius: 8px;
       padding: 1rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s;
       border: 1px solid var(--gray);
       position: relative;
     }
-    
     .folder-item:hover {
       border-color: var(--primary-light);
       box-shadow: 0 2px 8px rgba(0, 112, 186, 0.1);
     }
-    
     .folder-icon {
       width: 60px;
       height: 60px;
@@ -447,23 +328,19 @@
       color: var(--primary);
       font-size: 1.5rem;
     }
-    
     .folder-name {
       font-weight: 600;
       margin-bottom: 5px;
     }
-    
     .folder-meta {
       color: #718096;
       font-size: 0.85rem;
     }
-    
     .folder-actions {
       position: absolute;
       top: 10px;
       right: 10px;
     }
-    
     .folder-actions button {
       background: none;
       border: none;
@@ -475,15 +352,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
     }
-    
     .folder-actions button:hover {
       background: rgba(0, 0, 0, 0.05);
       color: var(--primary);
     }
-    
-    /* View Toggle */
     .view-toggle {
       display: flex;
       margin-bottom: 1.5rem;
@@ -492,25 +365,20 @@
       padding: 4px;
       width: fit-content;
     }
-    
     .view-btn {
       padding: 6px 12px;
       border-radius: 4px;
       background: transparent;
       border: none;
       cursor: pointer;
-      transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 5px;
     }
-    
     .view-btn.active {
       background: white;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
-    
-    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
@@ -523,7 +391,6 @@
       justify-content: center;
       align-items: center;
     }
-    
     .modal-content {
       background: white;
       padding: 2rem;
@@ -531,69 +398,51 @@
       width: 100%;
       max-width: 500px;
     }
-    
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
     }
-    
     .modal-close {
       background: none;
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
     }
-    
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    
+    .form-group { margin-bottom: 1rem; }
     .form-group label {
       display: block;
       margin-bottom: 5px;
       font-weight: 600;
     }
-    
     .form-control {
       width: 100%;
       padding: 10px;
       border: 1px solid var(--gray);
       border-radius: 6px;
     }
-    
     .file-upload {
       border: 2px dashed var(--gray);
       border-radius: 6px;
       padding: 2rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    
     .file-upload:hover {
       border-color: var(--primary-light);
       background: rgba(0, 112, 186, 0.05);
     }
-    
     .file-upload i {
       font-size: 2rem;
       color: var(--primary);
       margin-bottom: 10px;
     }
-    
-    .file-upload input {
-      display: none;
-    }
-    
-    /* Progress Bar */
+    .file-upload input { display: none; }
     .progress-container {
       margin-top: 1rem;
       display: none;
     }
-    
     .progress-bar {
       width: 100%;
       height: 8px;
@@ -601,26 +450,18 @@
       border-radius: 4px;
       overflow: hidden;
     }
-    
     .progress-fill {
       height: 100%;
       background: var(--success);
       width: 0%;
-      transition: width 0.3s ease;
     }
-    
     .progress-text {
       text-align: center;
       margin-top: 0.5rem;
       font-size: 0.9rem;
       color: var(--dark);
     }
-    
-    /* Share Modal */
-    .share-options {
-      margin: 1rem 0;
-    }
-    
+    .share-options { margin: 1rem 0; }
     .share-option {
       display: flex;
       align-items: center;
@@ -628,13 +469,8 @@
       border-radius: 6px;
       margin-bottom: 8px;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    
-    .share-option:hover {
-      background: var(--light);
-    }
-    
+    .share-option:hover { background: var(--light); }
     .share-option i {
       width: 30px;
       height: 30px;
@@ -645,36 +481,23 @@
       margin-right: 10px;
       color: white;
     }
-    
-    .email-option i {
-      background: var(--secondary);
-    }
-    
-    .link-option i {
-      background: var(--primary);
-    }
-    
-    .team-option i {
-      background: var(--success);
-    }
-    
+    .email-option i { background: var(--secondary); }
+    .link-option i { background: var(--primary); }
+    .team-option i { background: var(--success); }
     .share-link-container {
       display: none;
       margin-top: 1rem;
     }
-    
     .share-link {
       display: flex;
       margin-top: 10px;
     }
-    
     .share-link input {
       flex: 1;
       padding: 8px;
       border: 1px solid var(--gray);
       border-radius: 4px 0 0 4px;
     }
-    
     .share-link button {
       padding: 0 10px;
       background: var(--primary);
@@ -683,23 +506,17 @@
       border-radius: 0 4px 4px 0;
       cursor: pointer;
     }
-    
-    /* Color Options */
     .color-option {
       width: 30px;
       height: 30px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: all 0.2s;
     }
-    
     .color-option.selected {
       border-color: var(--dark);
       transform: scale(1.1);
     }
-    
-    /* Message Styles for Authentication Errors */
     .message {
       display: none;
       padding: 10px;
@@ -707,11 +524,8 @@
       border-radius: 6px;
       font-size: 0.9rem;
       text-align: center;
-      background: var(--secondary);
       color: white;
     }
-
-    /* Loading State */
     #loading {
       display: flex;
       justify-content: center;
@@ -719,250 +533,77 @@
       height: 100vh;
       font-size: 1.2rem;
     }
-
-    #app-content {
-      display: none;
-    }
-
-    /* Responsive Adjustments */
+    #app-content { display: none; }
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        padding: 1rem;
-      }
-      
+      .container { flex-direction: column; padding: 1rem; }
       .sidebar {
         width: 100%;
         padding: 0.5rem;
-        background: var(--primary);
         border-radius: 10px;
-        box-shadow: var(--shadow);
-        position: static;
-        height: auto;
       }
-      
       .sidebar-menu {
         display: flex;
         gap: 5px;
-        padding-bottom: 5px;
         overflow-x: auto;
         white-space: nowrap;
-        scrollbar-width: none; /* Firefox */
+        scrollbar-width: none;
       }
-      
-      .sidebar-menu::-webkit-scrollbar {
-        display: none; /* Chrome/Safari */
-      }
-      
-      .sidebar-menu li {
-        margin-bottom: 0;
-        margin-right: 5px;
-      }
-      
+      .sidebar-menu::-webkit-scrollbar { display: none; }
+      .sidebar-menu li { margin-right: 5px; }
       .sidebar-menu a {
         padding: 0.5rem;
-        display: inline-flex;
-        white-space: nowrap;
         font-size: 0.9rem;
-        color: var(--white);
       }
-      
-      .sidebar-menu a:hover {
-        background: var(--primary-light);
-        transform: translateX(5px);
-      }
-      
-      .sidebar-menu a.active {
-        background: var(--white);
-        color: var(--primary);
-      }
-      
-      .sidebar-menu i {
-        color: var(--white);
-      }
-      
-      .sidebar-menu a.active i {
-        color: var(--primary);
-      }
-      
-      .main-content {
-        padding: 1.5rem;
-      }
-      
+      .main-content { padding: 1.5rem; }
       .page-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
       }
-      
-      .documents-actions {
-        width: 100%;
-        justify-content: flex-end;
-      }
-      
+      .documents-actions { width: 100%; justify-content: flex-end; }
       .category-filter {
         overflow-x: auto;
-        padding-bottom: 10px;
         white-space: nowrap;
       }
-      
-      .category-btn {
-        display: inline-block;
-        margin-bottom: 0;
-      }
-      
-      .documents-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      
+      .documents-table { overflow-x: auto; white-space: nowrap; }
       .folder-view {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 15px;
       }
-      
-      .modal-content {
-        margin: 10px;
-        padding: 1.5rem;
-      }
-      
-      .file-upload {
-        padding: 1.5rem;
-      }
-      
-      body {
-        font-size: 15px;
-      }
-      
-      .page-title {
-        font-size: 1.5rem;
-      }
-      
-      .btn {
-        padding: 10px;
-        font-size: 15px;
-      }
-      
-      .documents-container {
-        padding: 1rem;
-      }
-      
-      .documents-table th, 
-      .documents-table td {
-        padding: 10px;
-      }
-
-      .user-popup {
-        width: 180px;
-        top: 45px;
-      }
+      .modal-content { margin: 10px; padding: 1.5rem; }
+      .file-upload { padding: 1.5rem; }
+      body { font-size: 15px; }
+      .page-title { font-size: 1.5rem; }
+      .btn { padding: 10px; font-size: 15px; }
+      .documents-container { padding: 1rem; }
+      .documents-table th, .documents-table td { padding: 10px; }
+      .user-popup { width: 180px; top: 45px; }
     }
-
     @media (max-width: 480px) {
-      .header {
-        flex-direction: column;
-        gap: 15px;
-        padding: 1rem;
-      }
-      
-      .logo {
-        margin-bottom: 10px;
-      }
-      
-      .user-menu {
-        margin-top: 10px;
-      }
-      
-      .documents-actions {
-        flex-direction: column;
-        width: 100%;
-        gap: 10px;
-      }
-      
-      .documents-actions .btn {
-        width: 100%;
-        justify-content: center;
-      }
-      
-      .search-bar {
-        flex-direction: column;
-      }
-      
-      .search-bar input {
-        border-radius: 6px;
-        margin-bottom: 10px;
-      }
-      
-      .search-bar button {
-        border-radius: 6px;
-        padding: 10px;
-      }
-      
-      .view-toggle {
-        width: 100%;
-        justify-content: center;
-      }
-      
-      .folder-view {
-        grid-template-columns: 1fr;
-      }
-      
-      .document-info {
-        min-width: 0;
-      }
-      
-      .document-meta {
-        flex-wrap: wrap;
-        gap: 5px;
-      }
-      
-      .document-meta span {
-        font-size: 0.75rem;
-      }
-      
-      .document-actions {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      
-      .document-actions button {
-        margin: 2px;
-      }
-      
-      .sidebar-menu a {
-        padding: 0.5rem;
-        font-size: 0.85rem;
-      }
-
-      .user-popup {
-        width: 160px;
-        top: 80px;
-      }
+      .header { flex-direction: column; gap: 15px; padding: 1rem; }
+      .logo { margin-bottom: 10px; }
+      .user-menu { margin-top: 10px; }
+      .documents-actions { flex-direction: column; width: 100%; gap: 10px; }
+      .documents-actions .btn { width: 100%; justify-content: center; }
+      .search-bar { flex-direction: column; }
+      .search-bar input { border-radius: 6px; margin-bottom: 10px; }
+      .search-bar button { border-radius: 6px; padding: 10px; }
+      .view-toggle { width: 100%; justify-content: center; }
+      .folder-view { grid-template-columns: 1fr; }
+      .document-meta { flex-wrap: wrap; gap: 5px; }
+      .document-meta span { font-size: 0.75rem; }
+      .document-actions { flex-wrap: wrap; justify-content: center; }
+      .sidebar-menu a { font-size: 0.85rem; }
+      .user-popup { width: 160px; top: 80px; }
     }
-
-    /* Prevent horizontal scrolling */
-    html, body {
-      max-width: 100%;
-      overflow-x: hidden;
-    }
-
-    /* Better touch targets */
-    button, a, .category-btn, .folder-item, .document-row {
-      touch-action: manipulation;
-    }
+    html, body { max-width: 100%; overflow-x: hidden; }
+    button, a, .category-btn, .folder-item, .document-row { touch-action: manipulation; }
   </style>
 </head>
 <body>
-  <!-- Message Container for Authentication Errors -->
   <div class="message" id="auth-message"></div>
-
-  <!-- Loading State -->
   <div id="loading">Loading...</div>
-
-  <!-- Main App Content (Hidden by Default) -->
   <div id="app-content">
-    <!-- Header -->
     <header class="header">
       <div class="logo">
         <img src="amnesia.png" alt="MyMemory Logo">
@@ -981,22 +622,17 @@
         </div>
       </div>
     </header>
-
-    <!-- Main Container -->
     <div class="container">
-      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
-          <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
-          <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="Documents.html" class="active" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
-          <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+          <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="To do list.html"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="Password Manager.html"><i class="fas fa-lock"></i> Password Manager</a></li>
+          <li><a href="Documents.html" class="active"><i class="fas fa-file-contract"></i> Documents</a></li>
+          <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
           <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
-
-      <!-- Main Content -->
       <main class="main-content">
         <div class="page-header">
           <h2 class="page-title">Documents</h2>
@@ -1009,541 +645,469 @@
             </button>
           </div>
         </div>
-        
         <div class="search-bar">
           <input type="text" id="search-input" placeholder="Search documents...">
-          <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search documents...">
-            <button id="search-btn"><i class="fas fa-search"></i></button>
+          <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="table"><i class="fas fa-list"></i> List</button>
+          <button class="view-btn" data-view="folder"><i class="fas fa-folder"></i> Folders</button>
+        </div>
+        <div class="category-filter">
+          <button class="category-btn active" data-category="all">All</button>
+          <button class="category-btn" data-category="contract">Contracts</button>
+          <button class="category-btn" data-category="proposal">Proposals</button>
+          <button class="category-btn" data-category="report">Reports</button>
+          <button class="category-btn" data-category="presentation">Presentations</button>
+          <button class="category-btn" data-category="personal">Personal</button>
+        </div>
+        <div class="documents-container">
+          <div class="table-view" id="table-view">
+            <table class="documents-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Modified</th>
+                  <th>Size</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documents-table-body"></tbody>
+            </table>
           </div>
-          
-          <div class="view-toggle">
-            <div class="view-btn active" id="view-btn" data-view="table">
-              <button class="view-btn active" data-view="table"><i class="fas fa-list"></i> List</button>
-              <button class="view-btn" data-view="folder"><i class="fas fa-folder"></i> Folders</button>
+          <div class="folder-view" id="folder-view" style="display: none;"></div>
+        </div>
+        <div class="modal" id="upload-modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Upload Document</h3>
+              <button class="modal-close">&times;</button>
             </div>
-          </div>
-          
-          <div class="category-filter">
-            <div class="category-btn active" id="category-btn" data-category="all">
-              <button class="category-btn active" data-category="all">All</button>
-              <button class="category-btn" data-category="contract">Contracts</button>
-              <button class="category-btn" data-category="proposal">Proposals</button>
-              <button class="category-btn" data-category="report">Reports</button>
-              <button class="category-btn" data-category="presentation">Presentations</button>
-              <button class="category-btn" data-category="personal">Personal</button>
-            </div>
-          </div>
-          
-          <div class="documents-container">
-            <!-- Table View -->
-            <div class="table-view" id="table-view">
-              <table class="documents-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Modified</th>
-                    <th>Size</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="documents-table-body">
-                  <!-- Documents will be added dynamically -->
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Folder View (Hidden by default) -->
-            <div class="folder-view" id="folder-view">
-              <!-- Folders will be added dynamically -->
-            </div>
-            </div>
-
-            <!-- Upload Document Modal -->
-            <div class="modal" id="upload-modal">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h3>Upload Modal</h3>
-                  <button class="modal-close">x</button>
-                </div>
-                <form id="upload-form">
-                  <div class="form-group">
-                    <label for="document-name">Document Name</label>
-                    <input type="text" id="document-name" class="form-control" required>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="Select File">Select File</label>
-                    <div class="file-upload" id="file-upload-area">
-                      <i class="fas fa-cloud-upload-alt"></i>
-                      <p>Drag & drop files here or click to browse</p>
-                      <input type="file" id="document-file" accept=".pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.jpg,.png,.txt" required>
-                    </div>
-                  </div>
-                  
-                  <div class="progress-container" id="upload-progress">
-                    <div class="progress-bar">
-                      <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <div class="progress-text" id="progress-text">0%</div>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="document-category">Category</label>
-                    <select id="document-category" class="form-control">
-                      <option value="contract">Contract</option>
-                      <option value="proposal">Proposal</option>
-                      <option value="report">Report</option>
-                      <option value="presentation">Presentation</option>
-                      <option value="personal">Personal</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="document-folder">Folder (Optional)</label>
-                    <select id="document-folder" class="form-control">
-                      <option value="">None</option>
-                      <!-- Folders will be added dynamically -->
-                    </select>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="document-description">Description (Optional)</label>
-                    <textarea id="document-description" class="form-control" rows="3"></textarea>
-                  </div>
-                  
-                  <button type="submit" class="btn" id="upload-submit-btn">
-                    <i class="fas fa-upload"></i> Upload Document
-                  </button>
-                </form>
+            <form id="upload-form">
+              <div class="form-group">
+                <label for="document-name">Document Name</label>
+                <input type="text" id="document-name" class="form-control" required>
               </div>
-            </div>
-
-            <!-- New Folder Modal -->
-            <div class="modal" id="folder-modal">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h3>Create New Folder</h3>
-                  <button class="modal-close">x</button>
+              <div class="form-group">
+                <label for="document-file">Select File</label>
+                <div class="file-upload" id="file-upload-area">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Drag & drop files here or click to browse</p>
+                  <input type="file" id="document-file" accept=".pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.jpg,.png,.txt" required>
                 </div>
-                <form id="folder-form">
-                  <div class="form-group">
-                    <label for="folder-name">Folder Name</label>
-                    <input type="text" id="folder-name" class="form-control" required>
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="folder-color">Color</label>
-                    <div style="display: flex; gap: 10px;">
-                      <div class="color-option selected" data-color="#003087" style="background: #003087;"></div>
-                      <div class="color-option" data-color="#0070ba" style="background: #0070ba;"></div>
-                      <div class="color-option" data-color="#38a169" style="background: #38a169;"></div>
-                      <div class="color-option" data-color="#f6ad55" style="background: #f6ad55;"></div>
-                      <div class="color-option" data-color="#ff5a5f" style="background: #ff5a5f;"></div>
-                    </div>
-                    <input type="hidden" id="folder-color" value="#003087">
-                  </div>
-                  
-                  <button type="submit" class="btn">
-                    <i class="fas fa-folder-plus"></i> Create Folder
-                  </button>
-                </form>
               </div>
+              <div class="progress-container" id="upload-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0%</div>
+              </div>
+              <div class="form-group">
+                <label for="document-category">Category</label>
+                <select id="document-category" class="form-control">
+                  <option value="contract">Contract</option>
+                  <option value="proposal">Proposal</option>
+                  <option value="report">Report</option>
+                  <option value="presentation">Presentation</option>
+                  <option value="personal">Personal</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="document-folder">Folder (Optional)</label>
+                <select id="document-folder" class="form-control">
+                  <option value="">None</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="document-description">Description (Optional)</label>
+                <textarea id="document-description" class="form-control" rows="3"></textarea>
+              </div>
+              <button type="submit" class="btn" id="upload-submit-btn">
+                <i class="fas fa-upload"></i> Upload Document
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="modal" id="folder-modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Create New Folder</h3>
+              <button class="modal-close">&times;</button>
             </div>
-
-            <!-- Share Document Modal -->
-            <div class="modal" id="share-modal">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h3>Share Document</h3>
-                  <button class="modal-close" id="share-modal-close">x</button>
+            <form id="folder-form">
+              <div class="form-group">
+                <label for="folder-name">Folder Name</label>
+                <input type="text" id="folder-name" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="folder-color">Color</label>
+                <div style="display: flex; gap: 10px;">
+                  <div class="color-option selected" data-color="#003087" style="background: #003087;"></div>
+                  <div class="color-option" data-color="#0070ba" style="background: #0070ba;"></div>
+                  <div class="color-option" data-color="#38a169" style="background: #38a169;"></div>
+                  <div class="color-option" data-color="#f6ad55" style="background: #f6ad55;"></div>
+                  <div class="color-option" data-color="#ff5a5f" style="background: #ff5a5f;"></div>
                 </div>
-                <div class="share-options">
-                  <div class="share-option email-option" id="share-email">
-                    <i class="fas fa-envelope"></i>
-                    <div>
-                      <h4>Send via Email</h4>
-                      <p>Share directly via email</p>
-                    </div>
-                  </div>
-                  <div class="share-option link-option" id="share-link">
-                    <i class="fas fa-link"></i>
-                    <div>
-                      <h4>Get Shareable Link</h4>
-                      <p>Create a link to share with anyone</p>
-                    </div>
-                  </div>
-                  <div class="share-option team-option" id="share-team">
-                    <i class="fas fa-users"></i>
-                    <div>
-                      <h4>Share with Team</h4>
-                      <p>Share with team members</p>
-                    </div>
-                  </div>
+                <input type="hidden" id="folder-color" value="#003087">
+              </div>
+              <button type="submit" class="btn">
+                <i class="fas fa-folder-plus"></i> Create Folder
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="modal" id="share-modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>Share Document</h3>
+              <button class="modal-close">&times;</button>
+            </div>
+            <div class="share-options">
+              <div class="share-option email-option">
+                <i class="fas fa-envelope"></i>
+                <div>
+                  <h4>Send via Email</h4>
+                  <p>Share directly via email</p>
                 </div>
-                
-                <div class="share-link-container" id="share-link-container">
-                  <p>Copy and share this link:</p>
-                  <div class="share-link">
-                    <input type="text" id="share-link-input" readonly>
-                    <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
-                  </div>
+              </div>
+              <div class="share-option link-option">
+                <i class="fas fa-link"></i>
+                <div>
+                  <h4>Get Shareable Link</h4>
+                  <p>Create a link to share with anyone</p>
+                </div>
+              </div>
+              <div class="share-option team-option">
+                <i class="fas fa-users"></i>
+                <div>
+                  <h4>Share with Team</h4>
+                  <p>Share with team members</p>
                 </div>
               </div>
             </div>
+            <div class="share-link-container" id="share-link-container">
+              <p>Copy and share this link:</p>
+              <div class="share-link">
+                <input type="text" id="share-link-input" readonly>
+                <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
+              </div>
+            </div>
           </div>
-        </main>
-      </div>
-      
-      <script>
-        // Supabase configuration
-        const supabaseConfig = {
-          url: 'https://obeeybozdvnpbyjtaflr.supabase.co',
-          key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k' // Replace with your actual Supabase Anon Key
+        </div>
+      </main>
+    </div>
+  </div>
+  <script>
+    // Supabase configuration
+    const supabaseConfig = {
+      url: 'https://obeeybozdvnpbyjtaflr.supabase.co',
+      key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'
+    };
+
+    // Initialize Supabase
+    let supabase;
+    try {
+      supabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
+      console.log('Supabase initialized');
+    } catch (error) {
+      console.error('Supabase initialization error:', error);
+      showMessage('Failed to connect to storage service.', 'error');
+    }
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+      authDomain: "mymemory-ddc21.firebaseapp.com",
+      projectId: "mymemory-ddc21",
+      storageBucket: "mymemory-ddc21.firebasestorage.app",
+      messagingSenderId: "875926928384",
+      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+      measurementId: "G-8XZZNJB0QD"
+    };
+
+    // Initialize Firebase
+    let auth, db;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+      console.log('Firebase initialized');
+    } catch (error) {
+      console.error('Firebase initialization error:', error);
+      showMessage('Failed to connect to authentication service.', 'error');
+    }
+
+    // Show message
+    function showMessage(message, type = 'error') {
+      const messageElement = document.getElementById('auth-message');
+      if (!messageElement) {
+        console.error('auth-message element not found');
+        return;
+      }
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+      messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
+      messageElement.style.display = 'block';
+      setTimeout(() => messageElement.style.display = 'none', 5000);
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.style.display = 'none';
+      else console.error(`Modal ${modalId} not found`);
+    }
+
+    // Upload document
+    async function uploadDocument() {
+      const nameInput = document.getElementById('document-name');
+      const categoryInput = document.getElementById('document-category');
+      const folderInput = document.getElementById('document-folder');
+      const descriptionInput = document.getElementById('document-description');
+      const fileInput = document.getElementById('document-file');
+      const progressContainer = document.getElementById('upload-progress');
+      const progressFill = document.getElementById('progress-fill');
+      const progressText = document.getElementById('progress-text');
+      const submitBtn = document.getElementById('upload-submit-btn');
+
+      if (!nameInput || !categoryInput || !folderInput || !descriptionInput || !fileInput || !progressContainer || !progressFill || !progressText || !submitBtn) {
+        showMessage('Form elements missing.', 'error');
+        return;
+      }
+
+      const name = nameInput.value.trim();
+      const category = categoryInput.value;
+      const folder = folderInput.value;
+      const description = descriptionInput.value.trim();
+
+      if (!name) {
+        showMessage('Document name required.', 'error');
+        return;
+      }
+
+      if (!fileInput.files.length) {
+        showMessage('Select a file to upload.', 'error');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const fileType = file.name.split('.').pop().toLowerCase();
+      const maxSize = 5 * 1024 * 1024;
+
+      if (file.size > maxSize) {
+        showMessage('File size exceeds 5MB.', 'error');
+        return;
+      }
+
+      const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
+      if (!allowedTypes.includes(fileType)) {
+        showMessage('Unsupported file type.', 'error');
+        return;
+      }
+
+      progressContainer.style.display = 'block';
+      submitBtn.disabled = true;
+
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('User not authenticated');
+        console.log('User:', user.email, user.uid);
+
+        const timestamp = Date.now();
+        const fileName = `${name.replace(/\s+/g, '_')}_${timestamp}.${fileType}`;
+        const storagePath = `users/${user.uid}/documents/${fileName}`;
+
+        console.log('Uploading to:', storagePath);
+        const { data, error } = await supabase.storage
+          .from('documents')
+          .upload(storagePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) throw new Error(`Upload error: ${error.message}`);
+        console.log('Upload successful:', data);
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('documents')
+          .getPublicUrl(storagePath);
+        console.log('Public URL:', publicUrl);
+
+        const newDoc = {
+          id: `doc${timestamp}`,
+          name,
+          type: fileType,
+          category,
+          folder,
+          size: file.size,
+          modified: timestamp,
+          owner: user.displayName || user.email.split('.')[0],
+          shared: false,
+          description,
+          storagePath,
+          downloadURL: publicUrl
         };
 
-        // Initialize Supabase
-        let supabase;
-        try {
-          supabase = Supabase.createClient(supabaseConfig.url, supabaseConfig.key);
-          console.log('Supabase initialized:', supabase);
-        } catch (error) {
-          console.error('Supabase initialization failed:', error);
-          showMessage('Failed to connect to storage service.', 'error');
-        }
+        console.log('Saving metadata');
+        await db.collection('users')
+          .doc(user.uid)
+          .collection('documents')
+          .doc(newDoc.id)
+          .set(newDoc);
 
-        // Firebase Authentication
-        const firebaseConfig = {
-          apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-          authDomain: "mymemory-ddc21.firebaseapp.com",
-          projectId: "mymemory-ddc21",
-          storageBucket: "mymemory-ddc21.firebasestorage.app",
-          messagingSenderId: "875926928384",
-          appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-          measurementId: "G-8XZZNJB0QD"
-        };
+        if (folder) {
+          console.log('Updating folder:', folder);
+          const folderQuery = await db.collection('users')
+            .doc(user.uid)
+            .collection('folders')
+            .where('name', '==', folder)
+            .limit(1)
+            .get();
 
-        // Initialize Firebase
-        let auth, db;
-        try {
-          firebase.initializeApp(firebaseConfig);
-          auth = firebase.auth();
-          db = firebase.firestore();
-          console.log('Firebase initialized');
-        } catch (error) {
-          console.error('Firebase initialization failed:', error);
-          showMessage('Failed to connect to authentication service.', 'error');
-        }
-
-        // Show message
-        function showMessage(message, type = 'error') {
-          const messageElement = document.getElementById('auth-message');
-          if (!messageElement) {
-            console.error('auth-message element not found');
-            return;
-          }
-          messageElement.textContent = message;
-          messageElement.className = `message ${type}`;
-          messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
-          messageElement.style.display = 'block';
-          setTimeout(() => {
-            messageElement.style.display = 'none';
-          }, 5000);
-        }
-
-        // Close modal
-        function closeModal(modalId) {
-          const modal = document.getElementById(modalId);
-          if (modal) {
-            modal.style.display = 'none';
-          } else {
-            console.error(`Modal with ID ${modalId} not found`);
-          }
-        }
-
-        // Upload document function
-        async function uploadDocument() {
-          const nameInput = document.getElementById('document-name');
-          const categoryInput = document.getElementById('document-category');
-          const folderInput = document.getElementById('document-folder');
-          const descriptionInput = document.getElementById('document-description');
-          const fileInput = document.getElementById('document-file');
-          const progressContainer = document.getElementById('upload-progress');
-          const progressFill = document.getElementById('progress-fill');
-          const progressText = document.getElementById('progress-text');
-          const submitBtn = document.getElementById('upload-submit-btn');
-
-          if (!nameInput || !categoryInput || !folderInput || !descriptionInput || !fileInput || !progressContainer || !progressFill || !progressText || !submitBtn) {
-            showMessage('Required form elements are missing.', 'error');
-            return;
-          }
-
-          const name = nameInput.value.trim();
-          const category = categoryInput.value;
-          const folder = folderInput.value;
-          const description = descriptionInput.value.trim();
-
-          if (!name) {
-            showMessage('Document name is required.', 'error');
-            return;
-          }
-
-          if (fileInput.files.length === 0) {
-            showMessage('Please select a file to upload.', 'error');
-            return;
-          }
-
-          const file = fileInput.files[0];
-          const fileType = file.name.split('.').pop().toLowerCase();
-          const maxSize = 5 * 1024 * 1024; // 5MB limit
-
-          if (file.size > maxSize) {
-            showMessage('File size exceeds 5MB limit.', 'error');
-            return;
-          }
-
-          const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
-          if (!allowedTypes.includes(fileType)) {
-            showMessage('Unsupported file type. Allowed types: PDF, DOC, DOCX, XLSX, XLS, PPT, PPTX, JPG, JPEG, TXT', 'error');
-            return;
-          }
-
-          progressContainer.style.display = 'block';
-          submitBtn.disabled = true;
-
-          try {
-            // Get current user
-            const user = auth.currentUser;
-            if (!user) {
-              throw new Error('User not authenticated');
-            }
-            console.log('User authenticated:', user.email, user.uid);
-
-            // Create unique filename with timestamp
-            const timestamp = Date.now();
-            const fileName = '${name.replace(/\s+/g, '_')}_${timestamp}.${fileType}';
-            const storagePath = 'users/${user.uid}/documents/${fileName}';
-
-            // Upload file to Supabase Storage
-            console.log('Starting upload to Supabase:', storagePath);
-            const { data, error } = await supabase.storage
-              .from('documents')
-              .upload(storagePath, file, {
-                cacheControl: '3600',
-                upsert: false,
-                onUploadProgress: (progressEvent) => {
-                  const progress = (progressEvent.loaded / progressEvent.total) * 100;
-                  progressFill.style.width = '${progress}%';
-                  progressText.textContent = '${Math.round(progress)}%';
-                }
-              });
-
-            if (error) {
-              throw new Error('Upload error: ' + error.message);
-            }
-            console.log('Upload successful:', data);
-
-            // Get public URL for the uploaded file
-            const { data: { publicUrl } } = supabase.storage
-              .from('documents')
-              .getPublicUrl(storagePath);
-            console.log('Public URL:', publicUrl);
-
-            // Create document metadata
-            const newDoc = {
-              id: 'doc' + timestamp,
-              name: name,
-              type: fileType,
-              category: category,
-              folder: folder,
-              size: file.size,
-              modified: timestamp,
-              owner: user.displayName || user.email.split('.')[0],
-              shared: false,
-              description: description,
-              storagePath: storagePath,
-              downloadURL: publicUrl
-            };
-
-            // Save metadata to Firestore
-            console.log('Saving metadata to Firestore');
+          if (!folderQuery.empty) {
+            const folderDoc = folderQuery.docs[0];
             await db.collection('users')
               .doc(user.uid)
-              .collection('documents')
-              .doc(newDoc.id)
-              .set(newDoc);
-
-            // Update folder count if document is in a folder
-            if (folder) {
-              console.log('Updating folder count for:', folder);
-              const folderQuery = await db.collection('users')
-                .doc(user.uid)
-                .collection('folders')
-                .where('name', '==', folder)
-                .limit(1)
-                .get();
-
-              if (!folderQuery.empty) {
-                const folderDoc = folderQuery.docs[0];
-                await db.collection('users')
-                  .doc(user.uid)
-                  .collection('folders')
-                  .doc(folderDoc.id)
-                  .update({
-                    files: firebase.firestore.FieldValue.increment(1)
-                  });
-              }
-            }
-
-            // Reset form and UI
-            document.getElementById('upload-form').reset();
-            progressContainer.style.display = 'none';
-            submitBtn.disabled = false;
-            closeModal('upload-modal');
-
-            showMessage('Document uploaded successfully!', 'success');
-          } catch (error) {
-            console.error('Error during upload process:', error);
-            showMessage('Error uploading document: ' + error.message, 'error');
-            progressContainer.style.display = 'none';
-            submitBtn.disabled = false;
-
-            // Attempt to delete the uploaded file if metadata save failed
-            try {
-              await supabase.storage.from('documents').remove([storagePath]);
-              console.log('Cleaned up failed upload:', storagePath);
-            } catch (deleteError) {
-              console.error('Error cleaning up uploaded file:', deleteError);
-            }
+              .collection('folders')
+              .doc(folderDoc.id)
+              .update({
+                files: firebase.firestore.FieldValue.increment(1)
+              });
           }
         }
 
-        // Initialize the upload form
-        function initUploadForm() {
-          console.log('Initializing upload form');
-          const uploadForm = document.getElementById('upload-form');
-          if (uploadForm) {
-            uploadForm.addEventListener('submit', function(e) {
-              e.preventDefault();
-              uploadDocument();
-            });
-          } else {
-            console.error('upload-form element not found');
-          }
+        document.getElementById('upload-form').reset();
+        progressContainer.style.display = 'none';
+        submitBtn.disabled = false;
+        closeModal('upload-modal');
+        showMessage('Document uploaded!', 'success');
+      } catch (error) {
+        console.error('Upload error:', error);
+        showMessage(`Error uploading: ${error.message}`, 'error');
+        progressContainer.style.display = 'none';
+        submitBtn.disabled = false;
 
-          const fileUploadArea = document.getElementById('file-upload-area');
-          if (fileUploadArea) {
-            fileUploadArea.addEventListener('click', function() {
-              const fileInput = document.getElementById('document-file');
-              if (fileInput) {
-                fileInput.click();
-              }
-            });
+        try {
+          await supabase.storage.from('documents').remove([storagePath]);
+          console.log('Cleaned up failed upload');
+        } catch (deleteError) {
+          console.error('Cleanup error:', deleteError);
+        }
+      }
+    }
 
-            fileUploadArea.addEventListener('dragover', function(e) {
-              e.preventDefault();
-              this.style.borderColor = 'var(--primary-light)';
-              this.style.background = 'rgba(0, 112, 186, 0.05)';
-            });
+    // Initialize upload form
+    function initUploadForm() {
+      console.log('Initializing upload form');
+      const uploadForm = document.getElementById('upload-form');
+      if (uploadForm) {
+        uploadForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          uploadDocument();
+        });
+      } else {
+        console.error('upload-form not found');
+      }
 
-            fileUploadArea.addEventListener('dragleave', function() {
-              this.style.borderColor = 'var(--gray)';
-              this.style.background = '';
-            });
+      const fileUploadArea = document.getElementById('file-upload-area');
+      if (fileUploadArea) {
+        fileUploadArea.addEventListener('click', () => {
+          const fileInput = document.getElementById('document-file');
+          if (fileInput) fileInput.click();
+        });
 
-            fileUploadArea.addEventListener('drop', function(e) {
-              e.preventDefault();
-              this.style.borderColor = 'var(--gray)';
-              this.style.background = '';
+        fileUploadArea.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          fileUploadArea.style.borderColor = 'var(--primary-light)';
+          fileUploadArea.style.background = 'rgba(0, 112, 186, 0.05)';
+        });
 
-              if (e.dataTransfer.files.length) {
-                const fileInput = document.getElementById('document-file');
-                if (fileInput) {
-                  fileInput.files = e.dataTransfer.files;
-                  const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
-                  const nameInput = document.getElementById('document-name');
-                  if (nameInput) {
-                    nameInput.value = fileName;
-                  }
-                }
-              }
-            });
-            }
+        fileUploadArea.addEventListener('dragleave', () => {
+          fileUploadArea.style.borderColor = 'var(--gray)';
+          fileUploadArea.style.background = '';
+        });
 
+        fileUploadArea.addEventListener('drop', (e) => {
+          e.preventDefault();
+          fileUploadArea.style.borderColor = 'var(--gray)';
+          fileUploadArea.style.background = '';
+          if (e.dataTransfer.files.length) {
             const fileInput = document.getElementById('document-file');
             if (fileInput) {
-              fileInput.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                  const fileName = this.files[0].name.split('.').slice(0, -1).join('.');
-                  const nameInput = document.getElementById('document-name');
-                  if (nameInput) {
-                    nameInput.value = fileName;
-                  }
-                }
-              });
-            }
-
-            // Show upload modal
-            const uploadBtn = document.getElementById('upload-button-btn');
-            if (uploadBtn) {
-              uploadBtn.addEventListener('click', () => {
-                const modal = document.getElementById('upload-modal');
-                if (modal) {
-                  modal.style.display = 'flex';
-                }
-              });
-            }
-
-            // Close modal
-            const modalClose = document.querySelector('#upload-modal .modal-close');
-            if (modalClose) {
-              modalClose.addEventListener('click', () => {
-                closeModal('upload-modal');
-              });
+              fileInput.files = e.dataTransfer.files;
+              const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
+              const nameInput = document.getElementById('document-name');
+              if (nameInput) nameInput.value = fileName;
             }
           }
+        });
+      }
 
-          // Handle authentication state changes
-          document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded');
-            if (typeof firebase === 'undefined') {
-              console.error('Firebase SDK not loaded');
-              showMessage('Failed to load authentication service.', 'error');
-              return;
-            }
+      const fileInput = document.getElementById('document-file');
+      if (fileInput) {
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files.length) {
+            const fileName = fileInput.files[0].name.split('.').slice(0, -1).join('.');
+            const nameInput = document.getElementById('document-name');
+            if (nameInput) nameInput.value = fileName;
+          }
+        });
+      }
 
-            const loadingElement = document.getElementById('loading');
-            const appContentElement = document.getElementById('app-content');
+      const uploadBtn = document.getElementById('upload-doc-btn');
+      if (uploadBtn) {
+        uploadBtn.addEventListener('click', () => {
+          const modal = document.getElementById('upload-modal');
+          if (modal) modal.style.display = 'flex';
+        });
+      }
 
-            if (!loadingElement || !appContentElement) {
-              console.error('Loading or app-content element not found');
-              showMessage('Page elements missing.', 'error');
-              return;
-            }
+      const modalClose = document.querySelector('#upload-modal .modal-close');
+      if (modalClose) {
+        modalClose.addEventListener('click', () => closeModal('upload-modal'));
+      }
+    }
 
-            auth.onAuthStateChanged((user) => {
-              console.log('Auth state changed:', user);
-              if (user && user.emailVerified) {
-                console.log('User authenticated, showing app content');
-                loadingElement.style.display = 'none';
-                appContentElement.style.display = 'block';
-                initUploadForm();
-              } else {
-                console.log('No user or email not verified, redirecting');
-                loadingElement.style.display = 'none';
-                showMessage('Please sign in and verify your email.', 'error');
-                setTimeout(() => {
-                  window.location.href = 'index.html';
-                }, 2000);
-              }
-            }, (error) => {
-              console.error('Auth state change error:', error);
-              loadingElement.style.display = 'none';
-              showMessage('Authentication error occurred.', 'error');
-            });
-          });
-</script>
+    // Handle auth state
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded');
+      if (typeof firebase === 'undefined') {
+        console.error('Firebase SDK not loaded');
+        showMessage('Failed to load authentication service.', 'error');
+        return;
+      }
+      console.log('Firebase SDK loaded');
+
+      const loadingElement = document.getElementById('loading');
+      const appContentElement = document.getElementById('app-content');
+
+      if (!loadingElement || !appContentElement) {
+        console.error('Loading or app-content not found');
+        showMessage('Page elements missing.', 'error');
+        return;
+      }
+
+      auth.onAuthStateChanged((user) => {
+        console.log('Auth state:', user);
+        if (user && user.emailVerified) {
+          console.log('User authenticated');
+          loadingElement.style.display = 'none';
+          appContentElement.style.display = 'block';
+          initUploadForm();
+        } else {
+          console.log('No user or email not verified');
+          loadingElement.style.display = 'none';
+          showMessage('Please sign in and verify your email.', 'error');
+          setTimeout(() => window.location.href = 'index.html', 2000);
+        }
+      }, (error) => {
+        console.error('Auth error:', error);
+        loadingElement.style.display = 'none';
+        showMessage('Authentication error.', 'error');
+      });
+    });
+  </script>
 </body>
 </html>
