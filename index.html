@@ -2468,123 +2468,191 @@
 
   // Load dashboard data
   async function loadDashboard(user) {
-    try {
-      // Load password stats
-      const passwordStats = await calculatePasswordStats(user.uid);
-      const passwordCount = document.getElementById('password-count');
-      const passwordRecent = document.getElementById('password-recent');
-      const passwordWeak = document.getElementById('password-weak');
+  try {
+    // Load password stats
+    const passwordStats = await calculatePasswordStats(user.uid);
+    const passwordCount = document.getElementById('password-count');
+    const passwordRecent = document.getElementById('password-recent');
+    const passwordWeak = document.getElementById('password-error'); // Note: 'password-weak' seems missing in HTML, using 'password-error'
 
-      passwordCount.textContent = passwordStats.total;
-      passwordRecent.textContent = passwordStats.recent;
-      if (passwordWeak) {
-        passwordWeak.textContent = passwordStats.strength.weak;
-      }
-
-      // Load todos
-      const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
-        .orderBy('createdAt', 'desc')
-        .limit(5)
-        .get();
-
-      const todoList = document.getElementById('todo-list');
-      const todoCount = document.getElementById('todo-count');
-      const todoUrgent = document.getElementById('todo-urgent');
-      todoList.innerHTML = '';
-
-      let urgentCount = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      todoSnapshot.forEach(doc => {
-        const todo = { id: doc.id, ...doc.data() };
-        const todoElement = createTodoElement(todo);
-        addTodoEventListeners(todoElement, user);
-        todoList.appendChild(todoElement);
-
-        if (todo.dueDate) {
-          const dueDate = new Date(todo.dueDate);
-          dueDate.setHours(0, 0, 0, 0);
-          if (dueDate <= today && !todo.completed) {
-            urgentCount++;
-          }
-        }
-      });
-
-      todoCount.textContent = todoSnapshot.size;
-      todoUrgent.textContent = urgentCount;
-
-      if (todoSnapshot.empty) {
-        todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
-      }
-
-      // Add click event listener to todo card
-      const todoCard = document.querySelector('.dashboard-cards .todo-card');
-      if (todoCard) {
-        todoCard.style.cursor = 'pointer';
-        todoCard.addEventListener('click', function(e) {
-          if (e.target.closest('.todo-checkbox, .todo-actions')) {
-            return;
-          }
-          window.location.href = 'To do list.html';
-        });
-      } else {
-        console.error('Todo card not found');
-      }
-
-      // Load passwords
-      const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
-        .orderBy('createdAt', 'desc')
-        .limit(3)
-        .get();
-
-      const passwordList = document.getElementById('password-list');
-      passwordList.innerHTML = '';
-
-      passwordSnapshot.forEach(doc => {
-        const password = { id: doc.id, ...doc.data() };
-        console.log(`Fetched password ID ${doc.id}:`, password); // Debug log
-        if (!password.title) {
-          console.warn(`Password ${doc.id} has no title, setting default`);
-          password.title = 'Untitled Password';
-        }
-        const passwordElement = createPasswordElement(password);
-        passwordElement.dataset.password = password.password || '';
-        addPasswordEventListeners(passwordElement, user);
-        passwordList.appendChild(passwordElement);
-      });
-
-      if (passwordSnapshot.empty) {
-        passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
-      }
-
-      // Add click event listener to password card
-      const passwordCard = document.querySelector('.dashboard-cards .password-card');
-      if (passwordCard) {
-        passwordCard.style.cursor = 'pointer';
-        passwordCard.addEventListener('click', function(e) {
-          if (e.target.closest('.password-card-actions, .toggle-password')) {
-            return;
-          }
-          window.location.href = 'Password Manager.html';
-        });
-      } else {
-        console.error('Password card not found');
-      }
-
-      // Load documents (placeholder)
-      const documentList = document.getElementById('document-list');
-      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
-
-      // Hide loading indicators
-      document.getElementById('todo-loading').style.display = 'none';
-      document.getElementById('password-loading').style.display = 'none';
-
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
-      showMessage('authentication', 'Error loading dashboard: ' + error.message, 'error');
+    passwordCount.textContent = passwordStats.total;
+    passwordRecent.textContent = passwordStats.recent;
+    if (passwordWeak) {
+      passwordWeak.textContent = passwordStats.strength.weak;
     }
+
+    // Load todos
+    const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
+
+    const todoList = document.getElementById('todo-list');
+    const todoCount = document.getElementById('todo-count');
+    const todoUrgent = document.getElementById('todo-urgent');
+    todoList.innerHTML = '';
+
+    let urgentCount = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    todoSnapshot.forEach(doc => {
+      const todo = { id: doc.id, ...doc.data() };
+      const todoElement = createTodoElement(todo);
+      addTodoEventListeners(todoElement, user);
+      todoList.appendChild(todoElement);
+
+      if (todo.dueDate && todo.dueDate) {
+        const dueDate = new Date(todo.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        if (dueDate.getTime() <= today.getTime() && !todo.completed) {
+          urgentCount++;
+        }
+      }
+    });
+
+    todoCount.textContent = todoSnapshot.size;
+    todoUrgent.textContent = urgentCount;
+
+    if (todoSnapshot.empty) {
+      todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+    }
+
+    // Add click event listener to todo card
+    const todoCard = document.querySelector('.dashboard-cards .todo-card');
+    if (todoCard) {
+      todoCard.style.cursor = 'pointer';
+      todoCard.addEventListener('click', function(e) {
+        if (e.target.closest('.todo-checkbox, .todo-actions')) {
+          return;
+        }
+        window.location.href = 'To do list.html';
+      });
+    } else {
+      console.error('Todo card not found');
+    }
+
+    // Load passwords
+    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
+      .orderBy('createdAt', 'desc')
+      .limit(3)
+      .get();
+
+    const passwordList = document.getElementById('password-list');
+    passwordList.innerHTML = '';
+
+    passwordSnapshot.forEach(doc => {
+      const password = { id: doc.id, ...doc.data() };
+      console.log(`Fetched password ID ${doc.id}:`, password); // Debug log
+      if (!password.title) {
+        console.warn(`Password ${doc.id} has no title, setting default`);
+        password.title = 'Untitled Password';
+      }
+      const passwordElement = createPasswordElement(password);
+      passwordElement.dataset.password = password.password || '';
+      addPasswordEventListeners(passwordElement, user);
+      passwordList.appendChild(passwordElement);
+    });
+
+    if (passwordSnapshot.empty) {
+      passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
+    }
+
+    // Add click event listener to password card
+    const passwordCard = document.querySelector('.dashboard-cards .password-card');
+    if (passwordCard) {
+      passwordCard.style.cursor = 'pointer';
+      passwordCard.addEventListener('click', function(e) {
+        if (e.target.closest('.password-card-actions, .toggle-password')) {
+          return;
+        }
+        window.location.href = 'Password Manager.html';
+      });
+    } else {
+      console.error('Password card not found');
+    }
+
+    // Load documents
+    const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
+      .orderBy('createdAt', 'desc')
+      .limit(1) // Limit to 1 for the recent document on dashboard
+      .get();
+
+    const documentList = document.getElementById('document-list');
+    const documentCount = document.getElementById('document-count');
+    const documentRecent = document.getElementById('document-recent');
+    documentList.innerHTML = '';
+
+    // Calculate document stats
+    const now = new Date();
+    const oneWeekAgo = new Date(now);
+    oneWeekAgo.setDate(now.getDate() - 7);
+    let recentCount = 0;
+
+    const allDocumentsSnapshot = await db.collection('users').doc(user.uid).collection('documents').get();
+    allDocumentsSnapshot.forEach(doc => {
+      const docData = doc.data();
+      if (docData.createdAt) {
+        let createdDate;
+        try {
+          createdDate = docData.createdAt.toDate();
+          if (createdDate > oneWeekAgo) {
+            recentCount++;
+          }
+        } catch (e) {
+          console.warn(`Invalid createdAt for document ${doc.id}`);
+        }
+      }
+    });
+
+    documentCount.textContent = allDocumentsSnapshot.size;
+    documentRecent.textContent = recentCount;
+
+    // Display recent document
+    if (!documentSnapshot.empty) {
+      documentSnapshot.forEach(doc => {
+        const docData = { id: doc.id, ...doc.data() };
+        const docElement = document.createElement('div');
+        docElement.className = 'document-item';
+        docElement.innerHTML = `
+          <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
+            <div>
+              <div style="font-weight: 600; color: var(--dark);">${docData.name}</div>
+              <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
+              <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${docData.createdAt?.toDate().toLocaleDateString() || 'N/A'}</div>
+            </div>
+            <div class="document-actions" style="display: flex; gap: 0.5rem;">
+              <a href="${docData.url}" target="_blank" title="Download"><i class="fas fa-download"></i></a>
+            </div>
+          </div>
+        `;
+        documentList.appendChild(docElement);
+      });
+    } else {
+      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+    }
+
+    // Add click event listener to document card
+    const documentCard = document.querySelector('.dashboard-cards .document-card');
+    if (documentCard) {
+      documentCard.style.cursor = 'pointer';
+      documentCard.addEventListener('click', function(e) {
+        window.location.href = 'Documents.html';
+      });
+    } else {
+      console.error('Document card not found');
+    }
+
+    // Hide loading indicators
+    document.getElementById('todo-loading').style.display = 'none';
+    document.getElementById('password-loading').style.display = 'none';
+    document.querySelector('.document-list .loading')?.remove();
+
+  } catch (error) {
+    console.error('Error loading dashboard:', error);
+    showMessage('authentication', 'Error loading dashboard: ' + error.message, 'error');
   }
+}
 
   // Handle authentication state
   auth.onAuthStateChanged(async user => {
