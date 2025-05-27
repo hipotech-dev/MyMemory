@@ -862,7 +862,7 @@
       }
     }
 
-    // Load documents
+    // upLoad documents
 async function uploadDocument() {
   const nameInput = document.getElementById('document-name');
   const categoryInput = document.getElementById('document-category');
@@ -925,6 +925,14 @@ async function uploadDocument() {
 
     console.log('Uploading to:', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`);
 
+    // Verify bucket existence
+    const { data: bucketData, error: bucketError } = await supabase.storage.getBucket(bucketName);
+    if (bucketError) {
+      console.error('Bucket check failed:', bucketError);
+      throw new Error(`Bucket not found: ${bucketError.message}`);
+    }
+    console.log('Bucket exists:', bucketData);
+
     const response = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`, true);
@@ -952,18 +960,6 @@ async function uploadDocument() {
       .from(bucketName)
       .getPublicUrl(storagePath);
     console.log('Generated downloadURL:', publicUrl);
-
-    // Alternative URL for testing
-    const alternativeUrl = `${supabaseConfig.url}/storage/v1/object/public/${bucketName}/${storagePath}`;
-    console.log('Alternative downloadURL:', alternativeUrl);
-
-    // Test bucket existence
-    try {
-      const bucketCheck = await supabase.storage.getBucket(bucketName);
-      console.log('Bucket check:', bucketCheck);
-    } catch (bucketError) {
-      console.error('Bucket check failed:', bucketError);
-    }
 
     const newDoc = {
       id: `doc${timestamp}`,
@@ -1028,6 +1024,7 @@ async function uploadDocument() {
     }
   }
 }
+    //load documents
 async function loadDocuments(userId, category = 'all', searchQuery = '') {
   try {
     const tableBody = document.getElementById('documents-table-body');
