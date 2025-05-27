@@ -953,6 +953,18 @@ async function uploadDocument() {
       .getPublicUrl(storagePath);
     console.log('Generated downloadURL:', publicUrl);
 
+    // Alternative URL for testing
+    const alternativeUrl = `${supabaseConfig.url}/storage/v1/object/public/${bucketName}/${storagePath}`;
+    console.log('Alternative downloadURL:', alternativeUrl);
+
+    // Test bucket existence
+    try {
+      const bucketCheck = await supabase.storage.getBucket(bucketName);
+      console.log('Bucket check:', bucketCheck);
+    } catch (bucketError) {
+      console.error('Bucket check failed:', bucketError);
+    }
+
     const newDoc = {
       id: `doc${timestamp}`,
       name,
