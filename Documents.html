@@ -628,12 +628,12 @@
                 <i class="fas fa-file-alt"></i> MyMemory
             </div>
             <div class="user-menu">
-                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="user-avatar" id="user-avatar"></div>
                 <div class="user-popup" id="user-popup">
                     <div class="user-popup-content">
                         <div class="user-info">
-                            <h4 id="popup-user-name">User Name</h4>
-                            <p id="popup-user-email">user@example.com</p>
+                            <h4 id="popup-user-name"></h4>
+                            <p id="popup-user-email"></p>
                         </div>
                         <button class="popup-logout-btn" id="popup-logout-btn">
                             <i class="fas fa-sign-out-alt"></i> Logout
@@ -682,11 +682,8 @@
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
-                    <div class="category-filters">
+                    <div class="category-filters" id="category-filters">
                         <button class="category-btn active" data-category="all">All</button>
-                        <button class="category-btn" data-category="document">Documents</button>
-                        <button class="category-btn" data-category="contract">Contracts</button>
-                        <button class="category-btn" data-category="report">Reports</button>
                     </div>
                     <div class="view-toggle">
                         <button class="view-btn active" data-view="table">
@@ -710,16 +707,12 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="documents-table-body">
-                            <!-- Documents will be populated here -->
-                        </tbody>
+                        <tbody id="documents-table-body"></tbody>
                     </table>
                 </div>
 
                 <!-- Folder View -->
-                <div id="folder-view" class="folder-view">
-                    <!-- Folders will be populated here -->
-                </div>
+                <div id="folder-view" class="folder-view"></div>
             </main>
         </div>
     </div>
@@ -729,7 +722,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Upload Document</h3>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close">×</button>
             </div>
             <form id="upload-form">
                 <div class="form-group">
@@ -758,7 +751,7 @@
                     <textarea class="form-control" id="document-description" rows="3"></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">File</label>
+                    <label class="form-label">File (Max 25MB)</label>
                     <div class="file-upload-area" id="file-upload-area">
                         <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
                         <p>Click to select file or drag and drop</p>
@@ -782,7 +775,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Create New Folder</h3>
-                <button class="modal-close">&times;</button>
+                <button class="modal-close">×</button>
             </div>
             <form id="folder-form">
                 <div class="form-group">
@@ -803,6 +796,24 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Create Folder</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Category Management Modal -->
+    <div class="modal" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Manage Categories</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <form id="category-form">
+                <div class="form-group">
+                    <label class="form-label">New Category</label>
+                    <input type="text" class="form-control" id="category-name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Category</button>
+            </form>
+            <div id="category-list" style="margin-top: 1rem;"></div>
         </div>
     </div>
 
@@ -833,21 +844,41 @@
         // Global variables
         let documents = [];
         let folders = [];
+        let categories = ['document', 'contract', 'report', 'presentation', 'image', 'other'];
         let currentView = 'table';
         let currentCategory = 'all';
         let currentSearchQuery = '';
+        let currentFolderId = '';
         let currentUser = null;
 
         // Show message function
         function showMessage(message, type = 'error') {
             const messageElement = document.getElementById('auth-message');
-            if (messageElement) {
-                messageElement.textContent = message;
-                messageElement.className = `message ${type}`;
-                messageElement.style.display = 'block';
-                setTimeout(() => {
-                    messageElement.style.display = 'none';
-                }, 5000);
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Format date
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            try {
+                const date = timestamp.toDate();
+                return date.toLocaleDateString();
+            } catch {
+                return 'Invalid date';
             }
         }
 
@@ -856,31 +887,21 @@
             const loadingElement = document.getElementById('loading');
             const appContentElement = document.getElementById('app-content');
 
-            // For testing purposes, let's create a mock user
-            // In production, you would check Firebase auth state
-            setTimeout(() => {
-                // Simulate authentication check
-                const mockUser = {
-                    uid: 'test-user-123',
-                    email: 'test@example.com',
-                    displayName: 'Test User',
-                    emailVerified: true
-                };
+            auth.onAuthStateChanged(user => {
+                if (user && user.emailVerified) {
+                    currentUser = user;
+                    document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+                    document.getElementById('popup-user-name').textContent = user.displayName || 'User';
+                    document.getElementById('popup-user-email').textContent = user.email;
 
-                currentUser = mockUser;
-                
-                // Update UI with user info
-                document.getElementById('user-avatar').textContent = mockUser.displayName.substring(0, 2).toUpperCase();
-                document.getElementById('popup-user-name').textContent = mockUser.displayName;
-                document.getElementById('popup-user-email').textContent = mockUser.email;
-
-                // Hide loading and show app
-                loadingElement.style.display = 'none';
-                appContentElement.style.display = 'block';
-
-                // Initialize the app
-                initializeApp();
-            }, 1000);
+                    loadingElement.style.display = 'none';
+                    appContentElement.style.display = 'block';
+                    initializeApp();
+                } else {
+                    localStorage.removeItem('isAuthenticated');
+                    window.location.href = 'index.html';
+                }
+            });
         }
 
         // Initialize the application
@@ -891,25 +912,12 @@
 
         // Setup all event listeners
         function setupEventListeners() {
-            // User popup
             setupUserPopup();
-
-            // Modal handlers
             setupModals();
-
-            // File upload
             setupFileUpload();
-
-            // Search functionality
             setupSearch();
-
-            // View toggles
             setupViewToggles();
-
-            // Category filters
             setupCategoryFilters();
-
-            // Form submissions
             setupFormSubmissions();
         }
 
@@ -939,24 +947,24 @@
 
         // Handle logout
         function handleLogout() {
-            // Clear any stored data
-            currentUser = null;
-            documents = [];
-            folders = [];
-            
-            // In production, you would call auth.signOut()
-            // For now, just redirect to login page
-            alert('Logout functionality - redirect to login page');
+            auth.signOut().then(() => {
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('userData');
+                window.location.href = 'index.html';
+            }).catch(error => {
+                showMessage('Logout failed: ' + error.message, 'error');
+            });
         }
 
         // Setup modals
         function setupModals() {
             setupModal('upload-doc-btn', 'upload-modal');
             setupModal('new-folder-btn', 'folder-modal');
+            setupModal('manage-categories-btn', 'category-modal');
         }
 
         function setupModal(buttonId, modalId) {
-            const button = document.getElementById(buttonId);
+            const button = document.getElementById(buttonId) || createCategoryButton();
             const modal = document.getElementById(modalId);
             const closeBtn = modal.querySelector('.modal-close');
 
@@ -975,11 +983,26 @@
             });
         }
 
+        // Create category management button
+        function createCategoryButton() {
+            const btn = document.createElement('button');
+            btn.id = 'manage-categories-btn';
+            btn.className = 'btn btn-secondary';
+            btn.innerHTML = '<i class="fas fa-tags"></i> Manage Categories';
+            document.querySelector('.header-actions').appendChild(btn);
+            return btn;
+        }
+
         // Setup file upload
         function setupFileUpload() {
-            const fileInput = document.getElementById('document-file');
+            const fileInput = document.getElement('input');
+            fileInput.id = 'document-file';
+            fileInput.type = 'file';
+            fileInput.style.display = 'none';
+            document.getElementById('upload-form').appendChild(fileInput);
+
             const nameInput = document.getElementById('document-name');
-            const uploadArea = document.getElementById('file-upload-area');
+            const uploadArea = document.getElement('file-upload-area');
 
             uploadArea.addEventListener('click', () => {
                 fileInput.click();
@@ -990,4 +1013,521 @@
                 if (file) {
                     // Auto-populate name if empty
                     if (!nameInput.value.trim()) {
-                        const nameWithoutExt =
+                        const nameWithoutExt = file.name.split('.').slice(0, -1).join('.');
+                        nameInput.value = nameWithoutExt;
+                    }
+                    uploadArea.innerHTML = `<p>Selected: ${file.name}</p>`;
+                }
+            });
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', e => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', e => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    fileInput.files = e.dataTransfer.files;
+                    if (!nameInput.value.trim()) {
+                        const nameWithoutExt = file.name.split('.').slice(0, -1).join('.');
+                        nameInput.value = nameWithoutExt;
+                    }
+                    uploadArea.innerHTML = `<p>Selected: ${file.name}</p>`;
+                }
+            });
+        }
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+
+            searchInput.addEventListener('input', e => {
+                currentSearchQuery = e.target.value.toLowerCase();
+                renderContent();
+            });
+
+            searchBtn.addEventListener('click', () => {
+                renderContent();
+            });
+        }
+
+        // Setup view toggles
+        function setupViewToggles() {
+            const viewButtons = document.querySelectorAll('.view-btn');
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    viewButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentView = btn.dataset.view;
+                    document.getElementById('table-view').style.display = currentView === 'table' ? 'block' : 'none';
+                    document.getElementById('folder-view').id = currentView === 'flex' ? 'block' : 'none';
+                    renderContent();
+                });
+            });
+        }
+
+        // Setup category filters
+        function setupCategoryFilters() {
+            const categoryFilters = document.getElementById('category-filters');
+            categoryFilters.addEventListener('click', e => {
+                if (e.target.classList.contains('category-btn')) {
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.category;
+                    renderContent();
+                }
+            });
+        }
+
+        // Setup form submissions
+        function setupFormSubmissions() {
+            // Folder form
+            document.getElementById('folder-form').addEventListener('submit', async e => {
+                e.preventDefault();
+                if (!validateForm('folder-form')) return;
+
+                const folderData = {
+                    name: document.getElementById('folder-name').value.trim(),
+                    color: document.getElementById('folder-color').value,
+                    parentId: currentFolderId || null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+
+                try {
+                    await db.collection('users').doc(currentUser.uid).collection('folders').add(folderData);
+                    document.getElementById('folder-form').reset();
+                    document.getElementById('folder-modal').style.display = 'none';
+                    loadInitialData();
+                    showMessage('Folder created successfully', 'success');
+                } catch (error) {
+                    showMessage('Error creating folder: ' + error.message, 'error');
+                }
+            }));
+
+            // Document upload form
+            document.getElementById('upload-form').addEventListener('submit', async e => {
+                e.preventDefault();
+                if (!validateForm('upload-form')) return;
+
+                const file = document.getElementById('document-file').files[0];
+                if (file.size > 25 * 1024 * 1024) {
+                    showMessage('File size exceeds 25MB limit', 'error');
+                    return;
+                }
+
+                const documentData = {
+                    name: document.getElementById('document-name').value.trim(),
+                    category: document.getElementById('document-category').value,
+                    folderId: document.getElementById('document-folder').value || null,
+                    description: document.getElementById('document-description').value.trim(),
+                    fileName: file.name,
+                    fileSize: file.size,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+
+                const progressContainer = document.getElementById('upload-progress');
+                const progressFill = document.getElementById('progress-fill');
+                const progressText = document.getElementById('progress-text');
+                const submitBtn = document.getElementById('upload-submit-btn');
+
+                try {
+                    progressContainer.style.display = 'block';
+                    submitBtn.disabled = true;
+
+                    const storageRef = storage.ref(`users/${currentUser.uid}/documents/${file.name}`);
+                    const uploadTask = storageRef.put(file);
+
+                    uploadTask.on('state_changed',
+                        snapshot => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            progressFill.style.width = `${progress}%`;
+                            progressText.textContent = `${Math.round(progress)}%`;
+                        },
+                        error => {
+                            showMessage('Upload failed: ' + error.message, 'error');
+                            progressContainer.style.display = 'none';
+                            submitBtn.disabled = false;
+                        },
+                        async () => {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            documentData.url = downloadURL;
+
+                            await db.collection('users').doc(currentUser.uid).collection('documents').add(documentData);
+                            document.getElementById('upload-form').reset();
+                            document.getElementById('upload-modal').style.display = 'none';
+                            progressContainer.style.display = 'none';
+                            progressFill.style.width = '0%';
+                            progressText.textContent = '0%';
+                            submitBtn.disabled = false;
+                            loadInitialData();
+                            showMessage('Document uploaded successfully', 'success');
+                        }
+                    );
+                } catch (error) {
+                    showMessage('Error uploading document: ' + error.message, 'error');
+                    progressContainer.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Category form
+            document.getElementById('category-form').addEventListener('submit', async e => {
+                e.preventDefault();
+                if (!validateForm('category-form')) return;
+
+                const categoryName = document.getElementById('category-name').value.trim();
+                if (categories.includes(categoryName.toLowerCase())) {
+                    showMessage('Category already exists', 'error');
+                    return;
+                }
+
+                try {
+                    await db.collection('users').doc(currentUser.uid).collection('categories').add({
+                        name: categoryName,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        userId: currentUser.uid
+                    });
+                    document.getElementById('category-form').reset();
+                    document.getElementById('category-modal').style.display = 'none';
+                    loadCategories();
+                    showMessage('Category added successfully', 'success');
+                } catch (error) {
+                    showMessage('Error adding category: ' + error.message, 'error');
+                }
+            });
+        }
+
+        // Validate form
+        function validateForm(formId) {
+            const form = document.getElementById(formId);
+            let isValid = true;
+            form.querySelectorAll('.form-control[required]').forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.style.borderColor = 'var(--danger)';
+                    setTimeout(() => {
+                        input.style.borderColor = '#ddd';
+                    }, 3000);
+                }
+            });
+            if (!isValid) {
+                showMessage('Please fill all required fields', 'error');
+            }
+            return isValid;
+        }
+
+        // Load initial data
+        async function loadInitialData() {
+            if (!currentUser) return;
+            await Promise.all([
+                loadFolders(),
+                loadDocuments(),
+                loadCategories()
+            ]);
+            renderContent();
+        }
+
+        // Load folders
+        async function loadFolders() {
+            try {
+                const snapshot = await db.collection('users').doc(currentUser.uid).collection('folders')
+                    .where('parentId', '==', currentFolderId || null)
+                    .get();
+                folders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateFolderSelect();
+            } catch (error) {
+                showMessage('Error loading folders: ' + error.message, 'error');
+            }
+        }
+
+        // Load documents
+        async function loadDocuments() {
+            try {
+                const query = currentFolderId
+                    ? db.collection('users').doc(currentUser.uid).collection('documents').where('folderId', '==', currentFolderId)
+                    : db.collection('users').doc(currentUser.uid).collection('documents').where('folderId', '==', null);
+                const snapshot = await query.get();
+                documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                showMessage('Error loading documents: ' + error.message, 'error');
+            }
+        }
+
+        // Load categories
+        async function loadCategories() {
+            try {
+                const snapshot = await db.collection('users').doc(currentUser.uid).collection('categories').get();
+                categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateCategoryFilters();
+                updateCategorySelect();
+                updateCategoryList();
+            } catch (error) {
+                showMessage('Error loading categories: ' + error.message, 'error');
+            }
+        }
+
+        // Update folder select
+        function updateFolderSelect() {
+            const folderSelect = document.getElementById('document-folder');
+            folderSelect.innerHTML = '<option value="">No Folder</option>';
+            folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.name;
+                folderSelect.appendChild(option);
+            });
+        }
+
+        // Update category filters
+        function updateCategoryFilters() {
+            const categoryFilters = document.getElementById('category-filters');
+            categoryFilters.innerHTML = '<button class="category-btn active" data-category="all">All</button>';
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.dataset.category = category.id;
+                btn.textContent = category.name;
+                categoryFilters.appendChild(btn);
+            });
+        }
+
+        // Update category select
+        function updateCategorySelect() {
+            const categorySelect = document.getElementById('document-category');
+            categorySelect.innerHTML = '';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        // Update category list
+        function updateCategoryList() {
+            const categoryList = document.getElementById('category-list');
+            categoryList.innerHTML = '';
+            if (categories.length === 0) {
+                categoryList.innerHTML = '<p>No categories found.</p>';
+                return;
+            }
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.padding = '0.5rem';
+                item.style.borderBottom = '1px solid #eee';
+                item.innerHTML = `
+                    <span>${category.name}</span>
+                    <button class="btn btn-danger" style="padding: 0.3rem;"><i class="fas fa-trash"></i></button>
+                `;
+                item.querySelector('button').addEventListener('click', async () => {
+                    try {
+                        await db.collection('users').doc(currentUser.uid).collection('categories').doc(category.id).delete();
+                        loadCategories();
+                        showMessage('Category deleted successfully', 'success');
+                    } catch (error) {
+                        showMessage('Error deleting category: ' + error.message, 'error');
+                    }
+                });
+                categoryList.appendChild(item);
+            });
+        }
+
+        // Render content
+        function renderContent() {
+            renderDocuments();
+            renderFolders();
+        }
+
+        // Render documents
+        function renderDocuments() {
+            const tableBody = document.getElementById('documents-table-body');
+            tableBody.innerHTML = '';
+
+            let filteredDocuments = documents.filter(doc => {
+                const matchesSearch = currentSearchQuery
+                    ? doc.name.toLowerCase().includes(currentSearchQuery) || doc.category.toLowerCase().includes(currentSearchQuery)
+                    : true;
+                const matchesCategory = currentCategory === 'all' || categories.find(c => c.id === doc.category)?.name.toLowerCase() === currentCategory.toLowerCase();
+                return matchesSearch && matchesCategory;
+            });
+
+            if (filteredDocuments.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">No documents found.</td></tr>';
+                return;
+            }
+
+            filteredDocuments.forEach((doc => {
+                const row = document.createElement('tr');
+                row.className = 'document-row';
+                row.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <div class="document-icon" style="background: var(${doc.category ? getCategoryColor(doc.category) : '--info'})">
+                                <i class="fas fa-file"></i></div>
+                            <div class="document-info">
+                                <div class="document-name">${doc.name}</div>
+                                <div class="document-meta">${doc.description || 'No description'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${categories.find(c => c.id === doc.category)?.name || 'N/A'}</div>
+                    td><td>${formatDate(doc.createdAt)}</td>
+                    <td>${formatFileSize(doc.fileSize)}</td>
+                    <td>
+                        <div class="document-actions">
+                            <button title="View"><i class="fas fa-eye"></i></button>
+                            <button title="Download"><i class="fas fa-download"></i></button>
+                            <button title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    </td>
+                </div>
+
+                row.querySelector('.fa-eye').forEach(button => {
+                    button.parentNode).addEventListener('click', () => {
+                        if (doc.url) {
+                            window.open(doc.url, '_blank');
+                        } else {
+                            showMessage('Document URL not found.', 'error');
+                        }
+                    });
+                } catch (error) {
+                    showMessage('Error: ' + error.message);
+                    return;
+                });
+
+                row.querySelector('.fa-download').parentNode.addEventListener('click', () => {
+                    if (doc.url) {
+                        const a = document.createElement('a');
+                        a.href = doc.url;
+                        a.download = doc.fileName;
+                        a.click();
+                        showMessage('Download started.', 'success');
+                    } else {
+                        showMessage('Document URL not found.', 'error');
+                    }
+                });
+
+                row.querySelector('.fa-trash').parentNode.addEventListener('click', async () => {
+                    if (confirm('Are you sure you you want to delete this document?')) {
+                        try {
+                            const storageRef = await storage.ref(`users/${currentUser.uid}/documents}/${doc.fileName}`);
+                            await storageRef.delete();
+                            await db.collection('users').doc(currentUser.uid).collection('documents').doc(doc.id).delete();
+                            loadInitialData();
+                            showMessage('Document deleted successfully', 'success');
+                        } catch (error) {
+                            showMessage('Error deleting document: ' + error.message, 'error');
+                        }
+                    }
+                });
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Render folders
+        function renderFolders() {
+            const folderView = document.getElementById('folder-view');
+            folderView.innerHTML = '';
+
+            let filteredFolders = folders.filter(f => {
+                return currentSearchQuery ? f.name.toLowerCase().includes(currentSearchQuery) : true;
+            });
+
+            filteredDocuments.forEach(doc => {
+                const item = document.createElement('div');
+                item.className = 'folder-item';
+                item.style.borderColor = doc.color;
+                item.innerHTML = `
+                    <div class="folder-icon" style="background: ${doc.color}">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="folder-name">${doc.name}</div>
+                    <div class="folder-meta">${formatDate(doc.createdAt)}</div>
+                    <div class="document-actions">
+                        <button title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                item.querySelector('.fa-trash').parentNode.addEventListener('click', async e => {
+                    e.stopPropagation();
+                    if (confirm('Delete folder and all its contents?')) {
+                        await deleteFolder(doc.id);
+                        loadInitialData();
+                    }
+                });
+                item.addEventListener('click', () => {
+                    currentFolderId = doc.id;
+                    loadInitialData();
+                });
+                folderView.appendChild(item);
+            });
+        }
+
+        // Get category color
+        function getCategoryColor(categoryId) {
+            const colors = {
+                document: '--info',
+                contract: '--primary',
+                report: '--success',
+                presentation: '--warning',
+                image: '--secondary',
+                other: '--dark'
+            };
+            const category = categories.find(c => c.id === categoryId);
+            return colors[category?.name.toLowerCase()] || '--info';
+        }
+
+        // Delete folder and contents
+        async function deleteFolder(folderId) {
+            try {
+                const subFolders = await db.collection('users').doc(currentUser.uid).collection('folders')
+                    .where('parentId', '==', folderId)
+                    .get();
+                for (const doc of subFolders.docs) {
+                    await deleteFolder(doc.id);
+                }
+
+                const documents = await db.collection('users').doc(currentUser.uid).collection('documents')
+                    .where('folderId', '==', folderId)
+                    .get();
+                for (const doc of documents.docs) {
+                    const storageRef = storage.ref(`users/${currentUser.uid}/documents/${doc.data().fileName}`);
+                    await storageRef.delete().catch(() => {});
+                    await doc.ref.delete();
+                }
+
+                await db.collection('users').doc(currentUser.uid).collection('folders').doc(folderId).delete();
+                showMessage('Folder deleted successfully', 'success');
+            } catch (error) {
+                showMessage('Error deleting folder: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize color picker
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                document.getElementById('folder-color').value = option.dataset.color;
+            });
+        });
+
+        // Start the app
+        checkAuthAndInitialize();
+    </script>
+</body>
+</html>
