@@ -917,16 +917,11 @@ async function uploadDocument() {
     if (!user) throw new Error('User not authenticated');
     console.log('User:', user.email, user.uid);
 
-    // Use provided timestamp: 03:37 PM EAT, Tuesday, May 27, 2025
-    const timestamp = new Date('2025-05-27T15:37:00+03:00').getTime();
-    console.log('Using timestamp:', timestamp, 'for 03:37 PM EAT, May 27, 2025');
-
+    const timestamp = Date.now(); // Use real-time timestamp in production
     const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
     const fileName = `${sanitizedName}_${timestamp}.${fileType}`;
     const storagePath = `users/${user.uid}/documents/${fileName}`;
     const bucketName = 'public-documents';
-
-    console.log('Uploading to:', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`);
 
     // Verify bucket existence
     const { data: bucketData, error: bucketError } = await supabase.storage.getBucket(bucketName);
@@ -936,27 +931,24 @@ async function uploadDocument() {
     }
     console.log('Bucket exists:', bucketData);
 
-    const response = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`, true);
-      xhr.setRequestHeader('Authorization', `Bearer ${supabaseConfig.key}`);
-      xhr.setRequestHeader('Content-Type', file.type);
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const progress = (event.loaded / event.total) * 100;
-          progressFill.style.width = `${progress}%`;
-          progressText.textContent = `${Math.round(progress)}%`;
+    // Upload file using Supabase client (preferred over XHR for simplicity)
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        onUploadProgress: (progress) => {
+          const percent = (progress.loaded / progress.total) * 100;
+          progressFill.style.width = `${percent}%`;
+          progressText.textContent = `${Math.round(percent)}%`;
         }
-      };
-      xhr.onload = () => {
-        if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
-        else reject(new Error(`Upload failed: ${xhr.status} ${xhr.statusText}`));
-      };
-      xhr.onerror = () => reject(new Error('Upload error'));
-      xhr.send(file);
-    });
+      });
 
-    console.log('Upload response:', response);
+    if (error) {
+      console.error('Upload error:', error);
+      throw new Error(`Upload failed: ${error.message}`);
+    }
+    console.log('Upload response:', data);
 
     // Generate public URL
     const { data: { publicUrl } } = supabase.storage
