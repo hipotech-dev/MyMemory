@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Documents | MyMemory</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="-1" />
   <meta http-equiv="Vary" content="*" />
+  <base href="https://hipotech-dev.github.io/MyMemory/">
+  <title>MyMemory - Documents</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* Reusing styles from index.html for consistency */
     :root {
       --primary: #003087;
       --primary-light: #0070ba;
@@ -24,257 +26,384 @@
       --success: #38a169;
       --white: #ffffff;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --category-work: #007bff;
+      --category-personal: #28a745;
+      --category-urgent: #dc3545;
+      --warning: #f6ad55;
+      --gradient-todo: linear-gradient(135deg, #667eea, #764ba2);
+      --gradient-password: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      --gradient-document: linear-gradient(135deg, #36d1dc, #5b86e5);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--light);
+    }
+
+    /* Dashboard Layout */
+    .dashboard {
       background: url('hipo.jpg') no-repeat center center fixed;
       background-size: cover;
       min-height: 100vh;
-      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
+
     .header {
-      background: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 0 2rem;
+      background: var(--white);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    .logo {
-      display: flex;
+
+    .header .logo {
+      flex-direction: row;
       align-items: center;
-      gap: 10px;
+      gap: 1rem;
     }
-    .logo img {
-      height: 36px;
-      width: auto;
-      object-fit: contain;
+
+    .header .logo img {
+      height: 50px;
     }
-    .logo h1 {
+
+    .header .logo img[src=""] {
+      height: 50px;
+      width: 50px;
+    }
+
+    .header .logo h1 {
+      font-size: 1.6rem;
       color: var(--primary);
-      font-size: 1.5rem;
-      margin: 0;
     }
+
     .user-menu {
       display: flex;
       align-items: center;
+      gap: 1rem;
+      position: relative;
     }
+
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: var(--white);
       border-radius: 50%;
-      background-color: var(--primary-light);
-      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid var(--primary-light);
     }
+
+    .user-avatar:hover {
+      background: var(--primary-light);
+      transform: scale(1.05);
+      box-shadow: 0 0 8px rgba(0, 112, 186, 0.3);
+    }
+
     .user-popup {
       display: none;
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background: var(--white);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
+      flex-direction: column;
+      align-items: center;
       padding: 1rem;
       width: 200px;
-      z-index: 1000;
+      right: 10px;
+      top: 50px;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      z-index: 1001;
+      animation: slideIn 0.2s ease-out;
+      position: absolute;
+      border: 1px solid var(--gray);
     }
-    .user-popup.active { display: block; }
-    .user-info {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 0.5rem;
+
+    .user-popup::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: 15px;
+      border: 5px solid transparent;
+      border-bottom-color: var(--gray);
     }
-    .user-info span { font-size: 0.9rem; }
-    .user-info .name { font-weight: 600; color: var(--dark); }
-    .user-info .email { color: #718096; word-break: break-all; }
-    .popup-btn {
+
+    .user-popup::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: 15px;
+      border: 5px solid transparent;
+      border-bottom-color: var(--white);
+    }
+
+    .user-popup.active {
       display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 8px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    }
+
+    .user-popup .user-info {
       width: 100%;
-      font-size: 0.9rem;
+      text-align: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--gray);
+      margin-bottom: 0.75rem;
     }
-    .popup-btn:hover { background: var(--primary-light); }
+
+    .user-popup .user-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .user-popup .user-email {
+      font-size: 0.85rem;
+      color: #6b7280;
+      word-break: break-all;
+    }
+
+    .user-popup .logout-btn {
+      width: 100%;
+      padding: 0.6rem;
+      background: var(--secondary);
+      border: none;
+      color: var(--white);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-popup .logout-btn:hover {
+      background: #e53e3e;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
     .container {
       display: flex;
-      min-height: calc(100vh - 60px);
-      max-width: 1400px;
-      margin: 0 auto;
+      flex: 1;
       padding: 2rem;
       gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
     }
+
     .sidebar {
       width: 250px;
       background: var(--primary);
-      padding: 1rem;
       border-radius: 12px;
+      padding: 1rem;
       box-shadow: var(--shadow);
     }
-    .sidebar-menu { list-style: none; }
-    .sidebar-menu li { margin-bottom: 5px; }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar-menu li {
+      margin-bottom: 0.5rem;
+    }
+
     .sidebar-menu a {
       display: flex;
       align-items: center;
-      padding: 10px 15px;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
       color: var(--white);
       text-decoration: none;
-      border-radius: 6px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
       font-size: 0.95rem;
       font-weight: 500;
     }
+
     .sidebar-menu a:hover {
       background: var(--primary-light);
       transform: translateX(5px);
     }
+
     .sidebar-menu a.active {
       background: var(--white);
       color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    .sidebar-menu a.active i { color: var(--primary); }
+
+    .sidebar-menu a i {
+      font-size: 1.1rem;
+    }
+
     .main-content {
       flex: 1;
+      background: var(--white);
+      border-radius: 12px;
       padding: 2rem;
+      box-shadow: var(--shadow);
     }
-    .page-header {
+
+    .welcome-banner {
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      color: var(--white);
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .welcome-banner h2 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-banner p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--gray);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
-    .page-title {
-      color: var(--primary);
-      font-size: 1.8rem;
-    }
-    .documents-container {
-      background: white;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    .documents-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .btn {
-      padding: 8px 15px;
-      background-color: var(--primary);
-      border: none;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-    }
-    .btn:hover { background-color: var(--primary-light); }
-    .btn-outline:hover { background: var(--light); }
-    .search-bar {
-      display: flex;
-      margin-bottom: 1.5rem;
-    }
-    .search-bar input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--gray);
-      border-radius: 6px 0 0 6px;
-      font-size: 14px;
-    }
-    .search-bar button {
-      padding: 0 15px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 0 6px 6px 0;
-      cursor: pointer;
-    }
-    .category-filter {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .category-btn {
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: transparent;
-      border: 1px solid var(--gray);
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-    .category-btn.active, .category-btn:hover {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    .documents-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .documents-table th {
-      text-align: left;
-      padding: 12px 15px;
-      background: var(--light);
-      color: var(--dark);
+
+    .card-header h3 {
+      font-size: 1.4rem;
       font-weight: 600;
-      border-bottom: 2px solid var(--gray);
-    }
-    .documents-table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid var(--gray);
-      vertical-align: middle;
-    }
-    .document-row:hover { background: rgba(0, 112, 186, 0.05); }
-    .document-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: var(--light);
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      font-size: 1.2rem;
+      gap: 0.5rem;
     }
-    .document-info { margin-left: 10px; }
+
+    .card-header i {
+      font-size: 1.5rem;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      border: none;
+      color: var(--white);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .document-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .document-card {
+      background: var(--light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray);
+      box-shadow: var(--card-shadow);
+    }
+
+    .document-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
     .document-name {
       font-weight: 600;
-      margin-bottom: 3px;
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
     }
-    .document-meta {
-      color: #718096;
-      font-size: 0.85rem;
-      display: flex;
-      gap: 15px;
+
+    .document-details {
+      margin-top: 0.75rem;
     }
-    .document-meta span {
+
+    .document-detail {
       display: flex;
+      margin-bottom: 0.75rem;
       align-items: center;
-      gap: 5px;
     }
-    .document-actions { display: flex; gap: 10px; }
-    .document-actions button {
+
+    .document-label {
+      font-weight: 500;
+      min-width: 80px;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .document-value {
+      flex: 1;
+      font-size: 0.95rem;
+      color: var(--dark);
+    }
+
+    .document-value a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .document-value a:hover {
+      text-decoration: underline;
+    }
+
+    .document-card-actions button {
       background: none;
       border: none;
-      color: #718096;
+      color: var(--dark);
       cursor: pointer;
       width: 30px;
       height: 30px;
@@ -282,92 +411,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s ease;
     }
-    .document-actions button:hover {
-      background: rgba(0, 0, 0, 0.05);
+
+    .document-card-actions button:hover {
+      background: var(--gray);
       color: var(--primary);
     }
-    .folder-view {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-    .folder-item {
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      border: 1px solid var(--gray);
-      position: relative;
-    }
-    .folder-item:hover {
-      border-color: var(--primary-light);
-      box-shadow: 0 2px 8px rgba(0, 112, 186, 0.1);
-    }
-    .folder-icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 10px;
-      background: var(--light);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      font-size: 1.5rem;
-    }
-    .folder-name {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    .folder-meta {
-      color: #718096;
-      font-size: 0.85rem;
-    }
-    .folder-actions {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    .folder-actions button {
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .folder-actions button:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--primary);
-    }
-    .view-toggle {
-      display: flex;
-      margin-bottom: 1.5rem;
-      background: var(--light);
-      border-radius: 6px;
-      padding: 4px;
-      width: fit-content;
-    }
-    .view-btn {
-      padding: 6px 12px;
-      border-radius: 4px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .view-btn.active {
-      background: white;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
+
     .modal {
       display: none;
       position: fixed;
@@ -376,414 +427,266 @@
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
     }
+
     .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 12px;
       width: 100%;
       max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      animation: modalFadeIn 0.3s ease;
     }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
+
+    .modal-header h3 {
+      font-size: 1.3rem;
+      color: var(--dark);
+    }
+
     .modal-close {
       background: none;
       border: none;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       cursor: pointer;
+      color: var(--dark);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
     }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
+
+    .modal-close:hover {
+      background: var(--gray);
+      color: var(--secondary);
     }
+
     .form-control {
       width: 100%;
-      padding: 10px;
+      padding: 0.75rem;
       border: 1px solid var(--gray);
-      border-radius: 6px;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
     }
-    .file-upload {
-      border: 2px dashed var(--gray);
-      border-radius: 6px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-    }
-    .file-upload:hover {
+
+    .form-control:focus {
+      outline: none;
       border-color: var(--primary-light);
-      background: rgba(0, 112, 186, 0.05);
+      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      background: var(--white);
     }
-    .file-upload i {
-      font-size: 2rem;
-      color: var(--primary);
-      margin-bottom: 10px;
+
+    .form-group {
+      margin-bottom: 1.5rem;
     }
-    .file-upload input { display: none; }
-    .progress-container {
-      margin-top: 1rem;
-      display: none;
-    }
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: var(--gray);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--success);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .progress-text {
-      text-align: center;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
       color: var(--dark);
+      font-size: 0.9rem;
     }
-    .share-options { margin: 1rem 0; }
-    .share-option {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      cursor: pointer;
-    }
-    .share-option:hover { background: var(--light); }
-    .share-option i {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 10px;
-      color: white;
-    }
-    .email-option i { background: var(--secondary); }
-    .link-option i { background: var(--primary); }
-    .team-option i { background: var(--success); }
-    .share-link-container {
-      display: none;
-      margin-top: 1rem;
-    }
-    .share-link {
-      display: flex;
-      margin-top: 10px;
-    }
-    .share-link input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid var(--gray);
-      border-radius: 4px 0 0 4px;
-    }
-    .share-link button {
-      padding: 0 10px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 0 4px 4px 0;
-      cursor: pointer;
-    }
-    .color-option {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-    .color-option.selected {
-      border-color: var(--dark);
-      transform: scale(1.1);
-    }
+
     .message {
       display: none;
-      padding: 10px;
+      padding: 0.75rem;
       margin-bottom: 1rem;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.9rem;
       text-align: center;
-      color: white;
+      animation: slideIn 0.3s ease;
     }
-    #loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-size: 1.2rem;
+
+    .message.success {
+      background: var(--success);
+      color: var(--white);
     }
-    #app-content { display: none; }
+
+    .message.error {
+      background: var(--secondary);
+      color: var(--white);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      font-size: 1rem;
+      color: var(--dark);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 1rem;
+      color: #718096;
+      background: var(--light);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--gray);
+    }
+
     @media (max-width: 768px) {
-      .container { flex-direction: column; padding: 1rem; }
-      .sidebar { width: 100%; padding: 0.5rem; border-radius: 10px; }
-      .sidebar-menu { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-      .sidebar-menu::-webkit-scrollbar { display: none; }
-      .sidebar-menu li { margin-right: 5px; }
-      .sidebar-menu a { padding: 0.5rem; font-size: 0.9rem; }
-      .main-content { padding: 1.5rem; }
-      .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-      .documents-actions { width: 100%; justify-content: flex-end; }
-      .category-filter { overflow-x: auto; white-space: nowrap; }
-      .documents-table { overflow-x: auto; white-space: nowrap; }
-      .folder-view { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-      .modal-content { margin: 10px; padding: 1.5rem; }
-      .file-upload { padding: 1.5rem; }
-      body { font-size: 15px; }
-      .page-title { font-size: 1.5rem; }
-      .btn { padding: 10px; font-size: 15px; }
-      .documents-container { padding: 1rem; }
-      .documents-table th, .documents-table td { padding: 10px; }
-      .user-popup { width: 180px; top: 45px; }
+      .container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-radius: 10px;
+        padding: 1rem;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        gap: 5px;
+      }
+
+      .sidebar-menu li {
+        margin-bottom: 0;
+      }
+
+      .sidebar-menu a {
+        white-space: nowrap;
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .main-content {
+        padding: 1.5rem;
+      }
+
+      .document-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .document-detail {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-start;
+      }
+
+      .document-label {
+        min-width: 100%;
+      }
     }
-    @media (max-width: 480px) {
-      .header { flex-direction: column; gap: 15px; padding: 1rem; }
-      .logo { margin-bottom: 10px; }
-      .user-menu { margin-top: 10px; }
-      .documents-actions { flex-direction: column; width: 100%; gap: 10px; }
-      .documents-actions .btn { width: 100%; justify-content: center; }
-      .search-bar { flex-direction: column; }
-      .search-bar input { border-radius: 6px; margin-bottom: 10px; }
-      .search-bar button { border-radius: 6px; padding: 10px; }
-      .view-toggle { width: 100%; justify-content: center; }
-      .folder-view { grid-template-columns: 1fr; }
-      .document-meta { flex-wrap: wrap; gap: 5px; }
-      .document-meta span { font-size: 0.75rem; }
-      .document-actions { flex-wrap: wrap; justify-content: center; }
-      .sidebar-menu a { font-size: 0.85rem; }
-      .user-popup { width: 160px; top: 80px; }
-    }
-    html, body { max-width: 100%; overflow-x: hidden; }
-    button, a, .category-btn, .folder-item, .document-row { touch-action: manipulation; }
   </style>
 </head>
 <body>
-  <div class="message" id="auth-message"></div>
-  <div id="loading">Loading...</div>
-  <div id="app-content">
+  <div class="dashboard" id="dashboard">
     <header class="header">
       <div class="logo">
-        <img src="amnesia.png" alt="MyMemory Logo">
+        <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
         <div class="user-avatar" id="user-avatar"></div>
         <div class="user-popup" id="user-popup">
           <div class="user-info">
-            <span class="name" id="popup-user-name"></span>
-            <span class="email" id="popup-user-email"></span>
+            <div class="user-name" id="popup-user-name"></div>
+            <div class="user-email" id="popup-user-email"></div>
           </div>
-          <button class="popup-btn" id="popup-logout-btn">
-            <i class="fas fa-sign-out-alt"></i> Sign Out
-          </button>
+          <button class="logout-btn" id="popup-logout-btn">Logout</button>
         </div>
       </div>
     </header>
+
     <div class="container">
       <aside class="sidebar">
         <ul class="sidebar-menu">
-          <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="To do list.html"><i class="fas fa-tasks"></i> To-Do List</a></li>
-          <li><a href="Password Manager.html"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="Documents.html" class="active"><i class="fas fa-file-contract"></i> Documents</a></li>
-          <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
+          <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
+          <li><a href="Documents.html" class="active" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
+          <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
+
       <main class="main-content">
-        <div class="page-header">
-          <h2 class="page-title">Documents</h2>
-          <div class="documents-actions">
-            <button class="btn" id="upload-doc-btn">
-              <i class="fas fa-upload"></i> Upload
-            </button>
-            <button class="btn btn-outline" id="new-folder-btn">
-              <i class="fas fa-folder-plus"></i> New Folder
-            </button>
+        <div class="welcome-banner">
+          <h2>Manage Your Documents, <span id="user-name"></span>!</h2>
+          <p>Upload and organize your important files securely.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-file-contract"></i> Documents</h3>
+            <div class="card-actions">
+              <button class="btn" id="add-document-btn"><i class="fas fa-plus"></i> Add Document</button>
+            </div>
           </div>
-        </div>
-        <div class="search-bar">
-          <input type="text" id="search-input" placeholder="Search documents...">
-          <button id="search-btn"><i class="fas fa-search"></i></button>
-        </div>
-        <div class="view-toggle">
-          <button class="view-btn active" data-view="table"><i class="fas fa-list"></i> List</button>
-          <button class="view-btn" data-view="folder"><i class="fas fa-folder"></i> Folders</button>
-        </div>
-        <div class="category-filter">
-          <button class="category-btn active" data-category="all">All</button>
-          <button class="category-btn" data-category="contract">Contracts</button>
-          <button class="category-btn" data-category="proposal">Proposals</button>
-          <button class="category-btn" data-category="report">Reports</button>
-          <button class="category-btn" data-category="presentation">Presentations</button>
-          <button class="category-btn" data-category="personal">Personal</button>
-        </div>
-        <div class="documents-container">
-          <div class="table-view" id="table-view">
-            <table class="documents-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Modified</th>
-                  <th>Size</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="documents-table-body"></tbody>
-            </table>
-          </div>
-          <div class="folder-view" id="folder-view" style="display: none;"></div>
-        </div>
-        <div class="modal" id="upload-modal">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3>Upload Document</h3>
-              <button class="modal-close">×</button>
-            </div>
-            <form id="upload-form">
-              <div class="form-group">
-                <label for="document-name">Document Name</label>
-                <input type="text" id="document-name" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="document-file">Select File</label>
-                <div class="file-upload" id="file-upload-area">
-                  <i class="fas fa-cloud-upload-alt"></i>
-                  <p>Drag & drop files here or click to browse</p>
-                  <input type="file" id="document-file" accept=".pdf,.doc,.docx,.xlsx,.xls,.ppt,.pptx,.jpg,.png,.txt" required>
-                </div>
-              </div>
-              <div class="progress-container" id="upload-progress">
-                <div class="progress-bar">
-                  <div class="progress-fill" id="progress-fill"></div>
-                </div>
-                <div class="progress-text" id="progress-text">0%</div>
-              </div>
-              <div class="form-group">
-                <label for="document-category">Category</label>
-                <select id="document-category" class="form-control">
-                  <option value="contract">Contract</option>
-                  <option value="proposal">Proposal</option>
-                  <option value="report">Report</option>
-                  <option value="presentation">Presentation</option>
-                  <option value="personal">Personal</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="document-folder">Folder (Optional)</label>
-                <select id="document-folder" class="form-control">
-                  <option value="">None</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="document-description">Description (Optional)</label>
-                <textarea id="document-description" class="form-control" rows="3"></textarea>
-              </div>
-              <button type="submit" class="btn" id="upload-submit-btn">
-                <i class="fas fa-upload"></i> Upload Document
-              </button>
-            </form>
-          </div>
-        </div>
-        <div class="modal" id="folder-modal">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3>Create New Folder</h3>
-              <button class="modal-close">×</button>
-            </div>
-            <form id="folder-form">
-              <div class="form-group">
-                <label for="folder-name">Folder Name</label>
-                <input type="text" id="folder-name" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="folder-color">Color</label>
-                <div style="display: flex; gap: 10px;">
-                  <div class="color-option selected" data-color="#003087" style="background: #003087;"></div>
-                  <div class="color-option" data-color="#0070ba" style="background: #0070ba;"></div>
-                  <div class="color-option" data-color="#38a169" style="background: #38a169;"></div>
-                  <div class="color-option" data-color="#f6ad55" style="background: #f6ad55;"></div>
-                  <div class="color-option" data-color="#ff5a5f" style="background: #ff5a5f;"></div>
-                </div>
-                <input type="hidden" id="folder-color" value="#003087">
-              </div>
-              <button type="submit" class="btn">
-                <i class="fas fa-folder-plus"></i> Create Folder
-              </button>
-            </form>
-          </div>
-        </div>
-        <div class="modal" id="share-modal">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3>Share Document</h3>
-              <button class="modal-close">×</button>
-            </div>
-            <div class="share-options">
-              <div class="share-option email-option">
-                <i class="fas fa-envelope"></i>
-                <div>
-                  <h4>Send via Email</h4>
-                  <p>Share directly via email</p>
-                </div>
-              </div>
-              <div class="share-option link-option">
-                <i class="fas fa-link"></i>
-                <div>
-                  <h4>Get Shareable Link</h4>
-                  <p>Create a link to share with anyone</p>
-                </div>
-              </div>
-              <div class="share-option team-option">
-                <i class="fas fa-users"></i>
-                <div>
-                  <h4>Share with Team</h4>
-                  <p>Share with team members</p>
-                </div>
-              </div>
-            </div>
-            <div class="share-link-container" id="share-link-container">
-              <p>Copy and share this link:</p>
-              <div class="share-link">
-                <input type="text" id="share-link-input" readonly>
-                <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
-              </div>
-            </div>
+          <div class="document-grid" id="document-list">
+            <div class="loading" id="document-loading">Loading documents...</div>
           </div>
         </div>
       </main>
     </div>
+
+    <div class="modal" id="document-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modal-title">Upload Document</h3>
+          <button class="modal-close">×</button>
+        </div>
+        <div class="message" id="document-message"></div>
+        <form id="document-form">
+          <input type="hidden" id="document-id">
+          <div class="form-group">
+            <label for="document-name">Document Name</label>
+            <input type="text" id="document-name" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="document-file">Select File</label>
+            <input type="file" id="document-file" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="document-category">Category</label>
+            <select id="document-category" class="form-control">
+              <option value="contract">Contract</option>
+              <option value="proposal">Proposal</option>
+              <option value="report">Report</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">Save Document</button>
+        </form>
+      </div>
+    </div>
   </div>
+
   <script>
-    // Supabase configuration
-    const supabaseConfig = {
-      url: 'https://obeeybozdvnpbyjtaflr.supabase.co',
-      key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'
-    };
-
-    // Initialize Supabase
-    let supabase;
-    try {
-      supabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
-      console.log('Supabase initialized');
-    } catch (error) {
-      console.error('Supabase initialization error:', error);
-      showMessage('Failed to connect to storage service.', 'error');
-    }
-
-    // Firebase configuration
+    // Firebase configuration (same as index.html)
     const firebaseConfig = {
       apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
       authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -795,696 +698,366 @@
     };
 
     // Initialize Firebase
-    let auth, db;
+    let auth, db, storage;
     try {
       firebase.initializeApp(firebaseConfig);
       auth = firebase.auth();
       db = firebase.firestore();
-      console.log('Firebase initialized');
+      storage = firebase.storage();
+      auth.useDeviceLanguage();
     } catch (error) {
-      console.error('Firebase initialization error:', error);
-      showMessage('Failed to connect to authentication service.', 'error');
+      console.error('Firebase initialization failed:', error);
+      showMessage('document-message', 'Failed to connect to services. Please try again later.', 'error');
     }
 
     // Show message
-    function showMessage(message, type = 'error') {
-      const messageElement = document.getElementById('auth-message');
+    function showMessage(elementId, message, type = 'success') {
+      const messageElement = document.getElementById(elementId);
       if (!messageElement) {
-        console.error('auth-message element not found');
+        console.error(`Message element ${elementId} not found`);
         return;
       }
       messageElement.textContent = message;
       messageElement.className = `message ${type}`;
-      messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
       messageElement.style.display = 'block';
-      setTimeout(() => messageElement.style.display = 'none', 5000);
+      setTimeout(() => {
+        messageElement.style.display = 'none';
+      }, 5000);
     }
 
-    // Close modal
-    function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) modal.style.display = 'none';
-      else console.error(`Modal ${modalId} not found`);
-    }
+    // Validate document form
+    function validateDocumentForm() {
+      const name = document.getElementById('document-name').value;
+      const file = document.getElementById('document-file').files[0];
+      const nameGroup = document.getElementById('document-name').parentElement;
+      const fileGroup = document.getElementById('document-file').parentElement;
+      let isValid = true;
 
-    // Format file size
-    function formatFileSize(bytes) {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      [nameGroup, fileGroup].forEach(group => {
+        group.classList.remove('invalid');
+        group.querySelector('.error-text')?.remove();
+      });
+
+      if (!name.trim()) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Document name is required';
+        nameGroup.appendChild(errorText);
+        nameGroup.classList.add('invalid');
+        isValid = false;
+      }
+
+      const documentId = document.getElementById('document-id').value;
+      if (!documentId && !file) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Please select a file';
+        fileGroup.appendChild(errorText);
+        fileGroup.classList.add('invalid');
+        isValid = false;
+      } else if (file && file.size > 5 * 1024 * 1024) { // 5MB limit
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'File size must be less than 5MB';
+        fileGroup.appendChild(errorText);
+        fileGroup.classList.add('invalid');
+        isValid = false;
+      }
+
+      return isValid;
     }
 
     // Format date
     function formatDate(timestamp) {
-      return new Date(timestamp).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+      if (!timestamp) return 'N/A';
+      try {
+        const date = timestamp.toDate();
+        return date.toLocaleDateString();
+      } catch {
+        return 'N/A';
+      }
+    }
+
+    // Create document element
+    function createDocumentElement(document) {
+      const card = document.createElement('div');
+      card.className = 'document-card';
+      card.dataset.id = document.id;
+
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="document-name">${document.name}</div>
+          <div class="document-card-actions">
+            <button title="Download"><i class="fas fa-download"></i></button>
+            <button title="Edit"><i class="fas fa-edit"></i></button>
+            <button title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <div class="document-details">
+          <div class="document-detail">
+            <span class="document-label">Category:</span>
+            <div class="document-value">${document.category || 'N/A'}</div>
+          </div>
+          <div class="document-detail">
+            <span class="document-label">Uploaded:</span>
+            <div class="document-value">${formatDate(document.createdAt)}</div>
+          </div>
+          <div class="document-detail">
+            <span class="document-label">File:</span>
+            <div class="document-value"><a href="${document.url}" target="_blank">${document.fileName}</a></div>
+          </div>
+        </div>
+      `;
+
+      return card;
+    }
+
+    // Add document event listeners
+    function addDocumentEventListeners(card, user) {
+      const downloadBtn = card.querySelector('.fa-download').parentNode;
+      const editBtn = card.querySelector('.fa-edit').parentNode;
+      const deleteBtn = card.querySelector('.fa-trash').parentNode;
+
+      downloadBtn.addEventListener('click', function() {
+        const url = card.querySelector('.document-value a').href;
+        window.open(url, '_blank');
       });
-    }
 
-    // Load folders
-    async function loadFolders(userId) {
-      try {
-        const folderSelect = document.getElementById('document-folder');
-        folderSelect.innerHTML = '<option value="">None</option>';
-        const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
-        folderQuery.forEach(doc => {
-          const folder = doc.data();
-          const option = document.createElement('option');
-          option.value = folder.name;
-          option.textContent = folder.name;
-          folderSelect.appendChild(option);
-        });
-      } catch (error) {
-        console.error('Error loading folders:', error);
-        showMessage('Failed to load folders.', 'error');
-      }
-    }
-
-    // Load folder view
-    async function loadFolderView(userId) {
-      try {
-        const folderView = document.getElementById('folder-view');
-        folderView.innerHTML = '';
-        const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
-        folderQuery.forEach(doc => {
-          const folder = doc.data();
-          const folderItem = document.createElement('div');
-          folderItem.className = 'folder-item';
-          folderItem.innerHTML = `
-            <div class="folder-icon" style="background: ${folder.color}33;">
-              <i class="fas fa-folder" style="color: ${folder.color};"></i>
-            </div>
-            <div class="folder-name">${folder.name}</div>
-            <div class="folder-meta">${folder.files || 0} files</div>
-            <div class="folder-actions">
-              <button class="delete-folder-btn" data-folder-id="${doc.id}"><i class="fas fa-trash"></i></button>
-            </div>
-          `;
-          folderView.appendChild(folderItem);
-        });
-
-        document.querySelectorAll('.delete-folder-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            if (confirm('Are you sure you want to delete this folder? All files inside will be moved to root.')) {
-              await deleteFolder(userId, btn.dataset.folderId);
-            }
-          });
-        });
-      } catch (error) {
-        console.error('Error loading folder view:', error);
-        showMessage('Failed to load folders.', 'error');
-      }
-    }
-
-    // Delete folder
-    async function deleteFolder(userId, folderId) {
-      try {
-        const folderDoc = await db.collection('users').doc(userId).collection('folders').doc(folderId).get();
-        if (!folderDoc.exists) {
-          showMessage('Folder not found.', 'error');
-          return;
-        }
-        const folderData = folderDoc.data();
-
-        // Move documents to root
-        const documentsQuery = await db.collection('users')
-          .doc(userId)
-          .collection('documents')
-          .where('folder', '==', folderData.name)
-          .get();
-
-        const batch = db.batch();
-        documentsQuery.forEach(doc => {
-          batch.update(doc.ref, { folder: '' });
-        });
-        await batch.commit();
-
-        // Delete folder
-        await db.collection('users').doc(userId).collection('folders').doc(folderId).delete();
-        showMessage('Folder deleted successfully.', 'success');
-        loadFolders(userId);
-        loadFolderView(userId);
-        loadDocuments(userId);
-      } catch (error) {
-        console.error('Error deleting folder:', error);
-        showMessage(`Error deleting folder: ${error.message}`, 'error');
-      }
-    }
-
-    // Upload document
-    async function uploadDocument() {
-      const nameInput = document.getElementById('document-name');
-      const categoryInput = document.getElementById('document-category');
-      const folderInput = document.getElementById('document-folder');
-      const descriptionInput = document.getElementById('document-description');
-      const fileInput = document.getElementById('document-file');
-      const progressContainer = document.getElementById('upload-progress');
-      const progressFill = document.getElementById('progress-fill');
-      const progressText = document.getElementById('progress-text');
-      const submitBtn = document.getElementById('upload-submit-btn');
-
-      if (!nameInput || !categoryInput || !folderInput || !descriptionInput || !fileInput || !progressContainer || !progressFill || !progressText || !submitBtn) {
-        showMessage('Form elements missing.', 'error');
-        return;
-      }
-
-      const name = nameInput.value.trim();
-      const category = categoryInput.value;
-      const folder = folderInput.value;
-      const description = descriptionInput.value.trim();
-
-      if (!name) {
-        showMessage('Document name required.', 'error');
-        return;
-      }
-
-      if (!fileInput.files.length) {
-        showMessage('Select a file to upload.', 'error');
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const fileType = file.name.split('.').pop().toLowerCase();
-      const maxSize = 5 * 1024 * 1024;
-
-      if (file.size > maxSize) {
-        showMessage('File size exceeds 5MB.', 'error');
-        return;
-      }
-
-      const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
-      if (!allowedTypes.includes(fileType)) {
-        showMessage('Unsupported file type.', 'error');
-        return;
-      }
-
-      progressContainer.style.display = 'block';
-      submitBtn.disabled = true;
-
-      try {
-        const user = auth.currentUser;
-        if (!user) throw new Error('User not authenticated');
-        console.log('User:', user.email, user.uid);
-
-        const timestamp = Date.now();
-        const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
-        const fileName = `${sanitizedName}_${timestamp}.${fileType}`;
-        const storagePath = `users/${user.uid}/documents/${fileName}`;
-        const bucketName = 'public-documents';
-
-        // Verify bucket existence
-        const { data: bucketData, error: bucketError } = await supabase.storage.getBucket(bucketName);
-        if (bucketError) {
-          console.error('Bucket check failed:', bucketError);
-          throw new Error(`Bucket not found: ${bucketError.message}`);
-        }
-        console.log('Bucket exists:', bucketData);
-
-        // Upload file
-        const { data, error } = await supabase.storage
-          .from(bucketName)
-          .upload(storagePath, file, {
-            cacheControl: '3600',
-            upsert: false,
-            onUploadProgress: (progress) => {
-              const percent = (progress.loaded / progress.total) * 100;
-              progressFill.style.width = `${percent}%`;
-              progressText.textContent = `${Math.round(percent)}%`;
-            }
-          });
-
-        if (error) {
-          console.error('Upload error:', error);
-          throw new Error(`Upload failed: ${error.message}`);
-        }
-        console.log('Upload response:', data);
-
-        // Generate public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from(bucketName)
-          .getPublicUrl(storagePath);
-        console.log('Generated downloadURL:', publicUrl);
-
-        const newDoc = {
-          id: `doc${timestamp}`,
-          name,
-          type: fileType,
-          category,
-          folder,
-          size: file.size,
-          modified: timestamp,
-          owner: user.displayName || user.email.split('.')[0],
-          shared: false,
-          description,
-          storagePath,
-          downloadURL: publicUrl
-        };
-
-        console.log('Saving metadata:', newDoc);
-        await db.collection('users')
-          .doc(user.uid)
-          .collection('documents')
-          .doc(newDoc.id)
-          .set(newDoc);
-
-        if (folder) {
-          console.log('Updating folder:', folder);
-          const folderQuery = await db.collection('users')
-            .doc(user.uid)
-            .collection('folders')
-            .where('name', '==', folder)
-            .limit(1)
-            .get();
-
-          if (!folderQuery.empty) {
-            const folderDoc = folderQuery.docs[0];
-            await db.collection('users')
-              .doc(user.uid)
-              .collection('folders')
-              .doc(folderDoc.id)
-              .update({
-                files: firebase.firestore.FieldValue.increment(1)
-              });
-          }
-        }
-
-        document.getElementById('upload-form').reset();
-        progressContainer.style.display = 'none';
-        submitBtn.disabled = false;
-        closeModal('upload-modal');
-        showMessage('Document uploaded!', 'success');
-        loadDocuments(user.uid);
-      } catch (error) {
-        console.error('Upload error:', error);
-        showMessage(`Error uploading: ${error.message}`, 'error');
-        progressContainer.style.display = 'none';
-        submitBtn.disabled = false;
-
+      editBtn.addEventListener('click', async function() {
+        const modal = document.getElementById('document-modal');
+        const documentId = card.dataset.id;
         try {
-          await supabase.storage.from(bucketName).remove([storagePath]);
-          console.log('Cleaned up failed upload');
-        } catch (deleteError) {
-          console.error('Cleanup error:', deleteError);
+          const docSnap = await db.collection('users').doc(user.uid).collection('documents').doc(documentId).get();
+          const docData = docSnap.data();
+
+          document.getElementById('modal-title').textContent = 'Edit Document';
+          document.getElementById('document-id').value = documentId;
+          document.getElementById('document-name').value = docData.name;
+          document.getElementById('document-category').value = docData.category;
+          modal.style.display = 'flex';
+        } catch (error) {
+          console.error('Error loading document:', error);
+          showMessage('document-message', 'Error loading document: ' + error.message, 'error');
         }
-      }
-    }
+      });
 
-    // Delete document
-    async function deleteDocument(userId, docId, storagePath, folderName) {
-      try {
-        // Delete from storage
-        const bucketName = 'public-documents';
-        const { error: storageError } = await supabase.storage
-          .from(bucketName)
-          .remove([storagePath]);
-        
-        if (storageError) {
-          console.error('Storage delete error:', storageError);
-          throw new Error(`Failed to delete file: ${storageError.message}`);
-        }
-
-        // Delete from Firestore
-        await db.collection('users')
-          .doc(userId)
-          .collection('documents')
-          .doc(docId)
-          .delete();
-
-        // Update folder file count if document was in a folder
-        if (folderName) {
-          const folderQuery = await db.collection('users')
-            .doc(userId)
-            .collection('folders')
-            .where('name', '==', folderName)
-            .limit(1)
-            .get();
-
-          if (!folderQuery.empty) {
-            const folderDoc = folderQuery.docs[0];
-            await db.collection('users')
-              .doc(userId)
-              .collection('folders')
-              .doc(folderDoc.id)
-              .update({
-                files: firebase.firestore.FieldValue.increment(-1)
-              });
+      deleteBtn.addEventListener('click', async function() {
+        if (confirm('Are you sure you want to delete this document?')) {
+          const documentId = card.dataset.id;
+          try {
+            const docRef = db.collection('users').doc(user.uid).collection('documents').doc(documentId);
+            const docSnap = await docRef.get();
+            const docData = docSnap.data();
+            if (docData.fileName) {
+              const storageRef = storage.ref(`users/${user.uid}/documents/${docData.fileName}`);
+              await storageRef.delete();
+            }
+            await docRef.delete();
+            card.remove();
+            showMessage('document-message', 'Document deleted!', 'success');
+            loadDocuments(user);
+          } catch (error) {
+            console.error('Error deleting document:', error);
+            showMessage('document-message', 'Error deleting document: ' + error.message, 'error');
           }
         }
-
-        showMessage('Document deleted successfully.', 'success');
-        loadDocuments(userId);
-        loadFolderView(userId);
-      } catch (error) {
-        console.error('Error deleting document:', error);
-        showMessage(`Error deleting document: ${error.message}`, 'error');
-      }
+      });
     }
 
     // Load documents
-    async function loadDocuments(userId, category = 'all', searchQuery = '') {
+    async function loadDocuments(user) {
       try {
-        const tableBody = document.getElementById('documents-table-body');
-        tableBody.innerHTML = '';
-        let query = db.collection('users').doc(userId).collection('documents');
-        if (category !== 'all') {
-          query = query.where('category', '==', category);
-        }
-        if (searchQuery) {
-          query = query.where('name', '>=', searchQuery).where('name', '<=', searchQuery + '\uf8ff');
-        }
-        const docQuery = await query.get();
-        console.log('Documents found:', docQuery.size);
-        docQuery.forEach(doc => {
-          const docData = doc.data();
-          console.log('Document downloadURL:', docData.downloadURL);
-          const row = document.createElement('tr');
-          row.className = 'document-row';
-          row.innerHTML = `
-            <td>
-              <div style="display: flex; align-items: center;">
-                <div class="document-icon"><i class="fas fa-file"></i></div>
-                <div class="document-info">
-                  <div class="document-name">${docData.name}</div>
-                  <div class="document-meta">
-                    <span><i class="fas fa-folder"></i> ${docData.folder || 'None'}</span>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>${docData.category.charAt(0).toUpperCase() + docData.category.slice(1)}</td>
-            <td>${formatDate(docData.modified)}</td>
-            <td>${formatFileSize(docData.size)}</td>
-            <td>
-              <div class="document-actions">
-                <button class="download-btn" data-url="${docData.downloadURL}"><i class="fas fa-download"></i></button>
-                <button class="delete-btn" data-doc-id="${docData.id}" data-storage-path="${docData.storagePath}" data-folder="${docData.folder || ''}"><i class="fas fa-trash"></i></button>
-              </div>
-            </td>
-          `;
-          tableBody.appendChild(row);
+        const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
+          .orderBy('createdAt', 'desc')
+          .get();
+
+        const documentList = document.getElementById('document-list');
+        documentList.innerHTML = '';
+
+        documentSnapshot.forEach(doc => {
+          const document = { id: doc.id, ...doc.data() };
+          const documentElement = createDocumentElement(document);
+          addDocumentEventListeners(documentElement, user);
+          documentList.appendChild(documentElement);
         });
 
-        document.querySelectorAll('.download-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            console.log('Download URL:', btn.dataset.url);
-            const url = btn.dataset.url;
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = '';
-            link.click();
-          });
-        });
+        if (documentSnapshot.empty) {
+          documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+        }
 
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete this document?')) {
-              deleteDocument(userId, btn.dataset.docId, btn.dataset.storagePath, btn.dataset.folder);
-            }
-          });
-        });
+        document.getElementById('document-loading').style.display = 'none';
       } catch (error) {
         console.error('Error loading documents:', error);
-        showMessage('Failed to load documents.', 'error');
+        showMessage('document-message', 'Error loading documents: ' + error.message, 'error');
       }
     }
 
-    // Create folder
-    async function createFolder() {
-      const nameInput = document.getElementById('folder-name');
-      const colorInput = document.getElementById('folder-color');
-      if (!nameInput || !colorInput) {
-        showMessage('Form elements missing.', 'error');
+    // Handle logout (same as index.html)
+    function handleLogout(e) {
+      e.preventDefault();
+      if (!auth) {
+        console.error('Firebase auth not initialized');
+        showMessage('document-message', 'Authentication service not available', 'error');
         return;
       }
 
-      const name = nameInput.value.trim();
-      const color = colorInput.value;
+      auth.signOut().then(() => {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userData');
+        localStorage.removeItem('rememberMe');
+        window.location.href = 'index.html';
+      }).catch((error) => {
+        console.error('Logout error:', error);
+        showMessage('document-message', `Logout failed: ${error.message}`, 'error');
+      });
+    }
 
-      if (!name) {
-        showMessage('Folder name required.', 'error');
+    // Setup user popup (same as index.html)
+    function setupUserPopup() {
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      const logoutBtn = document.getElementById('popup-logout-btn');
+
+      if (!userAvatar || !userPopup || !logoutBtn) {
+        console.error('User popup elements not found');
         return;
       }
+
+      function toggleUserPopup(e) {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
+      }
+
+      function closeUserPopup() {
+        userPopup.classList.remove('active');
+      }
+
+      userAvatar.addEventListener('click', toggleUserPopup);
+
+      document.addEventListener('click', function(e) {
+        if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+          closeUserPopup();
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closeUserPopup();
+        }
+      });
+
+      logoutBtn.addEventListener('click', handleLogout);
+    }
+
+    // Handle authentication state
+    auth.onAuthStateChanged(async user => {
+      const dashboard = document.getElementById('dashboard');
+      if (user) {
+        if (!user.emailVerified) {
+          showMessage('document-message', 'Please verify your email address.', 'error');
+          await auth.signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const userData = {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || 'User'
+        };
+
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userData', JSON.stringify(userData));
+
+        document.getElementById('user-name').textContent = userData.displayName;
+        document.getElementById('popup-user-name').textContent = userData.displayName;
+        document.getElementById('popup-user-email').textContent = userData.email;
+
+        const avatar = document.getElementById('user-avatar');
+        avatar.textContent = userData.displayName.charAt(0).toUpperCase();
+
+        dashboard.style.display = 'flex';
+        setupUserPopup();
+        await loadDocuments(user);
+
+        document.getElementById('logout-link').addEventListener('click', handleLogout);
+      } else {
+        localStorage.removeItem('isAuthenticated');
+        window.location.href = 'index.html';
+      }
+    });
+
+    // Handle document form submission
+    document.getElementById('document-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      if (!validateDocumentForm()) return;
+
+      const user = auth.currentUser;
+      if (!user) {
+        showMessage('document-message', 'You must be logged in to manage documents.', 'error');
+        return;
+      }
+
+      const documentId = document.getElementById('document-id').value;
+      const file = document.getElementById('document-file').files[0];
+      const documentData = {
+        name: document.getElementById('document-name').value,
+        category: document.getElementById('document-category').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
 
       try {
-        const user = auth.currentUser;
-        if (!user) throw new Error('User not authenticated');
-
-        const folderData = {
-          name,
-          color,
-          files: 0,
-          created: Date.now()
-        };
-
-        await db.collection('users')
-          .doc(user.uid)
-          .collection('folders')
-          .add(folderData);
-
-        document.getElementById('folder-form').reset();
-        document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
-        closeModal('folder-modal');
-        showMessage('Folder created!', 'success');
-        loadFolders(user.uid);
-        loadFolderView(user.uid);
-      } catch (error) {
-        console.error('Error creating folder:', error);
-        showMessage(`Error creating folder: ${error.message}`, 'error');
-      }
-    }
-
-    // Initialize upload form
-    function initUploadForm() {
-      console.log('Initializing upload form');
-      const uploadForm = document.getElementById('upload-form');
-      if (uploadForm) {
-        uploadForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          uploadDocument();
-        });
-      }
-
-      const fileUploadArea = document.getElementById('file-upload-area');
-      if (fileUploadArea) {
-        fileUploadArea.addEventListener('click', () => {
-          const fileInput = document.getElementById('document-file');
-          if (fileInput) fileInput.click();
-        });
-
-        fileUploadArea.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          fileUploadArea.style.borderColor = 'var(--primary-light)';
-          fileUploadArea.style.background = 'rgba(0, 112, 186, 0.05)';
-        });
-
-        fileUploadArea.addEventListener('dragleave', () => {
-          fileUploadArea.style.borderColor = 'var(--gray)';
-          fileUploadArea.style.background = '';
-        });
-
-        fileUploadArea.addEventListener('drop', (e) => {
-          e.preventDefault();
-          fileUploadArea.style.borderColor = 'var(--gray)';
-          fileUploadArea.style.background = '';
-          if (e.dataTransfer.files.length) {
-            const fileInput = document.getElementById('document-file');
-            if (fileInput) {
-              fileInput.files = e.dataTransfer.files;
-              const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
-              const nameInput = document.getElementById('document-name');
-              if (nameInput) nameInput.value = fileName;
-            }
+        if (documentId) {
+          // Update existing document
+          if (file) {
+            const storageRef = storage.ref(`users/${user.uid}/documents/${file.name}`);
+            const uploadTask = await storageRef.put(file);
+            documentData.url = await uploadTask.ref.getDownloadURL();
+            documentData.fileName = file.name;
           }
-        });
-      }
-
-      const fileInput = document.getElementById('document-file');
-      if (fileInput) {
-        fileInput.addEventListener('change', () => {
-          if (fileInput.files.length) {
-            const fileName = fileInput.files[0].name.split('.').slice(0, -1).join('.');
-            const nameInput = document.getElementById('document-name');
-            if (nameInput) nameInput.value = fileName;
-          }
-        });
-      }
-
-      const uploadBtn = document.getElementById('upload-doc-btn');
-      if (uploadBtn) {
-        uploadBtn.addEventListener('click', () => {
-          const modal = document.getElementById('upload-modal');
-          if (modal) modal.style.display = 'flex';
-        });
-      }
-
-      const modalClose = document.querySelector('#upload-modal .modal-close');
-      if (modalClose) {
-        modalClose.addEventListener('click', () => closeModal('upload-modal'));
-      }
-    }
-
-    // Initialize folder form
-    function initFolderForm() {
-      const folderForm = document.getElementById('folder-form');
-      if (folderForm) {
-        folderForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          createFolder();
-        });
-      }
-
-      const newFolderBtn = document.getElementById('new-folder-btn');
-      if (newFolderBtn) {
-        newFolderBtn.addEventListener('click', () => {
-          const modal = document.getElementById('folder-modal');
-          if (modal) modal.style.display = 'flex';
-        });
-      }
-
-      const modalClose = document.querySelector('#folder-modal .modal-close');
-      if (modalClose) {
-        modalClose.addEventListener('click', () => closeModal('folder-modal'));
-      }
-
-      document.querySelectorAll('.color-option').forEach(option => {
-        option.addEventListener('click', () => {
-          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-          option.classList.add('selected');
-          document.getElementById('folder-color').value = option.dataset.color;
-        });
-      });
-    }
-
-    // Initialize search
-    function initSearch(userId) {
-      const searchInput = document.getElementById('search-input');
-      const searchBtn = document.getElementById('search-btn');
-      if (searchInput && searchBtn) {
-        const performSearch = () => {
-          const category = document.querySelector('.category-btn.active').dataset.category;
-          loadDocuments(userId, category, searchInput.value.trim());
-        };
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('input', performSearch);
-      }
-    }
-
-    // Initialize category filter
-    function initCategoryFilter(userId) {
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const searchQuery = document.getElementById('search-input').value.trim();
-          loadDocuments(userId, btn.dataset.category, searchQuery);
-        });
-      });
-    }
-
-    // Initialize view toggle
-    function initViewToggle(userId) {
-      document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const tableView = document.getElementById('table-view');
-          const folderView = document.getElementById('folder-view');
-          if (btn.dataset.view === 'table') {
-            tableView.style.display = 'block';
-            folderView.style.display = 'none';
-            const category = document.querySelector('.category-btn.active').dataset.category;
-            const searchQuery = document.getElementById('search-input').value.trim();
-            loadDocuments(userId, category, searchQuery);
-          } else {
-            tableView.style.display = 'none';
-            folderView.style.display = 'grid';
-            loadFolderView(userId);
-          }
-        });
-      });
-    }
-
-    // Handle auth state
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM loaded');
-      if (typeof firebase === 'undefined') {
-        console.error('Firebase SDK not loaded');
-        showMessage('Failed to load authentication service.', 'error');
-        return;
-      }
-      console.log('Firebase SDK loaded');
-
-      const loadingElement = document.getElementById('loading');
-      const appContentElement = document.getElementById('app-content');
-
-      if (!loadingElement || !appContentElement) {
-        console.error('Loading or app-content not found');
-        showMessage('Page elements missing.', 'error');
-        return;
-      }
-
-      auth.onAuthStateChanged((user) => {
-        console.log('Auth state:', user);
-        if (user && user.emailVerified) {
-          console.log('User authenticated');
-          loadingElement.style.display = 'none';
-          appContentElement.style.display = 'block';
-          initUploadForm();
-          initFolderForm();
-          initSearch(user.uid);
-          initCategoryFilter(user.uid);
-          initViewToggle(user.uid);
-          loadFolders(user.uid);
-          loadDocuments(user.uid);
-          loadFolderView(user.uid);
-
-          // Set user info
-          document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
-          document.getElementById('popup-user-name').textContent = user.displayName || user.email.split('.')[0];
-          document.getElementById('popup-user-email').textContent = user.email;
-
-          // Handle user popup
-          const userAvatar = document.getElementById('user-avatar');
-          const userPopup = document.getElementById('user-popup');
-          userAvatar.addEventListener('click', () => {
-            userPopup.classList.toggle('active');
-          });
-
-          // Handle click outside popup to close
-          document.addEventListener('click', (e) => {
-            if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-              userPopup.classList.remove('active');
-            }
-          });
-
-          // Handle logout
-          const logout = async (e) => {
-            e.preventDefault();
-            try {
-              await auth.signOut();
-              window.location.href = 'index.html';
-            } catch (error) {
-              console.error('Logout error:', error);
-              showMessage('Failed to sign out.', 'error');
-            }
-          };
-
-          const logoutBtn = document.getElementById('popup-logout-btn');
-          const logoutLink = document.getElementById('logout-link');
-          logoutBtn.addEventListener('click', logout);
-          logoutLink.addEventListener('click', logout);
+          await db.collection('users').doc(user.uid).collection('documents').doc(documentId).update(documentData);
+          showMessage('document-message', 'Document updated!', 'success');
         } else {
-          console.log('No user or email not verified');
-          loadingElement.style.display = 'none';
-          showMessage('Please sign in and verify your email.', 'error');
-          setTimeout(() => window.location.href = 'index.html', 2000);
+          // Add new document
+          documentData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          const storageRef = storage.ref(`users/${user.uid}/documents/${file.name}`);
+          const uploadTask = await storageRef.put(file);
+          documentData.url = await uploadTask.ref.getDownloadURL();
+          documentData.fileName = file.name;
+          await db.collection('users').doc(user.uid).collection('documents').add(documentData);
+          showMessage('document-message', 'Document uploaded!', 'success');
         }
-      }, (error) => {
-        console.error('Auth error:', error);
-        loadingElement.style.display = 'none';
-        showMessage('Authentication error.', 'error');
+
+        document.getElementById('document-modal').style.display = 'none';
+        document.getElementById('document-form').reset();
+        document.getElementById('document-id').value = '';
+        loadDocuments(user);
+      } catch (error) {
+        console.error('Error saving document:', error);
+        showMessage('document-message', 'Error saving document: ' + error.message, 'error');
+      }
+    });
+
+    // Open document modal
+    document.getElementById('add-document-btn').addEventListener('click', function() {
+      document.getElementById('modal-title').textContent = 'Upload Document';
+      document.getElementById('document-id').value = '';
+      document.getElementById('document-form').reset();
+      document.getElementById('document-modal').style.display = 'flex';
+    });
+
+    // Close modals
+    document.querySelectorAll('.modal-close').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.closest('.modal').style.display = 'none';
+      });
+    });
+
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.style.display = 'none';
+        }
       });
     });
   </script>
