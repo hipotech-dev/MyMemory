@@ -1196,7 +1196,7 @@
         </div>
       </div>
     </div>
-  <script type="module">
+<script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
   import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
   import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
@@ -1255,7 +1255,7 @@
   function showMessage(message, type = 'error') {
     const messageElement = document.getElementById('auth-message');
     messageElement.textContent = message;
-    messageElement.className = `message ${type}`;
+    messageElement.className = message ${type};
     messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
     messageElement.style.display = 'block';
     setTimeout(() => {
@@ -1360,7 +1360,7 @@
 
   // Check authentication state with timeout
   async function checkAuthState(eventType) {
-    console.log(`Checking auth state on ${eventType}`);
+    console.log(Checking auth state on ${eventType});
     const loadingElement = document.getElementById('loading');
     const appContentElement = document.getElementById('app-content');
 
@@ -1447,7 +1447,7 @@
     async function loadData(userData) {
       try {
         // Folders
-        const foldersQuery = query(collection(db, `users/${userData.uid}/folders`), orderBy('name'));
+        const foldersQuery = query(collection(db, users/${userData.uid}/folders), orderBy('name'));
         onSnapshot(foldersQuery, snapshot => {
           folders = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -1461,7 +1461,7 @@
         });
 
         // Documents
-        const documentsQuery = query(collection(db, `users/${userData.uid}/documents`), orderBy('modified', 'desc'));
+        const documentsQuery = query(collection(db, users/${userData.uid}/documents), orderBy('modified', 'desc'));
         onSnapshot(documentsQuery, snapshot => {
           documents = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -1566,7 +1566,7 @@
       const docId = currentDocumentToShare;
       const doc = documents.find(d => d.id === docId);
       if (doc) {
-        showMessage(`Simulated email share for ${sanitizeHTML(doc.name)}.`, 'success');
+        showMessage(Simulated email share for ${sanitizeHTML(doc.name)}., 'success');
       }
     });
 
@@ -1578,7 +1578,7 @@
       const doc = documents.find(d => d.id === docId);
       if (doc) {
         const shareToken = btoa(docId + ':' + Date.now());
-        const shareLink = `https://mymemory.app/share?token=${encodeURIComponent(shareToken)}`;
+        const shareLink = https://mymemory.app/share?token=${encodeURIComponent(shareToken)};
 
         shareLinkInput.value = shareLink;
         shareLinkContainer.style.display = 'flex';
@@ -1600,7 +1600,7 @@
       const docId = currentDocumentToShare;
       const doc = documents.find(d => d.id === docId);
       if (doc) {
-        showMessage(`Simulated team share for ${sanitizeHTML(doc.name)}.`, 'success');
+        showMessage(Simulated team share for ${sanitizeHTML(doc.name)}., 'success');
       }
     });
 
@@ -1776,19 +1776,19 @@
       submitBtn.textContent = 'Uploading...';
 
       try {
-        const storagePath = `users/${userData.uid}/documents/${Date.now()}_${sanitizeHTML(file.name)}`;
+        const storagePath = users/${userData.uid}/documents/${Date.now()}_${sanitizeHTML(file.name)};
         const storageRef = ref(storage, storagePath);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
         uploadTask.on('state_changed',
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            progressFill.style.width = `${progress}%`;
-            progressText.textContent = `${Math.round(progress)}%`;
+            progressFill.style.width = ${progress}%;
+            progressText.textContent = ${Math.round(progress)}%;
           },
           (error) => {
             console.error('Upload error:', error);
-            showMessage(`Error uploading file: ${error.message}`, 'error');
+            showMessage(Error uploading file: ${error.message}, 'error');
             progressContainer.style.display = 'none';
             submitBtn.disabled = false;
             submitBtn.textContent = 'Upload Document';
@@ -1796,7 +1796,7 @@
           async () => {
             try {
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              const docId = doc(collection(db, `users/${userData.uid}/documents`)).id;
+              const docId = doc(collection(db, users/${userData.uid}/documents)).id;
 
               const newDoc = {
                 id: docId,
@@ -1813,7 +1813,7 @@
                 downloadURL
               };
 
-              await setDoc(doc(db, `users/${userData.uid}/documents`, docId), {
+              await setDoc(doc(db, users/${userData.uid}/documents, docId), {
                 name: newDoc.name,
                 type: newDoc.type,
                 category: newDoc.category,
@@ -1830,7 +1830,7 @@
               if (folder) {
                 const folderRef = folders.find(f => f.name === folder);
                 if (folderRef) {
-                  await updateDoc(doc(db, `users/${userData.uid}/folders`, folderRef.id), {
+                  await updateDoc(doc(db, users/${userData.uid}/folders, folderRef.id), {
                     files: (folderRef.files || 0) + 1
                   });
                 }
@@ -1876,8 +1876,8 @@
       }
 
       try {
-        const folderId = doc(collection(db, `users/${userData.uid}/folders`)).id;
-        await setDoc(doc(db, `users/${userData.uid}/folders`, folderId), {
+        const folderId = doc(collection(db, users/${userData.uid}/folders)).id;
+        await setDoc(doc(db, users/${userData.uid}/folders, folderId), {
           name: sanitizeHTML(name),
           color,
           files: 0,
@@ -1906,10 +1906,10 @@
         return;
       }
 
-      if (!confirm(`Are you sure you want to delete "${sanitizeHTML(folder.name)}"?`)) return;
+      if (!confirm(Are you sure you want to delete "${sanitizeHTML(folder.name)}"?)) return;
 
       try {
-        await deleteDoc(doc(db, `users/${userData.uid}/folders`, folderId));
+        await deleteDoc(doc(db, users/${userData.uid}/folders, folderId));
         showMessage('Folder deleted successfully!', 'success');
       } catch (error) {
         console.error('Error deleting folder:', error);
@@ -1930,8 +1930,7 @@
       });
 
       document.querySelectorAll('[data-action="share"]').forEach(btn => {
-        btn.addEventListener
-          ('click', () => shareDocument(btn.dataset.id));
+        btn.addEventListener('click', () => shareDocument(btn.dataset.id));
       });
 
       document.querySelectorAll('[data-action="delete"]').forEach(btn => {
@@ -1967,11 +1966,11 @@
         if (doc.downloadURL) {
           const a = document.createElement('a');
           a.href = doc.downloadURL;
-          a.download = `${sanitizeHTML(doc.name)}.${doc.type}`;
+          a.download = ${sanitizeHTML(doc.name)}.${doc.type};
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          showMessage(`Downloaded ${sanitizeHTML(doc.name)}`, 'success');
+          showMessage(Downloaded ${sanitizeHTML(doc.name)}, 'success');
         } else {
           throw new Error('Download URL not available');
         }
@@ -2003,12 +2002,12 @@
           await deleteObject(ref(storage, doc.storagePath));
         }
 
-        await deleteDoc(doc(db, `users/${userId}/documents`, docId));
+        await deleteDoc(doc(db, users/${userId}/documents, docId));
 
         if (doc.folder) {
           const folder = folders.find(f => f.name === doc.folder);
           if (folder) {
-            await updateDoc(doc(db, `users/${userId}/folders`, folder.id), {
+            await updateDoc(doc(db, users/${userId}/folders, folder.id), {
               files: (folder.files || 1) - 1
             });
           }
@@ -2097,7 +2096,7 @@
       if (modalId === 'share-modal') {
         document.getElementById('share-link-container').style.display = 'none';
       }
-    }
+    }
 </script>
 </body>
 </html>
