@@ -4,21 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Documents | MyMemory</title>
-  <!-- Prevent Caching -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="-1" />
   <meta http-equiv="Vary" content="*" />
-  <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
-  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Your existing CSS (unchanged for brevity) */
     :root {
       --primary: #003087;
       --primary-light: #0070ba;
@@ -167,20 +162,14 @@
       background: white;
       border-radius: 10px;
       padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0, 0,0.05);
-    }
-    .documents-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
     .documents-actions {
       display: flex;
       gap: 10px;
     }
     .btn {
-      padding: 12px;
+      padding: 8px 15px;
       background-color: var(--primary);
       border: none;
       color: white;
@@ -189,7 +178,7 @@
       font-size: 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 5px;
     }
     .btn-outline {
       background: transparent;
@@ -218,7 +207,7 @@
       cursor: pointer;
     }
     .category-filter {
-      display: inline-block;
+      display: flex;
       gap: 10px;
       margin-bottom: 1.5rem;
       flex-wrap: wrap;
@@ -454,6 +443,7 @@
       height: 100%;
       background: var(--success);
       width: 0%;
+      transition: width 0.3s ease;
     }
     .progress-text {
       text-align: center;
@@ -536,40 +526,17 @@
     #app-content { display: none; }
     @media (max-width: 768px) {
       .container { flex-direction: column; padding: 1rem; }
-      .sidebar {
-        width: 100%;
-        padding: 0.5rem;
-        border-radius: 10px;
-      }
-      .sidebar-menu {
-        display: flex;
-        gap: 5px;
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: none;
-      }
+      .sidebar { width: 100%; padding: 0.5rem; border-radius: 10px; }
+      .sidebar-menu { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
       .sidebar-menu::-webkit-scrollbar { display: none; }
       .sidebar-menu li { margin-right: 5px; }
-      .sidebar-menu a {
-        padding: 0.5rem;
-        font-size: 0.9rem;
-      }
+      .sidebar-menu a { padding: 0.5rem; font-size: 0.9rem; }
       .main-content { padding: 1.5rem; }
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-      }
+      .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
       .documents-actions { width: 100%; justify-content: flex-end; }
-      .category-filter {
-        overflow-x: auto;
-        white-space: nowrap;
-      }
+      .category-filter { overflow-x: auto; white-space: nowrap; }
       .documents-table { overflow-x: auto; white-space: nowrap; }
-      .folder-view {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 15px;
-      }
+      .folder-view { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
       .modal-content { margin: 10px; padding: 1.5rem; }
       .file-upload { padding: 1.5rem; }
       body { font-size: 15px; }
@@ -682,7 +649,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h3>Upload Document</h3>
-              <button class="modal-close">&times;</button>
+              <button class="modal-close">×</button>
             </div>
             <form id="upload-form">
               <div class="form-group">
@@ -734,7 +701,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h3>Create New Folder</h3>
-              <button class="modal-close">&times;</button>
+              <button class="modal-close">×</button>
             </div>
             <form id="folder-form">
               <div class="form-group">
@@ -762,7 +729,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h3>Share Document</h3>
-              <button class="modal-close">&times;</button>
+              <button class="modal-close">×</button>
             </div>
             <div class="share-options">
               <div class="share-option email-option">
@@ -860,7 +827,124 @@
       else console.error(`Modal ${modalId} not found`);
     }
 
-    // Upload document
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    // Format date
+    function formatDate(timestamp) {
+      return new Date(timestamp).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Load folders
+    async function loadFolders(userId) {
+      try {
+        const folderSelect = document.getElementById('document-folder');
+        folderSelect.innerHTML = '<option value="">None</option>';
+        const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
+        folderQuery.forEach(doc => {
+          const folder = doc.data();
+          const option = document.createElement('option');
+          option.value = folder.name;
+          option.textContent = folder.name;
+          folderSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading folders:', error);
+        showMessage('Failed to load folders.', 'error');
+      }
+    }
+
+    // Load documents
+    async function loadDocuments(userId, category = 'all', searchQuery = '') {
+      try {
+        const tableBody = document.getElementById('documents-table-body');
+        tableBody.innerHTML = '';
+        let query = db.collection('users').doc(userId).collection('documents');
+        if (category !== 'all') {
+          query = query.where('category', '==', category);
+        }
+        if (searchQuery) {
+          query = query.where('name', '>=', searchQuery).where('name', '<=', searchQuery + '\uf8ff');
+        }
+        const docQuery = await query.get();
+        docQuery.forEach(doc => {
+          const docData = doc.data();
+          const row = document.createElement('tr');
+          row.className = 'document-row';
+          row.innerHTML = `
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="document-icon"><i class="fas fa-file"></i></div>
+                <div class="document-info">
+                  <div class="document-name">${docData.name}</div>
+                  <div class="document-meta">
+                    <span><i class="fas fa-folder"></i> ${docData.folder || 'None'}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>${docData.category.charAt(0).toUpperCase() + docData.category.slice(1)}</td>
+            <td>${formatDate(docData.modified)}</td>
+            <td>${formatFileSize(docData.size)}</td>
+            <td>
+              <div class="document-actions">
+                <button class="download-btn" data-url="${docData.downloadURL}"><i class="fas fa-download"></i></button>
+              </div>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        // Attach download event listeners
+        document.querySelectorAll('.download-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const url = btn.dataset.url;
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = '';
+            link.click();
+          });
+        });
+      } catch (error) {
+        console.error('Error loading documents:', error);
+        showMessage('Failed to load documents.', 'error');
+      }
+    }
+
+    // Load folder view
+    async function loadFolderView(userId) {
+      try {
+        const folderView = document.getElementById('folder-view');
+        folderView.innerHTML = '';
+        const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
+        folderQuery.forEach(doc => {
+          const folder = doc.data();
+          const item = document.createElement('div');
+          item.className = 'folder-item';
+          item.innerHTML = `
+            <div class="folder-icon" style="background: ${folder.color}; color: white;">
+              <i class="fas fa-folder"></i>
+            </div>
+            <div class="folder-name">${folder.name}</div>
+            <div class="folder-meta">${folder.files || 0} files</div>
+          `;
+          folderView.appendChild(item);
+        });
+      } catch (error) {
+        console.error('Error loading folder view:', error);
+        showMessage('Failed to load folders.', 'error');
+      }
+    }
+
+    // Upload document with progress
     async function uploadDocument() {
       const nameInput = document.getElementById('document-name');
       const categoryInput = document.getElementById('document-category');
@@ -919,16 +1003,28 @@
         const fileName = `${name.replace(/\s+/g, '_')}_${timestamp}.${fileType}`;
         const storagePath = `users/${user.uid}/documents/${fileName}`;
 
-        console.log('Uploading to:', storagePath);
-        const { data, error } = await supabase.storage
-          .from('documents')
-          .upload(storagePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
+        // Custom upload with progress
+        const response = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', `${supabaseConfig.url}/storage/v1/object/documents/${storagePath}`, true);
+          xhr.setRequestHeader('Authorization', `Bearer ${supabaseConfig.key}`);
+          xhr.setRequestHeader('Content-Type', file.type);
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = (event.loaded / event.total) * 100;
+              progressFill.style.width = `${progress}%`;
+              progressText.textContent = `${Math.round(progress)}%`;
+            }
+          };
+          xhr.onload = () => {
+            if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
+            else reject(new Error(`Upload failed: ${xhr.statusText}`));
+          };
+          xhr.onerror = () => reject(new Error('Upload error'));
+          xhr.send(file);
+        });
 
-        if (error) throw new Error(`Upload error: ${error.message}`);
-        console.log('Upload successful:', data);
+        console.log('Upload successful:', response);
 
         const { data: { publicUrl } } = supabase.storage
           .from('documents')
@@ -983,6 +1079,7 @@
         submitBtn.disabled = false;
         closeModal('upload-modal');
         showMessage('Document uploaded!', 'success');
+        loadDocuments(user.uid);
       } catch (error) {
         console.error('Upload error:', error);
         showMessage(`Error uploading: ${error.message}`, 'error');
@@ -998,6 +1095,51 @@
       }
     }
 
+    // Create folder
+    async function createFolder() {
+      const nameInput = document.getElementById('folder-name');
+      const colorInput = document.getElementById('folder-color');
+      if (!nameInput || !colorInput) {
+        showMessage('Form elements missing.', 'error');
+        return;
+      }
+
+      const name = nameInput.value.trim();
+      const color = colorInput.value;
+
+      if (!name) {
+        showMessage('Folder name required.', 'error');
+        return;
+      }
+
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('User not authenticated');
+
+        const folderData = {
+          name,
+          color,
+          files: 0,
+          created: Date.now()
+        };
+
+        await db.collection('users')
+          .doc(user.uid)
+          .collection('folders')
+          .add(folderData);
+
+        document.getElementById('folder-form').reset();
+        document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
+        closeModal('folder-modal');
+        showMessage('Folder created!', 'success');
+        loadFolders(user.uid);
+        loadFolderView(user.uid);
+      } catch (error) {
+        console.error('Error creating folder:', error);
+        showMessage(`Error creating folder: ${error.message}`, 'error');
+      }
+    }
+
     // Initialize upload form
     function initUploadForm() {
       console.log('Initializing upload form');
@@ -1007,8 +1149,6 @@
           e.preventDefault();
           uploadDocument();
         });
-      } else {
-        console.error('upload-form not found');
       }
 
       const fileUploadArea = document.getElementById('file-upload-area');
@@ -1070,6 +1210,87 @@
       }
     }
 
+    // Initialize folder form
+    function initFolderForm() {
+      const folderForm = document.getElementById('folder-form');
+      if (folderForm) {
+        folderForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          createFolder();
+        });
+      }
+
+      const newFolderBtn = document.getElementById('new-folder-btn');
+      if (newFolderBtn) {
+        newFolderBtn.addEventListener('click', () => {
+          const modal = document.getElementById('folder-modal');
+          if (modal) modal.style.display = 'flex';
+        });
+      }
+
+      const modalClose = document.querySelector('#folder-modal .modal-close');
+      if (modalClose) {
+        modalClose.addEventListener('click', () => closeModal('folder-modal'));
+      }
+
+      document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', () => {
+          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+          document.getElementById('folder-color').value = option.dataset.color;
+        });
+      });
+    }
+
+    // Initialize search
+    function initSearch(userId) {
+      const searchInput = document.getElementById('search-input');
+      const searchBtn = document.getElementById('search-btn');
+      if (searchInput && searchBtn) {
+        const performSearch = () => {
+          const category = document.querySelector('.category-btn.active').dataset.category;
+          loadDocuments(userId, category, searchInput.value.trim());
+        };
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('input', performSearch);
+      }
+    }
+
+    // Initialize category filter
+    function initCategoryFilter(userId) {
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const searchQuery = document.getElementById('search-input').value.trim();
+          loadDocuments(userId, btn.dataset.category, searchQuery);
+        });
+      });
+    }
+
+    // Initialize view toggle
+    function initViewToggle(userId) {
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tableView = document.getElementById('table-view');
+          const folderView = document.getElementById('folder-view');
+          if (btn.dataset.view === 'table') {
+            tableView.style.display = 'block';
+            folderView.style.display = 'none';
+            const category = document.querySelector('.category-btn.active').dataset.category;
+            const searchQuery = document.getElementById('search-input').value.trim();
+            loadDocuments(userId, category, searchQuery);
+          } else {
+            tableView.style.display = 'none';
+            folderView.style.display = 'grid';
+            loadFolderView(userId);
+          }
+        });
+      });
+    }
+
     // Handle auth state
     document.addEventListener('DOMContentLoaded', () => {
       console.log('DOM loaded');
@@ -1096,6 +1317,40 @@
           loadingElement.style.display = 'none';
           appContentElement.style.display = 'block';
           initUploadForm();
+          initFolderForm();
+          initSearch(user.uid);
+          initCategoryFilter(user.uid);
+          initViewToggle(user.uid);
+          loadFolders(user.uid);
+          loadDocuments(user.uid);
+          loadFolderView(user.uid);
+
+          // Set user info
+          document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
+          document.getElementById('popup-user-name').textContent = user.displayName || user.email.split('.')[0];
+          document.getElementById('popup-user-email').textContent = user.email;
+
+          // Handle user popup
+          const userAvatar = document.getElementById('user-avatar');
+          const userPopup = document.getElementById('user-popup');
+          userAvatar.addEventListener('click', () => {
+            userPopup.classList.toggle('active');
+          });
+
+          // Handle logout
+          const logoutBtn = document.getElementById('popup-logout-btn');
+          const logoutLink = document.getElementById('logout-link');
+          const logout = async () => {
+            try {
+              await auth.signOut();
+              window.location.href = 'index.html';
+            } catch (error) {
+              console.error('Logout error:', error);
+              showMessage('Failed to logout.', 'error');
+            }
+          };
+          logoutBtn.addEventListener('click', logout);
+          logoutLink.addEventListener('click', logout);
         } else {
           console.log('No user or email not verified');
           loadingElement.style.display = 'none';
