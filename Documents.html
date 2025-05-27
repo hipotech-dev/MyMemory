@@ -1191,270 +1191,290 @@
       </div>
     </div>
   </div>
-
   <script>
-  // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-    authDomain: "mymemory-ddc21.firebaseapp.com",
-    projectId: "mymemory-ddc21",
-    storageBucket: "mymemory-ddc21.firebasestorage.app",
-    messagingSenderId: "875926928384",
-    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-    measurementId: "G-8XZZNJB0QD"
-  };
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+  authDomain: "mymemory-ddc21.firebaseapp.com",
+  projectId: "mymemory-ddc21",
+  storageBucket: "mymemory-ddc21.firebasestorage.app",
+  messagingSenderId: "875926928384",
+  appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+  measurementId: "G-8XZZNJB0QD"
+};
 
-  // Initialize Firebase
+// Initialize Firebase with error handling
+try {
   firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const storage = firebase.storage();
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  showMessage('Failed to initialize application. Please try again later.', 'error');
+}
 
-  // Show message
-  function showMessage(message, type = 'error') {
-    const messageElement = document.getElementById('auth-message');
-    messageElement.textContent = message;
-    messageElement.className = `message ${type}`;
-    messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
-    messageElement.style.display = 'block';
-    setTimeout(() => {
-      messageElement.style.display = 'none';
-    }, 5000);
+// Firebase services
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Show message
+function showMessage(message, type = 'error') {
+  const messageElement = document.getElementById('auth-message');
+  messageElement.textContent = message;
+  messageElement.className = `message ${type}`;
+  messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
+  messageElement.style.display = 'block';
+  setTimeout(() => {
+    messageElement.style.display = 'none';
+  }, 5000);
+}
+
+// Close modal
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+// Upload document function
+async function uploadDocument() {
+  const name = document.getElementById('document-name').value.trim();
+  const category = document.getElementById('document-category').value;
+  const folder = document.getElementById('document-folder').value;
+  const description = document.getElementById('document-description').value.trim();
+  const fileInput = document.getElementById('document-file');
+  const progressContainer = document.getElementById('upload-progress');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const submitBtn = document.getElementById('upload-submit-btn');
+  
+  if (!name) {
+    showMessage('Document name is required.', 'error');
+    return;
+  }
+  
+  if (fileInput.files.length === 0) {
+    showMessage('Please select a file to upload.', 'error');
+    return;
+  }
+  
+  const file = fileInput.files[0];
+  const fileType = file.name.split('.').pop().toLowerCase();
+  const maxSize = 5 * 1024 * 1024; // 5MB limit
+  
+  // Check file size
+  if (file.size > maxSize) {
+    showMessage('File size exceeds 5MB limit.', 'error');
+    return;
+  }
+  
+  // Check file type
+  const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
+  if (!allowedTypes.includes(fileType)) {
+    showMessage('Unsupported file type. Allowed types: PDF, DOC, DOCX, XLSX, XLS, PPT, PPTX, JPG, JPEG, PNG, TXT', 'error');
+    return;
   }
 
-  // Upload document function
-  async function uploadDocument() {
-    const name = document.getElementById('document-name').value.trim();
-    const category = document.getElementById('document-category').value;
-    const folder = document.getElementById('document-folder').value;
-    const description = document.getElementById('document-description').value.trim();
-    const fileInput = document.getElementById('document-file');
-    const progressContainer = document.getElementById('upload-progress');
-    const progressFill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-    const submitBtn = document.getElementById('upload-submit-btn');
-    
-    if (!name) {
-      showMessage('Document name is required.', 'error');
-      return;
-    }
-    
-    if (fileInput.files.length === 0) {
-      showMessage('Please select a file to upload.', 'error');
-      return;
-    }
-    
-    const file = fileInput.files[0];
-    const fileType = file.name.split('.').pop().toLowerCase();
-    const maxSize = 5 * 1024 * 1024; // 5MB limit
-    
-    // Check file size
-    if (file.size > maxSize) {
-      showMessage('File size exceeds 5MB limit.', 'error');
-      return;
-    }
-    
-    // Check file type
-    const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
-    if (!allowedTypes.includes(fileType)) {
-      showMessage('Unsupported file type. Allowed types: PDF, DOC, DOCX, XLSX, XLS, PPT, PPTX, JPG, JPEG, PNG, TXT', 'error');
-      return;
-    }
+  // Show progress bar and disable submit button
+  progressContainer.style.display = 'block';
+  submitBtn.disabled = true;
 
-    // Show progress bar and disable submit button
-    progressContainer.style.display = 'block';
-    submitBtn.disabled = true;
+  try {
+    // Get current user
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+    
+    // Create unique filename with timestamp
+    const timestamp = Date.now();
+    const fileName = `${name.replace(/\s+/g, '_')}_${timestamp}.${fileType}`;
+    const storagePath = `users/${user.uid}/documents/${fileName}`;
+    
+    // Create storage reference
+    const storageRef = storage.ref().child(storagePath);
+    
+    // Start upload task
+    const uploadTask = storageRef.put(file);
 
-    try {
-      // Get current user
-      const user = auth.currentUser;
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-      
-      // Create unique filename with timestamp
-      const timestamp = Date.now();
-      const fileName = `${name.replace(/\s+/g, '_')}_${timestamp}.${fileType}`;
-      const storagePath = `users/${user.uid}/documents/${fileName}`;
-      
-      // Create storage reference
-      const storageRef = storage.ref().child(storagePath);
-      
-      // Start upload task
-      const uploadTask = storageRef.put(file);
-
-      // Monitor upload progress
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          // Update progress bar
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressFill.style.width = `${progress}%`;
-          progressText.textContent = `${Math.round(progress)}%`;
-        },
-        (error) => {
-          // Handle upload error
-          console.error('Upload error:', error);
-          showMessage('Error uploading file: ' + error.message, 'error');
-          progressContainer.style.display = 'none';
-          submitBtn.disabled = false;
-        },
-        async () => {
-          try {
-            // Upload complete - get download URL
-            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+    // Monitor upload progress
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        // Update progress bar
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        progressFill.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+      },
+      (error) => {
+        // Handle upload error
+        console.error('Upload error:', error);
+        showMessage('Error uploading file: ' + error.message, 'error');
+        progressContainer.style.display = 'none';
+        submitBtn.disabled = false;
+      },
+      async () => {
+        try {
+          // Upload complete - get download URL
+          const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+          
+          // Create document data
+          const newDoc = {
+            id: 'doc' + timestamp,
+            name: name,
+            type: fileType,
+            category: category,
+            folder: folder,
+            size: file.size,
+            modified: timestamp,
+            owner: user.displayName || user.email.split('@')[0],
+            shared: false,
+            description: description,
+            storagePath: storagePath,
+            downloadURL: downloadURL
+          };
+          
+          // Save document metadata to Firestore
+          await db.collection('users').doc(user.uid).collection('documents').doc(newDoc.id).set({
+            name: newDoc.name,
+            type: newDoc.type,
+            category: newDoc.category,
+            folder: newDoc.folder,
+            size: newDoc.size,
+            modified: newDoc.modified,
+            owner: newDoc.owner,
+            shared: newDoc.shared,
+            description: newDoc.description,
+            storagePath: newDoc.storagePath,
+            downloadURL: newDoc.downloadURL
+          });
+          
+          // Update folder count if document is in a folder
+          if (folder) {
+            const folderQuery = await db.collection('users').doc(user.uid).collection('folders')
+              .where('name', '==', folder)
+              .limit(1)
+              .get();
             
-            // Create document data
-            const newDoc = {
-              id: 'doc' + timestamp,
-              name: name,
-              type: fileType,
-              category: category,
-              folder: folder,
-              size: file.size,
-              modified: timestamp,
-              owner: user.displayName || user.email.split('@')[0],
-              shared: false,
-              description: description,
-              storagePath: storagePath,
-              downloadURL: downloadURL
-            };
-            
-            // Save document metadata to Firestore
-            await db.collection('users').doc(user.uid).collection('documents').doc(newDoc.id).set({
-              name: newDoc.name,
-              type: newDoc.type,
-              category: newDoc.category,
-              folder: newDoc.folder,
-              size: newDoc.size,
-              modified: newDoc.modified,
-              owner: newDoc.owner,
-              shared: newDoc.shared,
-              description: newDoc.description,
-              storagePath: newDoc.storagePath,
-              downloadURL: newDoc.downloadURL
-            });
-            
-            // Update folder count if document is in a folder
-            if (folder) {
-              const folderQuery = await db.collection('users').doc(user.uid).collection('folders')
-                .where('name', '==', folder)
-                .limit(1)
-                .get();
-              
-              if (!folderQuery.empty) {
-                const folderDoc = folderQuery.docs[0];
-                await db.collection('users').doc(user.uid).collection('folders').doc(folderDoc.id)
-                  .update({
-                    files: firebase.firestore.FieldValue.increment(1)
-                  });
-              }
-            }
-            
-            // Reset form and UI
-            document.getElementById('upload-form').reset();
-            progressContainer.style.display = 'none';
-            submitBtn.disabled = false;
-            closeModal('upload-modal');
-            
-            // Show success message
-            showMessage('Document uploaded successfully!', 'success');
-            
-            // Refresh document list (you'll need to implement this)
-            loadDocuments();
-            
-          } catch (error) {
-            console.error('Error saving document metadata:', error);
-            showMessage('Error saving document information.', 'error');
-            progressContainer.style.display = 'none';
-            submitBtn.disabled = false;
-            
-            // Attempt to delete the uploaded file if metadata save failed
-            try {
-              await storageRef.delete();
-            } catch (deleteError) {
-              console.error('Error cleaning up uploaded file:', deleteError);
+            if (!folderQuery.empty) {
+              const folderDoc = folderQuery.docs[0];
+              await db.collection('users').doc(user.uid).collection('folders').doc(folderDoc.id)
+                .update({
+                  files: firebase.firestore.FieldValue.increment(1)
+                });
             }
           }
+          
+          // Reset form and UI
+          document.getElementById('upload-form').reset();
+          progressContainer.style.display = 'none';
+          submitBtn.disabled = false;
+          closeModal('upload-modal');
+          
+          // Show success message
+          showMessage('Document uploaded successfully!', 'success');
+          
+          // Refresh document list (placeholder for loadDocuments function)
+          // loadDocuments(); // Uncomment when implemented
+          
+        } catch (error) {
+          console.error('Error saving document metadata:', error);
+          showMessage('Error saving document information.', 'error');
+          progressContainer.style.display = 'none';
+          submitBtn.disabled = false;
+          
+          // Attempt to delete the uploaded file if metadata save failed
+          try {
+            await storageRef.delete();
+          } catch (deleteError) {
+            console.error('Error cleaning up uploaded file:', deleteError);
+          }
         }
-      );
-    } catch (error) {
-      console.error('Error during upload process:', error);
-      showMessage('Error uploading document: ' + error.message, 'error');
-      progressContainer.style.display = 'none';
-      submitBtn.disabled = false;
-    }
+      }
+    );
+  } catch (error) {
+    console.error('Error during upload process:', error);
+    showMessage('Error uploading document: ' + error.message, 'error');
+    progressContainer.style.display = 'none';
+    submitBtn.disabled = false;
   }
+}
 
-  // Initialize the upload form
-  function initUploadForm() {
-    const uploadForm = document.getElementById('upload-form');
-    if (uploadForm) {
-      uploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        uploadDocument();
-      });
-    }
-    
-    // File upload area click handler
-    const fileUploadArea = document.getElementById('file-upload-area');
-    if (fileUploadArea) {
-      fileUploadArea.addEventListener('click', function() {
-        document.getElementById('document-file').click();
-      });
-      
-      // Drag and drop functionality
-      fileUploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.style.borderColor = 'var(--primary-light)';
-        this.style.background = 'rgba(0, 112, 186, 0.05)';
-      });
-      
-      fileUploadArea.addEventListener('dragleave', function() {
-        this.style.borderColor = 'var(--gray)';
-        this.style.background = '';
-      });
-      
-      fileUploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.style.borderColor = 'var(--gray)';
-        this.style.background = '';
-        
-        if (e.dataTransfer.files.length) {
-          document.getElementById('document-file').files = e.dataTransfer.files;
-          const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
-          document.getElementById('document-name').value = fileName;
-        }
-      });
-    }
-    
-    // File input change handler
-    const fileInput = document.getElementById('document-file');
-    if (fileInput) {
-      fileInput.addEventListener('change', function() {
-        if (this.files.length > 0) {
-          const fileName = this.files[0].name.split('.').slice(0, -1).join('.');
-          document.getElementById('document-name').value = fileName;
-        }
-      });
-    }
+// Initialize the upload form
+function initUploadForm() {
+  const uploadForm = document.getElementById('upload-form');
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      uploadDocument();
+    });
   }
-
-  // Call this when the page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+  
+  // File upload area click handler
+  const fileUploadArea = document.getElementById('file-upload-area');
+  if (fileUploadArea) {
+    fileUploadArea.addEventListener('click', function() {
+      document.getElementById('document-file').click();
+    });
     
-    // Check authentication
-    auth.onAuthStateChanged((user) => {
-      if (user && user.emailVerified) {
-        // User is signed in and email is verified
-        initUploadForm();
-      } else {
-        // User is not signed in or email not verified
-        window.location.href = 'index.html';
+    // Drag and drop functionality
+    fileUploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.style.borderColor = 'var(--primary-light)';
+      this.style.background = 'rgba(0, 112, 186, 0.05)';
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function() {
+      this.style.borderColor = 'var(--gray)';
+      this.style.background = '';
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.style.borderColor = 'var(--gray)';
+      this.style.background = '';
+      
+      if (e.dataTransfer.files.length) {
+        document.getElementById('document-file').files = e.dataTransfer.files;
+        const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
+        document.getElementById('document-name').value = fileName;
       }
     });
+  }
+  
+  // File input change handler
+  const fileInput = document.getElementById('document-file');
+  if (fileInput) {
+    fileInput.addEventListener('change', function() {
+      if (this.files.length > 0) {
+        const fileName = this.files[0].name.split('.').slice(0, -1).join('.');
+        document.getElementById('document-name').value = fileName;
+      }
+    });
+  }
+}
+
+// Handle authentication state changes
+document.addEventListener('DOMContentLoaded', function() {
+  const loadingElement = document.getElementById('loading');
+  const appContentElement = document.getElementById('app-content');
+
+  auth.onAuthStateChanged((user) => {
+    if (user && user.emailVerified) {
+      // User is signed in and email is verified
+      loadingElement.style.display = 'none';
+      appContentElement.style.display = 'block';
+      initUploadForm();
+      // Initialize other functionality (e.g., loadDocuments) here if needed
+    } else {
+      // User is not signed in or email not verified
+      loadingElement.style.display = 'none';
+      showMessage('Please sign in and verify your email.', 'error');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000); // Delay redirect to show message
+    }
   });
+});
 </script>
 </body>
 </html>
