@@ -1755,6 +1755,10 @@
     document.getElementById('dashboard').style.display = 'none';
     showMessage('authentication', 'Failed to connect to services. Please try again later.', 'error');
   }
+// Initialize Supabase (add this near the top of the <script> tag, after Firebase initialization)
+const supabaseUrl = 'https://your-supabase-url.supabase.co';
+const supabaseKey = 'your-supabase-anon-key'; // Secure this in production
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
   // Global error handler
   window.addEventListener('error', function(event) {
@@ -2473,13 +2477,11 @@
     const passwordStats = await calculatePasswordStats(user.uid);
     const passwordCount = document.getElementById('password-count');
     const passwordRecent = document.getElementById('password-recent');
-    const passwordWeak = document.getElementById('password-error'); // Note: 'password-weak' seems missing in HTML, using 'password-error'
+    const passwordWeak = document.getElementById('password-error'); // Note: 'password-weak' seems missing in HTML
 
-    passwordCount.textContent = passwordStats.total;
-    passwordRecent.textContent = passwordStats.recent;
-    if (passwordWeak) {
-      passwordWeak.textContent = passwordStats.strength.weak;
-    }
+    if (passwordCount) passwordCount.textContent = passwordStats.total;
+    if (passwordRecent) passwordRecent.textContent = passwordStats.recent;
+    if (passwordWeak) passwordWeak.textContent = passwordStats.strength.weak;
 
     // Load todos
     const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
@@ -2490,7 +2492,7 @@
     const todoList = document.getElementById('todo-list');
     const todoCount = document.getElementById('todo-count');
     const todoUrgent = document.getElementById('todo-urgent');
-    todoList.innerHTML = '';
+    if (todoList) todoList.innerHTML = '';
 
     let urgentCount = 0;
     const today = new Date();
@@ -2502,19 +2504,23 @@
       addTodoEventListeners(todoElement, user);
       todoList.appendChild(todoElement);
 
-      if (todo.dueDate && todo.dueDate) {
-        const dueDate = new Date(todo.dueDate);
-        dueDate.setHours(0, 0, 0, 0);
-        if (dueDate.getTime() <= today.getTime() && !todo.completed) {
-          urgentCount++;
+      if (todo.dueDate) {
+        try {
+          const dueDate = new Date(todo.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          if (dueDate.getTime() <= today.getTime() && !todo.completed) {
+            urgentCount++;
+          }
+        } catch (e) {
+          console.warn(`Invalid dueDate for todo ${doc.id}:`, todo.dueDate);
         }
       }
     });
 
-    todoCount.textContent = todoSnapshot.size;
-    todoUrgent.textContent = urgentCount;
+    if (todoCount) todoCount.textContent = todoSnapshot.size;
+    if (todoUrgent) todoUrgent.textContent = urgentCount;
 
-    if (todoSnapshot.empty) {
+    if (todoSnapshot.empty && todoList) {
       todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
     }
 
@@ -2523,13 +2529,11 @@
     if (todoCard) {
       todoCard.style.cursor = 'pointer';
       todoCard.addEventListener('click', function(e) {
-        if (e.target.closest('.todo-checkbox, .todo-actions')) {
-          return;
-        }
+        if (e.target.closest('.todo-checkbox, .todo-actions')) return;
         window.location.href = 'To do list.html';
       });
     } else {
-      console.error('Todo card not found');
+      console.warn('Todo card not found');
     }
 
     // Load passwords
@@ -2539,11 +2543,11 @@
       .get();
 
     const passwordList = document.getElementById('password-list');
-    passwordList.innerHTML = '';
+    if (passwordList) passwordList.innerHTML = '';
 
     passwordSnapshot.forEach(doc => {
       const password = { id: doc.id, ...doc.data() };
-      console.log(`Fetched password ID ${doc.id}:`, password); // Debug log
+      console.log(`Fetched password ID ${doc.id}:`, password);
       if (!password.title) {
         console.warn(`Password ${doc.id} has no title, setting default`);
         password.title = 'Untitled Password';
@@ -2554,7 +2558,7 @@
       passwordList.appendChild(passwordElement);
     });
 
-    if (passwordSnapshot.empty) {
+    if (passwordSnapshot.empty && passwordList) {
       passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
     }
 
@@ -2563,73 +2567,74 @@
     if (passwordCard) {
       passwordCard.style.cursor = 'pointer';
       passwordCard.addEventListener('click', function(e) {
-        if (e.target.closest('.password-card-actions, .toggle-password')) {
-          return;
-        }
+        if (e.target.closest('.password-card-actions, .toggle-password')) return;
         window.location.href = 'Password Manager.html';
       });
     } else {
-      console.error('Password card not found');
+      console.warn('Password card not found');
     }
 
     // Load documents
+    console.log('Fetching documents for user:', user.uid);
     const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
       .orderBy('createdAt', 'desc')
-      .limit(1) // Limit to 1 for the recent document on dashboard
       .get();
 
     const documentList = document.getElementById('document-list');
     const documentCount = document.getElementById('document-count');
     const documentRecent = document.getElementById('document-recent');
-    documentList.innerHTML = '';
+    if (documentList) documentList.innerHTML = '';
 
     // Calculate document stats
     const now = new Date();
-    const oneWeekAgo = new Date(now);
-    oneWeekAgo.setDate(now.getDate() - 7);
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     let recentCount = 0;
 
-    const allDocumentsSnapshot = await db.collection('users').doc(user.uid).collection('documents').get();
-    allDocumentsSnapshot.forEach(doc => {
+    documentSnapshot.forEach(doc => {
       const docData = doc.data();
-      if (docData.createdAt) {
-        let createdDate;
-        try {
-          createdDate = docData.createdAt.toDate();
-          if (createdDate > oneWeekAgo) {
-            recentCount++;
-          }
-        } catch (e) {
-          console.warn(`Invalid createdAt for document ${doc.id}`);
+      console.log(`Document ${doc.id}:`, docData);
+      try {
+        const createdAt = docData.createdAt?.toDate();
+        if (createdAt && createdAt > oneWeekAgo) {
+          recentCount++;
         }
+      } catch (e) {
+        console.warn(`Invalid createdAt for document ${doc.id}:`, docData.createdAt);
       }
     });
 
-    documentCount.textContent = allDocumentsSnapshot.size;
-    documentRecent.textContent = recentCount;
+    if (documentCount) documentCount.textContent = documentSnapshot.size;
+    if (documentRecent) documentRecent.textContent = recentCount;
+    console.log(`Document stats: total=${documentSnapshot.size}, recent=${recentCount}`);
 
-    // Display recent document
+    // Display up to one recent document
     if (!documentSnapshot.empty) {
-      documentSnapshot.forEach(doc => {
-        const docData = { id: doc.id, ...doc.data() };
-        const docElement = document.createElement('div');
-        docElement.className = 'document-item';
-        docElement.innerHTML = `
-          <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
-            <div>
-              <div style="font-weight: 600; color: var(--dark);">${docData.name}</div>
-              <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
-              <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${docData.createdAt?.toDate().toLocaleDateString() || 'N/A'}</div>
-            </div>
-            <div class="document-actions" style="display: flex; gap: 0.5rem;">
-              <a href="${docData.url}" target="_blank" title="Download"><i class="fas fa-download"></i></a>
-            </div>
+      const latestDoc = documentSnapshot.docs[0];
+      const docData = { id: latestDoc.id, ...latestDoc.data() };
+      console.log('Displaying recent document:', docData);
+
+      const docElement = document.createElement('div');
+      docElement.className = 'document-item';
+      const createdDate = docData.createdAt?.toDate()?.toLocaleDateString() || 'N/A';
+      const downloadUrl = docData.downloadURL || '#';
+      docElement.innerHTML = `
+        <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
+          <div>
+            <div style="font-weight: 600; color: var(--dark);">${docData.name || 'Untitled'}</div>
+            <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
+            <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${createdDate}</div>
           </div>
-        `;
-        documentList.appendChild(docElement);
-      });
+          <div class="document-actions" style="display: flex; gap: 0.5rem;">
+            <a href="${downloadUrl}" target="_blank" title="Download" style="color: var(--primary);"><i class="fas fa-download"></i></a>
+          </div>
+        </div>
+      `;
+      documentList.appendChild(docElement);
     } else {
-      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+      if (documentList) {
+        documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+      }
+      console.log('No documents found for user:', user.uid);
     }
 
     // Add click event listener to document card
@@ -2637,20 +2642,25 @@
     if (documentCard) {
       documentCard.style.cursor = 'pointer';
       documentCard.addEventListener('click', function(e) {
+        console.log('Document card clicked, navigating to Documents.html');
         window.location.href = 'Documents.html';
       });
     } else {
-      console.error('Document card not found');
+      console.warn('Document card not found');
     }
 
     // Hide loading indicators
-    document.getElementById('todo-loading').style.display = 'none';
-    document.getElementById('password-loading').style.display = 'none';
+    if (document.getElementById('todo-loading')) document.getElementById('todo-loading').style.display = 'none';
+    if (document.getElementById('password-loading')) document.getElementById('password-loading').style.display = 'none';
     document.querySelector('.document-list .loading')?.remove();
 
   } catch (error) {
     console.error('Error loading dashboard:', error);
     showMessage('authentication', 'Error loading dashboard: ' + error.message, 'error');
+    const documentList = document.getElementById('document-list');
+    if (documentList) {
+      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>Failed to load documents.</p></div>';
+    }
   }
 }
 
@@ -2914,42 +2924,65 @@
   });
 
   // Handle document form submission
-  document.getElementById('document-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (!validateDocumentForm()) return;
+ // Handle document form submission
+document.getElementById('document-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validateDocumentForm()) return;
 
-    const user = auth.currentUser;
-    if (!user) {
-      showMessage('authentication', 'You must be logged in to upload documents.', 'error');
-      return;
-    }
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('authentication', 'You must be logged in to upload documents.', 'error');
+    return;
+  }
 
-    const file = document.getElementById('document-file').files[0];
+  const file = document.getElementById('document-file').files[0];
+  const name = document.getElementById('document-name').value;
+  const category = document.getElementById('document-category').value;
+
+  try {
+    const timestamp = Date.now();
+    const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const fileName = `${sanitizedName}_${timestamp}.${file.name.split('.').pop()}`;
+    const storagePath = `users/${user.uid}/documents/${fileName}`;
+
+    // Upload to Supabase
+    console.log('Uploading file to Supabase:', { storagePath, fileName });
+    const { error } = await supabase.storage
+      .from('public-documents')
+      .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+
+    if (error) throw new Error(`Upload failed: ${error.message}`);
+
+    // Get public URL
+    const { data } = supabase.storage.from('public-documents').getPublicUrl(storagePath);
+    const downloadURL = data.publicUrl;
+
+    // Save metadata to Firestore
     const documentData = {
-      name: document.getElementById('document-name').value,
-      category: document.getElementById('document-category').value,
+      name,
+      category,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      storagePath,
+      downloadURL,
+      fileName,
+      size: file.size,
+      type: file.name.split('.').pop().toLowerCase(),
+      owner: user.displayName || user.email.split('.')[0]
     };
 
-    try {
-      const storageRef = storage.ref(`users/${user.uid}/documents/${file.name}`);
-      const uploadTask = await storageRef.put(file);
-      const downloadURL = await uploadTask.ref.getDownloadURL();
+    console.log('Saving document metadata:', documentData);
+    await db.collection('users').doc(user.uid).collection('documents').add(documentData);
 
-      documentData.url = downloadURL;
-      documentData.fileName = file.name;
-
-      await db.collection('users').doc(user.uid).collection('documents').add(documentData);
-      showMessage('authentication', 'Document uploaded!', 'success');
-      document.getElementById('document-modal').style.display = 'none';
-      document.getElementById('document-form').reset();
-      loadDashboard(user);
-    } catch (error) {
-      console.error('Error uploading document:', error);
-      showMessage('authentication', 'Error uploading document: ' + error.message, 'error');
-    }
-  });
+    showMessage('authentication', 'Document uploaded!', 'success');
+    document.getElementById('document-modal').style.display = 'none';
+    document.getElementById('document-form').reset();
+    await loadDashboard(user);
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    showMessage('authentication', 'Error uploading document: ' + error.message, 'error');
+  }
+});
 </script>
 </body>
 </html>
