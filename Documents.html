@@ -228,6 +228,7 @@
     .documents-table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: auto;
     }
     .documents-table th {
       text-align: left;
@@ -236,11 +237,13 @@
       color: var(--dark);
       font-weight: 600;
       border-bottom: 2px solid var(--gray);
+      white-space: nowrap;
     }
     .documents-table td {
       padding: 12px 15px;
       border-bottom: 1px solid var(--gray);
       vertical-align: middle;
+      word-break: break-word;
     }
     .document-row:hover { background: rgba(0, 112, 186, 0.05); }
     .document-icon {
@@ -270,8 +273,77 @@
       align-items: center;
       gap: 5px;
     }
-    .document-actions { display: flex; gap: 10px; }
+    .document-actions { 
+      display: flex; 
+      gap: 10px; 
+      flex-wrap: nowrap;
+    }
     .document-actions button {
+      background: none;
+      border: none;
+      color: #718096;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .document-actions button:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--primary);
+    }
+    .folder-view {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+    }
+    .folder-item {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid var(--gray);
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .folder-item:hover {
+      border-color: var(--primary-light);
+      box-shadow: 0 2px 8px rgba(0, 112, 186, 0.1);
+    }
+    .folder-icon {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 8px;
+      background: var(--light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 1.3rem;
+    }
+    .folder-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .folder-meta {
+      color: #718096;
+      font-size: 0.8rem;
+    }
+    .folder-actions {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+    .folder-actions button {
       background: none;
       border: none;
       color: #718096;
@@ -282,65 +354,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .document-actions button:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--primary);
-    }
-    .folder-view {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-    .folder-item {
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      border: 1px solid var(--gray);
-      position: relative;
-    }
-    .folder-item:hover {
-      border-color: var(--primary-light);
-      box-shadow: 0 2px 8px rgba(0, 112, 186, 0.1);
-    }
-    .folder-icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 10px;
-      background: var(--light);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      font-size: 1.5rem;
-    }
-    .folder-name {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    .folder-meta {
-      color: #718096;
-      font-size: 0.85rem;
-    }
-    .folder-actions {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    .folder-actions button {
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 0.9rem;
     }
     .folder-actions button:hover {
       background: rgba(0, 0, 0, 0.05);
@@ -527,41 +541,171 @@
     @media (max-width: 768px) {
       .container { flex-direction: column; padding: 1rem; }
       .sidebar { width: 100%; padding: 0.5rem; border-radius: 10px; }
-      .sidebar-menu { display: flex; gap: 5px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+      .sidebar-menu { 
+        display: flex; 
+        gap: 5px; 
+        overflow-x: auto; 
+        white-space: nowrap; 
+        scrollbar-width: none;
+      }
       .sidebar-menu::-webkit-scrollbar { display: none; }
       .sidebar-menu li { margin-right: 5px; }
       .sidebar-menu a { padding: 0.5rem; font-size: 0.9rem; }
-      .main-content { padding: 1.5rem; }
-      .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-      .documents-actions { width: 100%; justify-content: flex-end; }
-      .category-filter { overflow-x: auto; white-space: nowrap; }
-      .documents-table { overflow-x: auto; white-space: nowrap; }
-      .folder-view { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-      .modal-content { margin: 10px; padding: 1.5rem; }
+      .main-content { padding: 1rem; }
+      .page-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 10px; 
+      }
+      .documents-actions { 
+        width: 100%; 
+        justify-content: flex-end; 
+        flex-wrap: wrap;
+      }
+      .category-filter { 
+        overflow-x: auto; 
+        white-space: nowrap; 
+        padding-bottom: 5px;
+      }
+      .documents-table { 
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .documents-table thead, .documents-table tbody, .documents-table tr {
+        display: block;
+      }
+      .documents-table th, .documents-table td {
+        min-width: 120px;
+        padding: 8px;
+        font-size: 0.85rem;
+      }
+      .documents-table th:nth-child(1), .documents-table td:nth-child(1) { min-width: 200px; }
+      .documents-table th:nth-child(2), .documents-table td:nth-child(2) { min-width: 100px; }
+      .documents-table th:nth-child(3), .documents-table td:nth-child(3) { min-width: 100px; }
+      .documents-table th:nth-child(4), .documents-table td:nth-child(4) { min-width: 80px; }
+      .documents-table th:nth-child(5), .documents-table td:nth-child(5) { min-width: 100px; }
+      .document-actions {
+        justify-content: flex-end;
+      }
+      .folder-view { 
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+        gap: 10px; 
+      }
+      .folder-item {
+        padding: 0.8rem;
+      }
+      .folder-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+      }
+      .folder-name {
+        font-size: 0.85rem;
+      }
+      .folder-meta {
+        font-size: 0.75rem;
+      }
+      .folder-actions button {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+      }
+      .modal-content { 
+        margin: 10px; 
+        padding: 1.5rem; 
+      }
       .file-upload { padding: 1.5rem; }
-      body { font-size: 15px; }
       .page-title { font-size: 1.5rem; }
-      .btn { padding: 10px; font-size: 15px; }
+      .btn { padding: 8px 12px; font-size: 0.9rem; }
       .documents-container { padding: 1rem; }
-      .documents-table th, .documents-table td { padding: 10px; }
       .user-popup { width: 180px; top: 45px; }
     }
     @media (max-width: 480px) {
-      .header { flex-direction: column; gap: 15px; padding: 1rem; }
-      .logo { margin-bottom: 10px; }
-      .user-menu { margin-top: 10px; }
-      .documents-actions { flex-direction: column; width: 100%; gap: 10px; }
-      .documents-actions .btn { width: 100%; justify-content: center; }
-      .search-bar { flex-direction: column; }
-      .search-bar input { border-radius: 6px; margin-bottom: 10px; }
-      .search-bar button { border-radius: 6px; padding: 10px; }
-      .view-toggle { width: 100%; justify-content: center; }
-      .folder-view { grid-template-columns: 1fr; }
-      .document-meta { flex-wrap: wrap; gap: 5px; }
-      .document-meta span { font-size: 0.75rem; }
-      .document-actions { flex-wrap: wrap; justify-content: center; }
-      .sidebar-menu a { font-size: 0.85rem; }
+      .header { 
+        flex-direction: column; 
+        gap: 10px; 
+        padding: 1rem; 
+      }
+      .logo { margin-bottom: 8px; }
+      .user-menu { margin-top: 8px; }
+      .documents-actions { 
+        flex-direction: column; 
+        width: 100%; 
+        gap: 8px; 
+      }
+      .documents-actions .btn { 
+        width: 100%; 
+        justify-content: center; 
+      }
+      .search-bar { 
+        flex-direction: column; 
+        gap: 8px; 
+      }
+      .search-bar input { 
+        border-radius: 6px; 
+        margin-bottom: 0; 
+      }
+      .search-bar button { 
+        border-radius: 6px; 
+        padding: 8px; 
+      }
+      .view-toggle { 
+        width: 100%; 
+        justify-content: center; 
+        gap: 8px; 
+      }
+      .folder-view { 
+        grid-template-columns: 1fr; 
+        gap: 8px; 
+      }
+      .folder-item {
+        padding: 0.7rem;
+      }
+      .folder-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+      }
+      .folder-name {
+        font-size: 0.8rem;
+      }
+      .folder-meta {
+        font-size: 0.7rem;
+      }
+      .folder-actions button {
+        width: 26px;
+        height: 26px;
+        font-size: 0.8rem;
+      }
+      .document-meta { 
+        flex-wrap: wrap; 
+        gap: 8px; 
+      }
+      .document-meta span { 
+        font-size: 0.7rem; 
+      }
+      .document-actions { 
+        flex-wrap: nowrap; 
+        justify-content: flex-end; 
+        gap: 8px;
+      }
+      .document-actions button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+      }
+      .sidebar-menu a { font-size: 0.8rem; }
       .user-popup { width: 160px; top: 80px; }
+      .documents-table th, .documents-table td {
+        padding: 6px;
+        font-size: 0.8rem;
+      }
+      .documents-table th:nth-child(1), .documents-table td:nth-child(1) { min-width: 180px; }
+      .documents-table th:nth-child(2), .documents-table td:nth-child(2) { min-width: 90px; }
+      .documents-table th:nth-child(3), .documents-table td:nth-child(3) { min-width: 90px; }
+      .documents-table th:nth-child(4), .documents-table td:nth-child(4) { min-width: 70px; }
+      .documents-table th:nth-child(5), .documents-table td:nth-child(5) { min-width: 90px; }
     }
     html, body { max-width: 100%; overflow-x: hidden; }
     button, a, .category-btn, .folder-item, .document-row { touch-action: manipulation; }
