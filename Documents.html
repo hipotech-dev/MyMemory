@@ -863,7 +863,7 @@
     }
 
     // Load documents
-  async function uploadDocument() {
+async function uploadDocument() {
   const nameInput = document.getElementById('document-name');
   const categoryInput = document.getElementById('document-category');
   const folderInput = document.getElementById('document-folder');
@@ -947,20 +947,15 @@
 
     console.log('Upload response:', response);
 
+    // Generate public URL
     const { data: { publicUrl } } = supabase.storage
       .from(bucketName)
       .getPublicUrl(storagePath);
     console.log('Generated downloadURL:', publicUrl);
 
-    try {
-      const testResponse = await fetch(publicUrl, { method: 'HEAD' });
-      if (!testResponse.ok) {
-        throw new Error(`Download URL invalid: ${testResponse.statusText}`);
-      }
-    } catch (urlError) {
-      console.error('URL test failed:', urlError);
-      throw urlError;
-    }
+    // Construct manual URL for testing
+    const manualUrl = `${supabaseConfig.url}/storage/v1/object/public/${bucketName}/${storagePath}`;
+    console.log('Manual downloadURL:', manualUrl);
 
     const newDoc = {
       id: `doc${timestamp}`,
@@ -974,7 +969,7 @@
       shared: false,
       description,
       storagePath,
-      downloadURL: publicUrl
+      downloadURL: publicUrl // Try manualUrl if publicUrl fails
     };
 
     console.log('Saving metadata:', newDoc);
@@ -1025,7 +1020,6 @@
     }
   }
 }
-
 async function loadDocuments(userId, category = 'all', searchQuery = '') {
   try {
     const tableBody = document.getElementById('documents-table-body');
