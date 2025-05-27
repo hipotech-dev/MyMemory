@@ -1112,7 +1112,7 @@
           </div>
           
           <button type="submit" class="btn">
-            <i class="fas fa-folder-plus"></i> Create Folder
+            <i class="fas fa-folder-plus"></i> Create
           </button>
         </form>
       </div>
@@ -1157,920 +1157,831 @@
         </div>
       </div>
     </div>
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-  import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, updateDoc, deleteDoc, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-    authDomain: "mymemory-ddc21.firebaseapp.com",
-    projectId: "mymemory-ddc21",
-    storageBucket: "mymemory-ddc21.firebasestorage.app",
-    messagingSenderId: "875926928384",
-    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-    measurementId: "G-8XZZNJB0QD"
-  };
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+      import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+      import { getFirestore, collection, doc, setDoc, onSnapshot, query, orderBy, limit, updateDoc, deleteDoc, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+      import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
-  let app, auth, db, storage;
-  let isAuthCheckInProgress = false; // Prevent multiple auth checks
+      const firebaseConfig = {
+        apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+        authDomain: "mymemory-ddc21.firebaseapp.com",
+        projectId: "mymemory-ddc21",
+        storageBucket: "mymemory-ddc21.firebasestorage.app",
+        messagingSenderId: "875926928384",
+        appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+        measurementId: "G-8XZZNJB0QD"
+      };
 
-  async function initializeFirebase() {
-    try {
-      app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
-      storage = getStorage(app);
-      await enableIndexedDbPersistence(db); // Enable offline support
-      auth.useDeviceLanguage();
-      console.log('Firebase initialized successfully');
-      document.getElementById('global-error').style.display = 'none';
-      return true;
-    } catch (error) {
-      console.error('Firebase initialization error:', error);
-      showGlobalError('Failed to connect to services: ' + error.message, true);
-      return false;
-    }
-  }
+      let app, auth, db, storage;
+      let isAuthCheckInProgress = false;
 
-  function showGlobalError(message, showRetry = false) {
-    const errorElement = document.getElementById('global-error');
-    const messageElement = document.getElementById('global-error-message');
-    const retryButton = document.getElementById('retry-init');
-    messageElement.textContent = message;
-    errorElement.style.display = 'block';
-    retryButton.style.display = showRetry ? 'inline-block' : 'none';
-    setTimeout(() => {
-      errorElement.style.display = 'none';
-    }, 10000);
-  }
-
-  document.getElementById('retry-init').addEventListener('click', async () => {
-    document.getElementById('loading').style.display = 'flex';
-    if (await initializeFirebase()) {
-      checkAuthState('retry');
-    }
-  });
-
-  function showMessage(message, type = 'error') {
-    const messageElement = document.getElementById('auth-message');
-    messageElement.textContent = message;
-    messageElement.className = 'message ' + type;
-    messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
-    messageElement.style.display = 'block';
-    setTimeout(() => {
-      messageElement.style.display = 'none';
-    }, 5000);
-  }
-
-  function sanitizeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function setupUserPopup() {
-    const userAvatar = document.getElementById('user-avatar');
-    const userPopup = document.getElementById('user-popup');
-    const logoutBtn = document.getElementById('popup-logout-btn');
-
-    if (!userAvatar || !userPopup || !logoutBtn) {
-      console.error('User popup elements not found');
-      return;
-    }
-
-    function toggleUserPopup(e) {
-      e.stopPropagation();
-      userPopup.classList.toggle('active');
-    }
-
-    function closeUserPopup() {
-      userPopup.classList.remove('active');
-    }
-
-    userAvatar.addEventListener('click', toggleUserPopup);
-
-    document.addEventListener('click', function(e) {
-      if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-        closeUserPopup();
-      }
-    });
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeUserPopup();
-      }
-    });
-
-    logoutBtn.addEventListener('click', handleLogout);
-  }
-
-  async function handleLogout(e) {
-    e.preventDefault();
-    try {
-      await signOut(auth);
-      localStorage.clear();
-      window.location.replace('index.html');
-      showMessage('Successfully logged out', 'success');
-    } catch (error) {
-      console.error('Error logging out:', error);
-      showMessage('Error logging out: ' + error.message, 'error');
-    }
-  }
-
-  function secureNavigation() {
-    let isCheckingAuth = false;
-    document.querySelectorAll('.sidebar-menu a').forEach(link => {
-      if (link.id !== 'logout-link') {
-        link.addEventListener('click', async function(e) {
-          e.preventDefault();
-          const targetUrl = this.getAttribute('href');
-
-          if (isCheckingAuth) return;
-          isCheckingAuth = true;
-
-          try {
-            const user = await new Promise((resolve, reject) => {
-              const unsubscribe = onAuthStateChanged(auth, user => {
-                unsubscribe();
-                resolve(user);
-              }, reject);
-            });
-
-            if (user && user.emailVerified) {
-              window.location.href = targetUrl;
-            } else {
-              showMessage('Please log in to access this page.', 'error');
-              localStorage.clear();
-              window.location.replace('index.html');
-            }
-          } catch (error) {
-            console.error('Error checking auth state:', error);
-            showMessage('Error verifying authentication.', 'error');
-            localStorage.clear();
-            window.location.replace('index.html');
-          } finally {
-            isCheckingAuth = false;
-          }
-        });
-      }
-    });
-  }
-
-  async function checkAuthState(eventType) {
-    if (isAuthCheckInProgress) {
-      console.log('Auth check already in progress, skipping');
-      return;
-    }
-    isAuthCheckInProgress = true;
-
-    console.log('Checking auth state on ' + eventType);
-    const loadingElement = document.getElementById('loading');
-    const appContentElement = document.getElementById('app-content');
-
-    try {
-      if (!auth) {
-        console.log('Auth not initialized, initializing Firebase...');
-        if (!(await initializeFirebase())) {
-          throw new Error('Firebase initialization failed');
+      async function initializeFirebase() {
+        try {
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+          storage = getStorage(app);
+          await enableIndexedDbPersistence(db).catch(err => console.warn('Offline persistence failed:', err));
+          auth.useDeviceLanguage();
+          console.log('Firebase initialized successfully');
+          document.getElementById('global-error').style.display = 'none';
+          return;
+        } catch (err) {
+          console.error('Firebase initialization failed:', err);
+          showGlobalError('Failed to connect to Firebase: ' + err.message || 'Unknown error', true);
+          throw err;
         }
       }
 
-      console.log('Waiting for auth state...');
-      const authPromise = new Promise((resolve, reject) => {
-        const unsubscribe = onAuthStateChanged(auth, user => {
-          console.log('Auth state resolved:', user ? 'User found' : 'No user');
-          unsubscribe();
-          resolve(user);
-        }, error => {
-          console.error('Auth state error:', error);
-          unsubscribe();
-          reject(error);
+      function showGlobalError(message, showRetry = true) {
+        const errorDiv = document.getElementById('global-error');
+        const messageElement = document.getElementByClassName('global-error-message');
+        const retryButton = document.getElementById('retry-init');
+        messageElement.textContent = message;
+        errorDiv.style.display = 'block';
+        retryButton.style.display = showRetry ? 'inline-block' : 'none';
+        setTimeout(() => errorDiv.style.display = 'none', 10000);
+      }
+
+      document.getElementById('retry-init').addEventListener('click', async () => {
+        document.getElementById('loading').style.display = 'flex';
+        try {
+          await initializeFirebase();
+          await checkAuthState('retry');
+        } catch (err) {
+          console.error('Retry failed:', err);
+        }
+      });
+
+      function showMessage(message, type = 'error') {
+        const messageElement = document.getElementById('auth-message');
+        messageElement.textContent = message;
+        messageElement.className = `message ${type}`;
+        messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
+        messageElement.style.display = 'block';
+        setTimeout(() => messageElement.style.display = 'none', 5000);
+      }
+
+      function sanitizeHTML(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function setupUserPopup() {
+        const userAvatar = document.getElementById('user-avatar');
+        const userPopup = document.getElementById('user-popup');
+        const logoutBtn = document.getElementById('popup-logout-btn');
+
+        if (!userAvatar || !userPopup || !logoutBtn) {
+          console.error('User popup elements missing');
+          return;
+        }
+
+        userAvatar.addEventListener('click', e => {
+          e.stopPropagation();
+          userPopup.classList.toggle('active');
         });
-        setTimeout(() => reject(new Error('Authentication timeout')), 10000);
-      });
 
-      const user = await authPromise;
-      console.log('User data:', user);
+        document.addEventListener('click', e => {
+          if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+            userPopup.classList.remove('active');
+          }
+        });
 
-      if (user && user.emailVerified) {
-        const userData = {
-          name: user.displayName || user.email.split('@')[0],
-          email: user.email,
-          avatarInitials: (user.displayName || user.email).substring(0, 1).toUpperCase(),
-          uid: user.uid
-        };
-        console.log('User authenticated, saving userData:', userData);
-        localStorage.setItem('userData', JSON.stringify(userData));
-        localStorage.setItem('isAuthenticated', 'true');
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') userPopup.classList.remove('active');
+        });
 
-        loadingElement.style.display = 'none';
-        appContentElement.style.display = 'block';
-
-        await initializePage(userData);
-      } else {
-        throw new Error(user ? 'Email not verified' : 'User not authenticated');
+        logoutBtn.addEventListener('click', handleLogout);
       }
-    } catch (error) {
-      console.error('Auth state error:', error);
-      showMessage('Authentication failed: ' + error.message, 'error');
-      loadingElement.style.display = 'none';
-      localStorage.clear();
-      setTimeout(() => window.location.replace('index.html'), 2000);
-    } finally {
-      isAuthCheckInProgress = false;
-    }
-  }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Add loading timeout to prevent infinite loading
-    setTimeout(() => {
-      if (document.getElementById('loading').style.display !== 'none') {
-        showGlobalError('Loading took too long. Please try again.', true);
+      async function handleLogout(e) {
+        e.preventDefault();
+        try {
+          await signOut(auth);
+          localStorage.clear();
+          window.location.replace('index.html');
+          showMessage('Logged out successfully', 'success');
+        } catch (err) {
+          console.error('Logout failed:', err);
+          showMessage('Logout error: ' + err.message, 'error');
+        }
       }
-    }, 15000);
-    checkAuthState('DOMContentLoaded');
-  });
 
-  window.addEventListener('pageshow', function(event) {
-    if (event.persisted) {
-      console.log('Page restored from cache, checking auth state');
-      checkAuthState('pageshow');
-    }
-  });
-
-  async function initializePage(userData) {
-    try {
-      document.getElementById('user-avatar').textContent = userData.avatarInitials;
-      document.getElementById('popup-user-name').textContent = userData.name;
-      document.getElementById('popup-user-email').textContent = userData.email;
-
-      console.log('Setting up UI and event listeners');
-      setupUserPopup();
-      document.getElementById('logout-link').addEventListener('click', handleLogout);
-      secureNavigation();
-
-      console.log('Loading data for user:', userData.uid);
-      await loadData(userData);
-    } catch (error) {
-      console.error('Error initializing page:', error);
-      showMessage('Error initializing page: ' + error.message, 'error');
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('app-content').style.display = 'block';
-    }
-  }
-
-  async function loadData(userData) {
-    try {
-      const foldersQuery = query(collection(db, 'users/' + userData.uid + '/folders'), orderBy('name'), limit(50));
-      onSnapshot(foldersQuery, snapshot => {
-        folders = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        console.log('Folders loaded:', folders);
-        renderFolders();
-        populateFolderDropdown();
-      }, error => {
-        console.error('Error loading folders:', error);
-        showMessage('Error loading folders: ' + error.message, 'error');
+      function secureNavigation() {
+        let isCheckingAuth = false;
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+          if (link.id !== 'logout-link') {
+            link.addEventListener('click', async e => {
+              e.preventDefault();
+              if (isCheckingAuth) return;
+              isCheckingAuth = true;
+              const targetUrl = link.getAttribute('href');
+              try {
+                const user = await new Promise((resolve, reject) => {
+                  const unsubscribe = onAuthStateChanged(auth, user => {
+                    unsubscribe();
+                    resolve(user);
+                  }, reject);
+                });
+                if (user && user.emailVerified) {
+                  window.location.href = targetUrl;
+                } else {
+                  throw new Error('User not authenticated or email not verified');
+                }
+              } catch (err) {
+                console.error('Navigation auth check failed:', err);
+                showMessage('Please log in to continue', 'error');
+                localStorage.clear();
+                window.location.replace('index.html');
+              } finally {
+                isCheckingAuth = false;
+              }
+            });
+          }
       });
 
-      const documentsQuery = query(collection(db, 'users/' + userData.uid + '/documents'), orderBy('modified', 'desc'), limit(50));
-      onSnapshot(documentsQuery, snapshot => {
-        documents = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        console.log('Documents loaded:', documents);
-        renderDocuments();
-      }, error => {
-        console.error('Error loading documents:', error);
-        showMessage('Error loading documents: ' + error.message, 'error');
+      async function checkAuthState(eventType) {
+        if (isAuthCheckInProgress) {
+          console.log('Auth check in progress, skipping');
+          return;
+        }
+        isAuthCheckInProgress = true;
+        console.log(`Checking auth state: ${eventType}`);
+        const loadingDiv = document.getElementById('loading');
+        const appContent = document.getElementById('app-content');
+
+        try {
+          if (!auth) {
+            console.log('Initializing Firebase...');
+            await initializeFirebase();
+          }
+
+          const user = await new Promise((resolve, reject) => {
+            const unsubscribe = onAuthStateChanged(auth, user => {
+              console.log('Auth state:', user ? 'User found' : 'No user');
+              unsubscribe();
+              resolve(user);
+            }, err => {
+              console.error('Auth state error:', err);
+              unsubscribe();
+              reject(err);
+            });
+            setTimeout(() => reject(new Error('Authentication timeout')), 5000);
+          });
+
+          if (!user) throw new Error('No user signed in');
+          if (!user.emailVerified) throw new Error('Email not verified');
+
+          const userData = {
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || user.email.split('.')[0],
+            avatarInitials: (user.displayName || user.email)[0].toUpperCase()
+          };
+          console.log('Saving user data:', userData);
+          localStorage.setItem('userData', JSON.stringify(userData));
+          localStorage.setItem('isAuthenticated', 'true');
+
+          loadingDiv.style.display = 'none';
+          appContent.style.display = 'block';
+          await initializePage(userData);
+        } catch (err) {
+          console.error('Auth check failed:', err);
+          showMessage(`Authentication failed: ${err.message}`, 'error');
+          loadingDiv.style.display = 'none';
+          localStorage.clear();
+          setTimeout(() => window.location.replace('index.html'), 2000);
+        } finally {
+          isAuthCheckInProgress = false;
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          if (document.getElementById('loading').style.display !== 'none') {
+            showGlobalError('Loading timeout. Check your network or try again.', true);
+          }
+        }, 10000);
+        checkAuthState('DOMContentLoaded');
       });
-    } catch (error) {
-      console.error('Error initializing data:', error);
-      showMessage('Error loading data: ' + error.message, 'error');
-    }
-  }
 
-  let documents = [];
-  let folders = [];
-  let currentView = 'table';
-  let currentCategory = 'all';
-  let currentSearchQuery = '';
-  let currentDocumentToShare = null;
+      window.addEventListener('pageshow', event => {
+        if (event.persisted) {
+          console.log('Page restored from cache');
+          checkAuthState('pageshow');
+        }
+      });
 
-  function setupModal(openBtnId, modalId) {
-    const openBtn = document.getElementById(openBtnId);
-    const modal = document.getElementById(modalId);
-    const closeBtn = modal.querySelector('.modal-close');
+      async function initializePage(userData) {
+        try {
+          document.getElementById('user-avatar').textContent = userData.avatarInitials;
+          document.getElementById('popup-user-name').textContent = userData.name;
+          document.getElementById('popup-user-email').textContent = userData.email;
 
-    if (!openBtn || !modal || !closeBtn) {
-      console.error(`Modal setup failed: Missing elements for ${modalId}`);
-      return;
-    }
+          setupUserPopup();
+          document.getElementById('logout-link').addEventListener('click', handleLogout);
+          secureNavigation();
 
-    openBtn.addEventListener('click', () => {
-      modal.style.display = 'flex';
-    });
+          console.log(`Loading data for user: ${userData.uid}`);
+          await loadData(userData);
+        } catch (err) {
+          console.error('Page init failed:', err);
+          showMessage('Failed to initialize page: ' + err.message, 'error');
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('app-content').style.display = 'block';
+        }
+      }
 
-    closeBtn.addEventListener('click', () => {
-      modal.style.display = 'none';
-      if (modalId === 'share-modal') {
+      async function loadData(userData) {
+        try {
+          console.log('Setting up Firestore listeners...');
+          const foldersQuery = query(
+            collection(db, `users/${userData.uid}/folders`),
+            orderBy('name'),
+            limit(50)
+          );
+          onSnapshot(foldersQuery, snapshot => {
+            folders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log('Folders:', folders);
+            renderFolders();
+            populateFolderDropdown();
+          }, err => {
+            console.error('Folder listener error:', err);
+            showMessage('Failed to load folders: ' + err.message, 'error');
+          });
+
+          const docsQuery = query(
+            collection(db, `users/${userData.uid}/documents`),
+            orderBy('modified', 'desc'),
+            limit(50)
+          );
+          onSnapshot(docsQuery, snapshot => {
+            documents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log('Documents:', documents);
+            renderDocuments();
+          }, err => {
+            console.error('Document listener error:', err);
+            showMessage('Failed to load documents: ' + err.message, 'error');
+          });
+        } catch (err) {
+          console.error('Data load failed:', err);
+          showMessage('Data load error: ' + err.message, 'error');
+        }
+      }
+
+      let documents = [];
+      let folders = [];
+      let currentView = 'table';
+      let currentCategory = 'all';
+      let currentSearchQuery = '';
+      let currentDocument = null;
+
+      function setupModal(openBtnId, modalId) {
+        const openBtn = document.getElementById(openBtnId);
+        const modal = document.getElementById(modalId);
+        const closeBtn = modal.querySelector('.modal-close');
+
+        if (!openBtn || !modal || !closeBtn) {
+          console.error(`Modal setup failed: ${modalId}`);
+          return;
+        }
+
+        openBtn.addEventListener('click', () => modal.style.display = 'flex');
+        closeBtn.addEventListener('click', () => closeModal(modalId));
+        window.addEventListener('click', e => {
+          if (e.target === modal) closeModal(modalId);
+        });
+      }
+
+      document.getElementById('file-upload-area').addEventListener('click', () => {
+        document.getElementById('document-file').click();
+      });
+
+      document.getElementById('document-file').addEventListener('change', function() {
+        if (this.files.length) {
+          document.getElementById('document-name').value = 
+            this.files[0].name.split('.').slice(0, -1).join('.');
+        }
+      });
+
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentView = btn.dataset.view;
+          document.getElementById('table-view').style.display = currentView === 'table' ? 'block' : 'none';
+          document.getElementById('folder-view').style.display = currentView === 'folder' ? 'grid' : 'none';
+        });
+      });
+
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCategory = btn.dataset.category;
+          filterDocuments();
+        });
+      });
+
+      document.querySelectorAll('.color-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+          opt.classList.add('selected');
+          document.getElementById('folder-color').value = opt.dataset.color;
+        });
+      });
+
+      document.getElementById('upload-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        await uploadDocument();
+      });
+
+      document.getElementById('folder-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        await createFolder();
+        closeModal('folder-modal');
+      });
+
+      document.getElementById('search-btn').addEventListener('click', () => {
+        currentSearchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+        filterDocuments();
+      });
+
+      document.getElementById('search-input').addEventListener('keyup', e => {
+        if (e.key === 'Enter') {
+          currentSearchQuery = e.target.value.toLowerCase().trim();
+          filterDocuments();
+        }
+      });
+
+      document.getElementById('share-email').addEventListener('click', () => {
+        const doc = documents.find(d => d.id === currentDocument);
+        if (doc) {
+          showMessage(`Simulated email share for ${sanitizeHTML(doc.name)}`, 'success');
+        }
+      });
+
+      document.getElementById('share-link').addEventListener('click', async () => {
+        const shareLinkContainer = document.getElementById('share-link-container');
+        const shareLinkInput = document.getElementById('share-link-input');
+        const doc = documents.find(d => d.id === currentDocument);
+        if (doc) {
+          const shareToken = btoa(`${doc.id}:${Date.now()}`);
+          shareLinkInput.value = `https://mymemory.app/share?token=${encodeURIComponent(shareToken)}`;
+          shareLinkContainer.style.display = 'flex';
+        }
+      });
+
+      document.getElementById('copy-link-btn').addEventListener('click', () => {
+        const shareLinkInput = document.getElementById('share-link-input');
+        shareLinkInput.select();
+        document.execCommand('copy');
+        showMessage('Share link copied', 'success');
+      });
+
+      document.getElementById('share-team').addEventListener('click', () => {
+        const doc = documents.find(d => d.id === currentDocument);
+        if (doc) {
+          showMessage(`Simulated team share for ${sanitizeHTML(doc.name)}`, 'success');
+        }
+      });
+
+      function renderDocuments() {
+        const tbody = document.getElementById('documents-table-body');
+        tbody.innerHTML = documents.length === 0 
+          ? '<tr><td colspan="5" style="text-align: center;">No documents found</td></tr>'
+          : '';
+
+        documents.forEach(doc => {
+          const row = document.createElement('tr');
+          row.className = 'document-row';
+          row.dataset.id = doc.id;
+          row.dataset.category = doc.category;
+          row.dataset.folder = doc.folder || '';
+          row.innerHTML = `
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="document-icon">
+                  <i class="fas ${getFileIconClass(doc.type)}"></i>
+                </div>
+                <div class="document-info">
+                  <div class="document-name">${sanitizeHTML(doc.name)}.${sanitizeHTML(doc.type)}</div>
+                  <div class="document-meta">
+                    <span><i class="far fa-user"></i> ${sanitizeHTML(doc.owner)}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>${capitalizeHTML(doc.category)}</td>
+            <td>${formatDate(doc.modified)}</td>
+            <td>${formatFileSize(doc.size)}</td>
+            <td>
+              <div class="document-actions">
+                <button title="Download" data-action="download" data-id="${doc.id}"><i class="fas fa-download"></i></button>
+                <button title="Share" data-action="share" data-id="${doc.id}"><i class="fas fa-share-alt"></i></button>
+                <button title="Delete" data-action="delete" data-id="${doc.id}"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        addDocumentEventListeners();
+      }
+
+      function renderFolders() {
+        const folderView = document.getElementById('folder-view');
+        folderView.innerHTML = folders.length === 0 
+          ? '<div style="text-align: center;">No folders found</div>' 
+          : '';
+
+        folders.forEach(folder => {
+          const folderItem = document.createElement('div');
+          folderItem.className = 'folder-item';
+          folderItem.dataset.id = folder.id;
+          folderItem.innerHTML = `
+            <div class="folder-icon" style="background: ${sanitizeHTML(folder.color)}20; color: ${sanitizeHTML(folder.color)}">
+              <i class="fas fa-folder"></i>
+            </div>
+            <div class="folder-name">${sanitizeHTML(folder.name)}</div>
+            <div class="folder-meta">${folder.files || 0} ${folder.files === 1 ? 'file' : 'files'}</div>
+            <div class="folder-actions">
+              <button title="Delete Folder" data-action="delete-folder" data-id="${folder.id}"><i class="fas fa-trash"></i></button>
+            </div>
+          `;
+
+          folderItem.querySelector('.folder-icon, .folder-name, .folder-meta').addEventListener('click', () => {
+            currentCategory = 'all';
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.category-btn[data-category="all"]').classList.add('active');
+            currentSearchQuery = '';
+            document.getElementById('search-input').value = '';
+            currentView = 'table';
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.view-btn[data-view="table"]').classList.add('active');
+            document.getElementById('table-view').style.display = 'block';
+            document.getElementById('folder-view').style.display = 'none';
+            filterDocuments(folder.name);
+          });
+
+          folderView.appendChild(folderItem);
+        });
+
+        addFolderEventListeners();
+      }
+
+      function populateFolderDropdown() {
+        const select = document.getElementById('document-folder');
+        select.innerHTML = '<option value="">None</option>';
+        folders.forEach(folder => {
+          const option = document.createElement('option');
+          option.value = folder.name;
+          option.textContent = folder.name;
+          select.appendChild(option);
+        });
+      }
+
+      function filterDocuments(folderFilter = '') {
+        const rows = document.getElementById('documents-table-body').querySelectorAll('tr');
+        rows.forEach(row => {
+          const doc = documents.find(d => d.id === row.dataset.id);
+          if (!doc) return;
+          const matchesCategory = currentCategory === 'all' || doc.category === currentCategory;
+          const matchesSearch = !currentSearchQuery || doc.name.toLowerCase().includes(currentSearchQuery);
+          const matchesFolder = !folderFilter || doc.folder === folderFilter;
+          row.style.display = matchesCategory && matchesSearch && matchesFolder ? '' : 'none';
+        });
+      }
+
+      async function uploadDocument() {
+        const nameInput = document.getElementById('document-name');
+        const categoryInput = document.getElementById('document-category');
+        const folderInput = document.getElementById('document-folder');
+        const descriptionInput = document.getElementById('document-description');
+        const fileInput = document.getElementById('document-file');
+        const progressContainer = document.getElementById('upload-progress');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const submitBtn = document.getElementById('upload-submit-btn');
+
+        const name = nameInput.value.trim();
+        const category = categoryInput.value;
+        const folder = folderInput.value;
+        const description = descriptionInput.value.trim();
+
+        if (!name) {
+          showMessage('Document name is required', 'error');
+          return;
+        }
+
+        if (!fileInput.files.length) {
+          showMessage('Please select a file', 'error');
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const fileType = file.name.split('.').pop().toLowerCase();
+        const maxSize = 5 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+          showMessage('File size exceeds 5MB', 'error');
+          return;
+        }
+
+        const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
+        if (!allowedTypes.includes(fileType)) {
+          showMessage('Unsupported file type', 'error');
+          return;
+        }
+
+        progressContainer.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
+
+        try {
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (!userData) throw new Error('User data not found');
+
+          const storagePath = `users/${userData.uid}/documents/${Date.now()}_${sanitizeHTML(file.name)}`;
+          const storageRef = ref(storage, storagePath);
+          const uploadTask = uploadBytesResumable(storageRef, file);
+
+          await new Promise((resolve, reject) => {
+            uploadTask.on('state_changed',
+              snapshot => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressFill.style.width = `${progress}%`;
+                progressText.textContent = `${Math.round(progress)}%`;
+              },
+              err => {
+                console.error('Upload failed:', err);
+                reject(err);
+              },
+              () => resolve()
+            );
+          });
+
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const docId = doc(collection(db, `users/${userData.uid}/documents`)).id;
+
+          const newDoc = {
+            id: docId,
+            name: sanitizeHTML(name),
+            type: fileType,
+            category,
+            folder,
+            size: file.size,
+            modified: new Date(),
+            owner: userData.name,
+            shared: false,
+            description: sanitizeHTML(description),
+            storagePath,
+            downloadURL
+          };
+
+          await setDoc(doc(db, `users/${userData.uid}/documents`, docId), newDoc);
+
+          if (folder) {
+            const folderRef = folders.find(f => f.name === folder);
+            if (folderRef) {
+              await updateDoc(doc(db, `users/${userData.uid}/folders`, folderRef.id), {
+                files: (folderRef.files || 0) + 1
+              });
+            }
+          }
+
+          document.getElementById('upload-form').reset();
+          progressContainer.style.display = 'none';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Upload Document';
+          closeModal('upload-modal');
+          showMessage('Document uploaded successfully', 'success');
+        } catch (err) {
+          console.error('Upload error:', err);
+          showMessage(`Upload failed: ${err.message}`, 'error');
+          progressContainer.style.display = 'none';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Upload Document';
+        }
+      }
+
+      async function createFolder() {
+        const nameInput = document.getElementById('folder-name');
+        const colorInput = document.getElementById('folder-color');
+        const name = nameInput.value.trim();
+        const color = colorInput.value;
+
+        if (!name) {
+          showMessage('Folder name is required', 'error');
+          return;
+        }
+
+        if (folders.some(f => f.name.toLowerCase() === name.toLowerCase())) {
+          showMessage('Folder name already exists', 'error');
+          return;
+        }
+
+        try {
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (!userData) throw new Error('User data not found');
+
+          const folderId = doc(collection(db, `users/${userData.uid}/folders`)).id;
+          await setDoc(doc(db, `users/${userData.uid}/folders`, folderId), {
+            name: sanitizeHTML(name),
+            color,
+            files: 0,
+            createdAt: new Date()
+          });
+
+          document.getElementById('folder-form').reset();
+          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+          document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
+          colorInput.value = '#003087';
+          showMessage('Folder created successfully', 'success');
+        } catch (err) {
+          console.error('Folder creation failed:', err);
+          showMessage('Failed to create folder: ' + err.message, 'error');
+        }
+      }
+
+      async function deleteFolder(folderId) {
+        const folder = folders.find(f => f.id === folderId);
+        if (!folder) return;
+
+        if (folder.files > 0) {
+          showMessage('Cannot delete folder with files', 'error');
+          return;
+        }
+
+        if (!confirm(`Delete folder "${sanitizeHTML(folder.name)}"?`)) return;
+
+        try {
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (!userData) throw new Error('User data not found');
+          await deleteDoc(doc(db, `users/${userData.uid}/folders`, folderId));
+          showMessage('Folder deleted', 'success');
+        } catch (err) {
+          console.error('Folder deletion failed:', err);
+          showMessage('Failed to delete folder: ' + err.message, 'error');
+        }
+      }
+
+      function addDocumentEventListeners() {
+        const buttons = document.querySelectorAll('.document-actions button');
+        buttons.forEach(btn => {
+          const newBtn = btn.cloneNode(true);
+          btn.parentNode.replaceChild(newBtn, btn);
+        });
+
+        document.querySelectorAll('[data-action="download"]').forEach(btn => {
+          btn.addEventListener('click', () => downloadDocument(btn.dataset.id));
+        });
+        document.querySelectorAll('[data-action="share"]').forEach(btn => {
+          btn.addEventListener('click', () => shareDocument(btn.dataset.id));
+        });
+        document.querySelectorAll('[data-action="delete"]').forEach(btn => {
+          btn.addEventListener('click', () => deleteDocument(btn.dataset.id));
+        });
+      }
+
+      function addFolderEventListeners() {
+        const buttons = document.querySelectorAll('.folder-actions button');
+        buttons.forEach(btn => {
+          const newBtn = btn.cloneNode(true);
+          btn.parentNode.replaceChild(newBtn, btn);
+        });
+
+        document.querySelectorAll('[data-action="delete-folder"]').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            deleteFolder(btn.dataset.id);
+          });
+        });
+      }
+
+      async function downloadDocument(docId) {
+        const doc = documents.find(d => d.id === docId);
+        if (!doc) {
+          showMessage('Document not found', 'error');
+          return;
+        }
+
+        try {
+          if (!doc.downloadURL) throw new Error('No download URL');
+          const link = document.createElement('a');
+          link.href = doc.downloadURL;
+          link.download = `${sanitizeHTML(doc.name)}.${doc.type}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showMessage('Document downloaded', 'success');
+        } catch (err) {
+          console.error('Download failed:', err);
+          showMessage('Download error: ' + err.message, 'error');
+        }
+      }
+
+      function shareDocument(docId) {
+        currentDocument = docId;
         document.getElementById('share-link-container').style.display = 'none';
+        document.getElementById('share-modal').style.display = 'flex';
       }
-    });
 
-    window.addEventListener('click', e => {
-      if (e.target === modal) {
+      async function deleteDocument(docId) {
+        if (!confirm('Delete this document?')) return;
+
+        const doc = documents.find(d => d.id === docId);
+        if (!doc) {
+          showMessage('Document not found', 'error');
+          return;
+        }
+
+        try {
+          const userData = JSON.parse(localStorage.getItem('userData'));
+          if (!userData) throw new Error('User data not found');
+
+          if (doc.storagePath) {
+            await deleteObject(ref(storage, doc.storagePath));
+          }
+
+          await deleteDoc(doc(db, `users/${userData.uid}/documents`, docId));
+
+          if (doc.folder) {
+            const folder = folders.find(f => f.name === doc.folder);
+            if (folder) {
+              await updateDoc(doc(db, `users/${userData.uid}/folders`, folder.id), {
+                files: (folder.files || 1) - 1
+              });
+            }
+          }
+
+          showMessage('Document deleted', 'success');
+        } catch (err) {
+          console.error('Deletion failed:', err);
+          showMessage('Error deleting document: ' + err.message, 'error');
+        }
+      }
+
+      function getFileIconClass(fileType) {
+        switch (fileType?.toLowerCase()) {
+          case 'pdf': return 'fa-file-pdf';
+          case 'doc':
+          case 'docx': return 'fa-file-word';
+          case 'xls':
+          case 'xlsx': return 'fa-file-excel';
+          case 'ppt':
+          case 'pptx': return 'fa-file-powerpoint';
+          case 'jpg':
+          case 'jpeg':
+          case 'png': return 'fa-file-image';
+          default: return 'fa-file';
+        }
+      }
+
+      function formatFileSize(bytes) {
+        if (!bytes) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+      }
+
+      function formatDate(timestamp) {
+        if (!timestamp) return 'Unknown';
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        const minute = 60 * 1000;
+        const hour = minute * 60;
+        const day = hour * 24;
+
+        if (diff < minute) return 'Just now';
+        if (diff < hour) return Math.floor(diff / minute) + ' minutes ago';
+        if (diff < day) return Math.floor(diff / hour) + ' hours ago';
+        return date.toLocaleDateString();
+      }
+
+      function capitalizeHTML(str) {
+        if (!str) return '';
+        return sanitizeHTML(str.charAt(0).toUpperCase() + str.slice(1));
+      }
+
+      function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
         modal.style.display = 'none';
         if (modalId === 'share-modal') {
           document.getElementById('share-link-container').style.display = 'none';
         }
       }
-    });
-  }
 
-  document.getElementById('file-upload-area').addEventListener('click', function() {
-    document.getElementById('document-file').click();
-  });
-
-  document.getElementById('document-file').addEventListener('change', function() {
-    if (this.files.length > 0) {
-      document.getElementById('document-name').value = 
-        this.files[0].name.split('.').slice(0, -1).join('.');
-    }
-  });
-
-  document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-
-      currentView = this.dataset.view;
-
-      if (currentView === 'table') {
-        document.getElementById('table-view').style.display = 'block';
-        document.getElementById('folder-view').style.display = 'none';
-      } else {
-        document.getElementById('table-view').style.display = 'none';
-        document.getElementById('folder-view').style.display = 'grid';
-      }
-    });
-  });
-
-  document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-
-      currentCategory = this.dataset.category;
-      filterDocuments();
-    });
-  });
-
-  document.querySelectorAll('.color-option').forEach(option => {
-    option.addEventListener('click', function() {
-      document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-      this.classList.add('selected');
-      document.getElementById('folder-color').value = this.dataset.color;
-    });
-  });
-
-  document.getElementById('upload-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    await uploadDocument();
-  });
-
-  document.getElementById('folder-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    await createFolder();
-    closeModal('folder-modal');
-  });
-
-  document.getElementById('search-btn').addEventListener('click', function() {
-    currentSearchQuery = document.getElementById('search-input').value.toLowerCase();
-    filterDocuments();
-  });
-
-  document.getElementById('search-input').addEventListener('keyup', function(e) {
-    if (e.key === 'Enter') {
-      currentSearchQuery = this.value.toLowerCase();
-      filterDocuments();
-    }
-  });
-
-  document.getElementById('share-email').addEventListener('click', function() {
-    const docId = currentDocumentToShare;
-    const doc = documents.find(d => d.id === docId);
-    if (doc) {
-      showMessage('Simulated email share for ' + sanitizeHTML(doc.name) + '.', 'success');
-    }
-  });
-
-  document.getElementById('share-link').addEventListener('click', async function() {
-    const shareLinkContainer = document.getElementById('share-link-container');
-    const shareLinkInput = document.getElementById('share-link-input');
-
-    const docId = currentDocumentToShare;
-    const doc = documents.find(d => d.id === docId);
-    if (doc) {
-      const shareToken = btoa(docId + ':' + Date.now());
-      const shareLink = 'https://mymemory.app/share?token=' + encodeURIComponent(shareToken);
-
-      shareLinkInput.value = shareLink;
-      shareLinkContainer.style.display = 'flex';
-    }
-  });
-
-  document.getElementById('copy-link-btn').addEventListener('click', function() {
-    const shareLinkInput = document.getElementById('share-link-input');
-    shareLinkInput.select();
-    document.execCommand('copy');
-
-    const originalText = this.innerHTML;
-    this.innerHTML = '<i class="fas fa-check"></i>';
-    setTimeout(() => this.innerHTML = originalText, 2000);
-    showMessage('Share link copied successfully!', 'success');
-  });
-
-  document.getElementById('share-team').addEventListener('click', function() {
-    const docId = currentDocumentToShare;
-    const doc = documents.find(d => d.id === docId);
-    if (doc) {
-      showMessage('Simulated team share for ' + sanitizeHTML(doc.name) + '.', 'success');
-    }
-  });
-
-  function renderDocuments() {
-    const tbody = document.getElementById('documents-table-body');
-    tbody.innerHTML = '';
-
-    if (documents.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No documents found.</td></tr>';
-      return;
-    }
-
-    documents.forEach(doc => {
-      const iconClass = getFileIconClass(doc.type);
-      const formattedSize = formatFileSize(doc.size);
-      const formattedDate = doc.modified ? formatDate(doc.modified.toDate ? doc.modified.toDate() : doc.modified) : 'Unknown';
-
-      const row = document.createElement('tr');
-      row.className = 'document-row';
-      row.dataset.id = doc.id;
-      row.dataset.category = doc.category;
-      row.dataset.folder = doc.folder || '';
-      row.innerHTML = `
-        <td>
-          <div style="display: flex; align-items: center;">
-            <div class="document-icon">
-              <i class="fas ${iconClass}"></i>
-            </div>
-            <div class="document-info">
-              <div class="document-name">${sanitizeHTML(doc.name)}.${sanitizeHTML(doc.type)}</div>
-              <div class="document-meta">
-                <span><i class="far fa-user"></i> ${sanitizeHTML(doc.owner)}</span>
-              </div>
-            </div>
-          </div>
-        </td>
-        <td>${sanitizeHTML(doc.category.charAt(0).toUpperCase() + doc.category.slice(1))}</td>
-        <td>${formattedDate}</td>
-        <td>${formattedSize}</td>
-        <td>
-          <div class="document-actions">
-            <button title="Download" data-action="download" data-id="${doc.id}"><i class="fas fa-download"></i></button>
-            <button title="Share" data-action="share" data-id="${doc.id}"><i class="fas fa-share-alt"></i></button>
-            <button title="Delete" data-action="delete" data-id="${doc.id}"><i class="fas fa-trash"></i></button>
-          </div>
-        </td>
-      `;
-
-      tbody.appendChild(row);
-    });
-
-    addDocumentEventListeners();
-  }
-
-  function renderFolders() {
-    const folderView = document.getElementById('folder-view');
-    folderView.innerHTML = '';
-
-    if (folders.length === 0) {
-      folderView.innerHTML = '<div style="text-align: center;">No folders found.</div>';
-      return;
-    }
-
-    folders.forEach(folder => {
-      const folderItem = document.createElement('div');
-      folderItem.className = 'folder-item';
-      folderItem.dataset.id = folder.id;
-      folderItem.innerHTML = `
-        <div class="folder-icon" style="background: ${sanitizeHTML(folder.color)}20; color: ${sanitizeHTML(folder.color)}">
-          <i class="fas fa-folder"></i>
-        </div>
-        <div class="folder-name">${sanitizeHTML(folder.name)}</div>
-        <div class="folder-meta">${folder.files || 0} ${folder.files === 1 ? 'file' : 'files'}</div>
-        <div class="folder-actions">
-          <button title="Delete Folder" data-action="delete-folder" data-id="${folder.id}"><i class="fas fa-trash"></i></button>
-        </div>
-      `;
-
-      folderItem.querySelector('.folder-icon, .folder-name, .folder-meta').addEventListener('click', function() {
-        currentCategory = 'all';
-        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.category-btn[data-category="all"]').classList.add('active');
-
-        currentSearchQuery = '';
-        document.getElementById('search-input').value = '';
-
-        currentView = 'table';
-        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.view-btn[data-view="table"]').classList.add('active');
-
-        document.getElementById('table-view').style.display = 'block';
-        document.getElementById('folder-view').style.display = 'none';
-
-        filterDocuments(folder.name);
-      });
-
-      folderView.appendChild(folderItem);
-    });
-
-    addFolderEventListeners();
-  }
-
-  function populateFolderDropdown() {
-    const select = document.getElementById('document-folder');
-    select.innerHTML = '<option value="">None</option>';
-
-    folders.forEach(folder => {
-      const option = document.createElement('option');
-      option.value = folder.name;
-      option.textContent = folder.name;
-      select.appendChild(option);
-    });
-  }
-
-  function filterDocuments(folderFilter = '') {
-    const rows = document.getElementById('documents-table-body').querySelectorAll('tr');
-
-    rows.forEach(row => {
-      const docId = row.dataset.id;
-      const doc = documents.find(d => d.id === docId);
-      if (!doc) return;
-
-      const matchesCategory = currentCategory === 'all' || doc.category === currentCategory;
-      const matchesSearch = !currentSearchQuery || doc.name.toLowerCase().includes(currentSearchQuery);
-      const matchesFolder = !folderFilter || doc.folder === folderFilter;
-
-      row.style.display = matchesCategory && matchesSearch && matchesFolder ? '' : 'none';
-    });
-  }
-
-  async function uploadDocument() {
-    const name = document.getElementById('document-name').value.trim();
-    const category = document.getElementById('document-category').value;
-    const folder = document.getElementById('document-folder').value;
-    const description = document.getElementById('document-description').value.trim();
-    const fileInput = document.getElementById('document-file');
-    const progressContainer = document.getElementById('upload-progress');
-    const progressFill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-    const submitBtn = document.getElementById('upload-submit-btn');
-
-    if (!name) {
-      showMessage('Document name is required.', 'error');
-      return;
-    }
-
-    if (fileInput.files.length === 0) {
-      showMessage('Please select a file to upload.', 'error');
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const fileType = file.name.split('.').pop().toLowerCase();
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      showMessage('File size exceeds 5MB limit.', 'error');
-      return;
-    }
-
-    const allowedTypes = ['pdf', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'txt'];
-    if (!allowedTypes.includes(fileType)) {
-      showMessage('Unsupported file type.', 'error');
-      return;
-    }
-
-    progressContainer.style.display = 'block';
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Uploading...';
-
-    try {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (!userData) throw new Error('User data not found');
-
-      const storagePath = 'users/' + userData.uid + '/documents/' + Date.now() + '_' + sanitizeHTML(file.name);
-      const storageRef = ref(storage, storagePath);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressFill.style.width = progress + '%';
-          progressText.textContent = Math.round(progress) + '%';
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          showMessage('Error uploading file: ' + error.message, 'error');
-          progressContainer.style.display = 'none';
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Upload Document';
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            const docId = doc(collection(db, 'users/' + userData.uid + '/documents')).id;
-
-            const newDoc = {
-              id: docId,
-              name: sanitizeHTML(name),
-              type: fileType,
-              category,
-              folder,
-              size: file.size,
-              modified: new Date(),
-              owner: userData.name,
-              shared: false,
-              description: sanitizeHTML(description),
-              storagePath,
-              downloadURL
-            };
-
-            await setDoc(doc(db, 'users/' + userData.uid + '/documents', docId), {
-              name: newDoc.name,
-              type: newDoc.type,
-              category: newDoc.category,
-              folder: newDoc.folder,
-              size: newDoc.size,
-              modified: newDoc.modified,
-              owner: newDoc.owner,
-              shared: newDoc.shared,
-              description: newDoc.description,
-              storagePath: newDoc.storagePath,
-              downloadURL: newDoc.downloadURL
-            });
-
-            if (folder) {
-              const folderRef = folders.find(f => f.name === folder);
-              if (folderRef) {
-                await updateDoc(doc(db, 'users/' + userData.uid + '/folders', folderRef.id), {
-                  files: (folderRef.files || 0) + 1
-                });
-              }
-            }
-
-            document.getElementById('upload-form').reset();
-            progressContainer.style.display = 'none';
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Upload Document';
-            closeModal('upload-modal');
-            showMessage('Document uploaded successfully!', 'success');
-          } catch (error) {
-            console.error('Error saving document metadata:', error);
-            showMessage('Error saving document metadata: ' + error.message, 'error');
-            progressContainer.style.display = 'none';
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Upload Document';
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Error uploading document:', error);
-      showMessage('Error uploading document: ' + error.message, 'error');
-      progressContainer.style.display = 'none';
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Upload Document';
-    }
-  }
-
-  async function createFolder() {
-    const name = document.getElementById('folder-name').value.trim();
-    const color = document.getElementById('folder-color').value;
-
-    if (!name) {
-      showMessage('Folder name is required.', 'error');
-      return;
-    }
-
-    if (folders.some(f => f.name.toLowerCase() === name.toLowerCase())) {
-      showMessage('Folder name already exists.', 'error');
-      return;
-    }
-
-    try {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (!userData) throw new Error('User data not found');
-
-      const folderId = doc(collection(db, 'users/' + userData.uid + '/folders')).id;
-      await setDoc(doc(db, 'users/' + userData.uid + '/folders', folderId), {
-        name: sanitizeHTML(name),
-        color,
-        files: 0,
-        createdAt: new Date()
-      });
-
-      document.getElementById('folder-form').reset();
-      document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-      document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
-      document.getElementById('folder-color').value = '#003087';
-
-      showMessage('Folder created successfully!', 'success');
-    } catch (error) {
-      console.error('Error creating folder:', error);
-      showMessage('Error creating folder: ' + error.message, 'error');
-    }
-  }
-
-  async function deleteFolder(folderId) {
-    const folder = folders.find(f => f.id === folderId);
-    if (!folder) return;
-
-    if (folder.files > 0) {
-      showMessage('Cannot delete folder with documents.', 'error');
-      return;
-    }
-
-    if (!confirm('Are you sure you want to delete "' + sanitizeHTML(folder.name) + '"?')) return;
-
-    try {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (!userData) throw new Error('User data not found');
-
-      await deleteDoc(doc(db, 'users/' + userData.uid + '/folders', folderId));
-      showMessage('Folder deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting folder:', error);
-      showMessage('Error deleting folder: ' + error.message, 'error');
-    }
-  }
-
-  function addDocumentEventListeners() {
-    const buttons = document.querySelectorAll('.document-actions button');
-    buttons.forEach(btn => {
-      const newBtn = btn.cloneNode(true);
-      btn.parentNode.replaceChild(newBtn, btn);
-    });
-
-    document.querySelectorAll('[data-action="download"]').forEach(btn => {
-      btn.addEventListener('click', () => downloadDocument(btn.dataset.id));
-    });
-
-    document.querySelectorAll('[data-action="share"]').forEach(btn => {
-      btn.addEventListener('click', () => shareDocument(btn.dataset.id));
-    });
-
-    document.querySelectorAll('[data-action="delete"]').forEach(btn => {
-      btn.addEventListener('click', () => deleteDocument(btn.dataset.id));
-    });
-  }
-
-  function addFolderEventListeners() {
-    const buttons = document.querySelectorAll('.folder-actions button');
-    buttons.forEach(btn => {
-      const newBtn = btn.cloneNode(true);
-      btn.parentNode.replaceChild(newBtn, btn);
-    });
-
-    document.querySelectorAll('[data-action="delete-folder"]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        deleteFolder(btn.dataset.id);
-      });
-    });
-  }
-
-  async function downloadDocument(docId) {
-    const doc = documents.find(d => d.id === docId);
-    if (!doc) {
-      showMessage('Document not found.', 'error');
-      return;
-    }
-
-    try {
-      if (doc.downloadURL) {
-        const a = document.createElement('a');
-        a.href = doc.downloadURL;
-        a.download = sanitizeHTML(doc.name) + '.' + doc.type;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showMessage('Downloaded ' + sanitizeHTML(doc.name), 'success');
-      } else {
-        throw new Error('Download URL not available');
-      }
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      showMessage('Error downloading document: ' + error.message, 'error');
-    }
-  }
-
-  function shareDocument(docId) {
-    currentDocumentToShare = docId;
-    document.getElementById('share-link-container').style.display = 'none';
-    document.getElementById('share-modal').style.display = 'flex';
-  }
-
-  async function deleteDocument(docId) {
-    if (!confirm('Are you sure you want to delete this document?')) return;
-
-    const doc = documents.find(d => d.id === docId);
-    if (!doc) {
-      showMessage('Document not found.', 'error');
-      return;
-    }
-
-    try {
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      if (!userData) throw new Error('User data not found');
-
-      if (doc.storagePath) {
-        await deleteObject(ref(storage, doc.storagePath));
-      }
-
-      await deleteDoc(doc(db, 'users/' + userData.uid + '/documents', docId));
-
-      if (doc.folder) {
-        const folder = folders.find(f => f.name === doc.folder);
-        if (folder) {
-          await updateDoc(doc(db, 'users/' + userData.uid + '/folders', folder.id), {
-            files: (folder.files || 1) - 1
-          });
-        }
-      }
-
-      showMessage('Document deleted successfully!', 'success');
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      showMessage('Error deleting document: ' + error.message, 'error');
-    }
-  }
-
-  function getFileIconClass(fileType) {
-    switch (fileType?.toLowerCase()) {
-      case 'pdf': return 'fa-file-pdf';
-      case 'doc':
-      case 'docx': return 'fa-file-word';
-      case 'xls':
-      case 'xlsx': return 'fa-file-excel';
-      case 'ppt':
-      case 'pptx': return 'fa-file-powerpoint';
-      case 'jpg':
-      case 'jpeg':
-      case 'png': return 'fa-file-image';
-      default: return 'fa-file';
-    }
-  }
-
-  function formatFileSize(bytes) {
-    if (!bytes) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-  }
-
-  function formatDate(timestamp) {
-    if (!timestamp) return 'Unknown';
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-
-    const minute = 60 * 1000;
-    const hour = minute * 60;
-    const day = hour * 24;
-
-    if (diff < minute) return 'Just now';
-    if (diff < hour) return Math.floor(diff / minute) + ' minutes ago';
-    if (diff < day) return Math.floor(diff / hour) + ' hours ago';
-    return date.toLocaleDateString();
-  }
-
-  function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = 'none';
-    if (modalId === 'share-modal') {
-      document.getElementById('share-link-container').style.display = 'none';
-    }
-  }
-
-  setupModal('upload-doc-btn', 'upload-modal');
-  setupModal('new-folder-btn', 'folder-modal');
-  setupModal('share-modal-close', 'share-modal');
-</script>
+      setupModal('upload-doc-btn', 'upload-modal');
+      setupModal('new-folder-btn', 'folder-modal');
+      setupModal('share-modal-close', 'share-modal');
+    </script>
 </body>
 </html>
