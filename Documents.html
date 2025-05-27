@@ -924,7 +924,7 @@ async function uploadDocument() {
     const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
     const fileName = `${sanitizedName}_${timestamp}.${fileType}`;
     const storagePath = `users/${user.uid}/documents/${fileName}`;
-    const bucketName = 'documents';
+    const bucketName = 'public-documents';
 
     console.log('Uploading to:', `${supabaseConfig.url}/storage/v1/object/${bucketName}/${storagePath}`);
 
