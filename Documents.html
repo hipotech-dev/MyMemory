@@ -953,10 +953,6 @@ async function uploadDocument() {
       .getPublicUrl(storagePath);
     console.log('Generated downloadURL:', publicUrl);
 
-    // Construct manual URL for testing
-    const manualUrl = `${supabaseConfig.url}/storage/v1/object/public/${bucketName}/${storagePath}`;
-    console.log('Manual downloadURL:', manualUrl);
-
     const newDoc = {
       id: `doc${timestamp}`,
       name,
@@ -969,7 +965,7 @@ async function uploadDocument() {
       shared: false,
       description,
       storagePath,
-      downloadURL: publicUrl // Try manualUrl if publicUrl fails
+      downloadURL: publicUrl
     };
 
     console.log('Saving metadata:', newDoc);
