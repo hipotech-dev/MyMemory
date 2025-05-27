@@ -768,101 +768,129 @@
   </div>
   <script>
     // Supabase configuration
-    const supabaseConfig = {
-      url: 'https://obeeybozdvnpbyjtaflr.supabase.co',
-      key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'
-    };
+const supabaseConfig = {
+  url: 'https://obeeybozdvnpbyjtaflr.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'
+};
 
-    // Initialize Supabase
-    let supabase;
-    try {
-      supabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
-      console.log('Supabase initialized');
-    } catch (error) {
-      console.error('Supabase initialization error:', error);
-      showMessage('Failed to connect to storage service.', 'error');
-    }
+// Initialize Supabase
+let supabase;
+try {
+  supabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.key);
+  console.log('Supabase initialized');
+} catch (error) {
+  console.error('Supabase initialization error:', error);
+  showMessage('Failed to connect to storage service.', 'error');
+}
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-      authDomain: "mymemory-ddc21.firebaseapp.com",
-      projectId: "mymemory-ddc21",
-      storageBucket: "mymemory-ddc21.firebasestorage.app",
-      messagingSenderId: "875926928384",
-      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-      measurementId: "G-8XZZNJB0QD"
-    };
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+  authDomain: "mymemory-ddc21.firebaseapp.com",
+  projectId: "mymemory-ddc21",
+  storageBucket: "mymemory-ddc21.firebasestorage.app",
+  messagingSenderId: "875926928384",
+  appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+  measurementId: "G-8XZZNJB0QD"
+};
 
-    // Initialize Firebase
-    let auth, db;
-    try {
-      firebase.initializeApp(firebaseConfig);
-      auth = firebase.auth();
-      db = firebase.firestore();
-      console.log('Firebase initialized');
-    } catch (error) {
-      console.error('Firebase initialization error:', error);
-      showMessage('Failed to connect to authentication service.', 'error');
-    }
+// Initialize Firebase
+let auth, db;
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  console.log('Firebase initialized');
+} catch (error) {
+  console.error('Firebase initialization error:', error);
+  showMessage('Failed to connect to authentication service.', 'error');
+}
 
-    // Show message
-    function showMessage(message, type = 'error') {
-      const messageElement = document.getElementById('auth-message');
-      if (!messageElement) {
-        console.error('auth-message element not found');
-        return;
-      }
-      messageElement.textContent = message;
-      messageElement.className = `message ${type}`;
-      messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
-      messageElement.style.display = 'block';
-      setTimeout(() => messageElement.style.display = 'none', 5000);
-    }
+// Show message
+function showMessage(message, type = 'error') {
+  const messageElement = document.getElementById('auth-message');
+  if (!messageElement) {
+    console.error('auth-message element not found');
+    return;
+  }
+  messageElement.textContent = message;
+  messageElement.className = `message ${type}`;
+  messageElement.style.background = type === 'success' ? 'var(--success)' : 'var(--secondary)';
+  messageElement.style.display = 'block';
+  setTimeout(() => messageElement.style.display = 'none', 5000);
+}
 
-    // Close modal
-    function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) modal.style.display = 'none';
-      else console.error(`Modal ${modalId} not found`);
-    }
+// Close modal
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.style.display = 'none';
+  else console.error(`Modal ${modalId} not found`);
+}
 
-    // Format file size
-    function formatFileSize(bytes) {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-    }
+// Format file size
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
 
-    // Format date
-    function formatDate(timestamp) {
-      return new Date(timestamp).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
+// Format date
+function formatDate(timestamp) {
+  return new Date(timestamp).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
 
-    // Load folders
-    async function loadFolders(userId) {
-      try {
-        const folderSelect = document.getElementById('document-folder');
-        folderSelect.innerHTML = '<option value="">None</option>';
-        const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
-        folderQuery.forEach(doc => {
-          const folder = doc.data();
-          const option = document.createElement('option');
-          option.value = folder.name;
-          option.textContent = folder.name;
-          folderSelect.appendChild(option);
-        });
-      } catch (error) {
-        console.error('Error loading folders:', error);
-        showMessage('Failed to load folders.', 'error');
-      }
-    }
+// Load folders
+async function loadFolders(userId) {
+  try {
+    const folderSelect = document.getElementById('document-folder');
+    folderSelect.innerHTML = '<option value="">None</option>';
+    const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
+    folderQuery.forEach(doc => {
+      const folder = doc.data();
+      const option = document.createElement('option');
+      option.value = folder.name;
+      option.textContent = folder.name;
+      folderSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Error loading folders:', error);
+    showMessage('Failed to load folders.', 'error');
+  }
+}
 
-    // upLoad documents
+// Load folder view
+async function loadFolderView(userId) {
+  try {
+    const folderView = document.getElementById('folder-view');
+    folderView.innerHTML = '';
+    const folderQuery = await db.collection('users').doc(userId).collection('folders').get();
+    folderQuery.forEach(doc => {
+      const folder = doc.data();
+      const folderItem = document.createElement('div');
+      folderItem.className = 'folder-item';
+      folderItem.innerHTML = `
+        <div class="folder-icon" style="background: ${folder.color}20; color: ${folder.color};">
+          <i class="fas fa-folder"></i>
+        </div>
+        <div class="folder-name">${folder.name}</div>
+        <div class="folder-meta">${folder.files} files</div>
+        <div class="folder-actions">
+          <button class="delete-folder-btn" data-folder-id="${doc.id}"><i class="fas fa-trash"></i></button>
+        </div>
+      `;
+      folderView.appendChild(folderItem);
+    });
+  } catch (error) {
+    console.error('Error loading folder view:', error);
+    showMessage('Failed to load folders.', 'error');
+  }
+}
+
+// Upload documents
 async function uploadDocument() {
   const nameInput = document.getElementById('document-name');
   const categoryInput = document.getElementById('document-category');
@@ -917,13 +945,12 @@ async function uploadDocument() {
     if (!user) throw new Error('User not authenticated');
     console.log('User:', user.email, user.uid);
 
-    const timestamp = Date.now(); // Use real-time timestamp in production
+    const timestamp = Date.now();
     const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
     const fileName = `${sanitizedName}_${timestamp}.${fileType}`;
     const storagePath = `users/${user.uid}/documents/${fileName}`;
     const bucketName = 'public-documents';
 
-    // Verify bucket existence
     const { data: bucketData, error: bucketError } = await supabase.storage.getBucket(bucketName);
     if (bucketError) {
       console.error('Bucket check failed:', bucketError);
@@ -931,7 +958,6 @@ async function uploadDocument() {
     }
     console.log('Bucket exists:', bucketData);
 
-    // Upload file using Supabase client (preferred over XHR for simplicity)
     const { data, error } = await supabase.storage
       .from(bucketName)
       .upload(storagePath, file, {
@@ -950,7 +976,6 @@ async function uploadDocument() {
     }
     console.log('Upload response:', data);
 
-    // Generate public URL
     const { data: { publicUrl } } = supabase.storage
       .from(bucketName)
       .getPublicUrl(storagePath);
@@ -1019,7 +1044,8 @@ async function uploadDocument() {
     }
   }
 }
-    //load documents
+
+// Load documents
 async function loadDocuments(userId, category = 'all', searchQuery = '') {
   try {
     const tableBody = document.getElementById('documents-table-body');
@@ -1077,274 +1103,306 @@ async function loadDocuments(userId, category = 'all', searchQuery = '') {
     showMessage('Failed to load documents.', 'error');
   }
 }
-    // Create folder
-    async function createFolder() {
-      const nameInput = document.getElementById('folder-name');
-      const colorInput = document.getElementById('folder-color');
-      if (!nameInput || !colorInput) {
-        showMessage('Form elements missing.', 'error');
-        return;
-      }
 
-      const name = nameInput.value.trim();
-      const color = colorInput.value;
+// Create folder
+async function createFolder() {
+  const nameInput = document.getElementById('folder-name');
+  const colorInput = document.getElementById('folder-color');
+  if (!nameInput || !colorInput) {
+    showMessage('Form elements missing.', 'error');
+    return;
+  }
 
-      if (!name) {
-        showMessage('Folder name required.', 'error');
-        return;
-      }
+  const name = nameInput.value.trim();
+  const color = colorInput.value;
 
-      try {
-        const user = auth.currentUser;
-        if (!user) throw new Error('User not authenticated');
+  if (!name) {
+    showMessage('Folder name required.', 'error');
+    return;
+  }
 
-        const folderData = {
-          name,
-          color,
-          files: 0,
-          created: Date.now()
-        };
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
 
-        await db.collection('users')
-          .doc(user.uid)
-          .collection('folders')
-          .add(folderData);
+    const folderData = {
+      name,
+      color,
+      files: 0,
+      created: Date.now()
+    };
 
-        document.getElementById('folder-form').reset();
-        document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
-        closeModal('folder-modal');
-        showMessage('Folder created!', 'success');
-        loadFolders(user.uid);
-        loadFolderView(user.uid);
-      } catch (error) {
-        console.error('Error creating folder:', error);
-        showMessage(`Error creating folder: ${error.message}`, 'error');
-      }
-    }
+    await db.collection('users')
+      .doc(user.uid)
+      .collection('folders')
+      .add(folderData);
 
-    // Initialize upload form
-    function initUploadForm() {
-      console.log('Initializing upload form');
-      const uploadForm = document.getElementById('upload-form');
-      if (uploadForm) {
-        uploadForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          uploadDocument();
-        });
-      }
+    document.getElementById('folder-form').reset();
+    document.querySelector('.color-option[data-color="#003087"]').classList.add('selected');
+    closeModal('folder-modal');
+    showMessage('Folder created!', 'success');
+    loadFolders(user.uid);
+    loadFolderView(user.uid);
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    showMessage(`Error creating folder: ${error.message}`, 'error');
+  }
+}
 
-      const fileUploadArea = document.getElementById('file-upload-area');
-      if (fileUploadArea) {
-        fileUploadArea.addEventListener('click', () => {
-          const fileInput = document.getElementById('document-file');
-          if (fileInput) fileInput.click();
-        });
-
-        fileUploadArea.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          fileUploadArea.style.borderColor = 'var(--primary-light)';
-          fileUploadArea.style.background = 'rgba(0, 112, 186, 0.05)';
-        });
-
-        fileUploadArea.addEventListener('dragleave', () => {
-          fileUploadArea.style.borderColor = 'var(--gray)';
-          fileUploadArea.style.background = '';
-        });
-
-        fileUploadArea.addEventListener('drop', (e) => {
-          e.preventDefault();
-          fileUploadArea.style.borderColor = 'var(--gray)';
-          fileUploadArea.style.background = '';
-          if (e.dataTransfer.files.length) {
-            const fileInput = document.getElementById('document-file');
-            if (fileInput) {
-              fileInput.files = e.dataTransfer.files;
-              const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
-              const nameInput = document.getElementById('document-name');
-              if (nameInput) nameInput.value = fileName;
-            }
-          }
-        });
-      }
-
-      const fileInput = document.getElementById('document-file');
-      if (fileInput) {
-        fileInput.addEventListener('change', () => {
-          if (fileInput.files.length) {
-            const fileName = fileInput.files[0].name.split('.').slice(0, -1).join('.');
-            const nameInput = document.getElementById('document-name');
-            if (nameInput) nameInput.value = fileName;
-          }
-        });
-      }
-
-      const uploadBtn = document.getElementById('upload-doc-btn');
-      if (uploadBtn) {
-        uploadBtn.addEventListener('click', () => {
-          const modal = document.getElementById('upload-modal');
-          if (modal) modal.style.display = 'flex';
-        });
-      }
-
-      const modalClose = document.querySelector('#upload-modal .modal-close');
-      if (modalClose) {
-        modalClose.addEventListener('click', () => closeModal('upload-modal'));
-      }
-    }
-
-    // Initialize folder form
-    function initFolderForm() {
-      const folderForm = document.getElementById('folder-form');
-      if (folderForm) {
-        folderForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          createFolder();
-        });
-      }
-
-      const newFolderBtn = document.getElementById('new-folder-btn');
-      if (newFolderBtn) {
-        newFolderBtn.addEventListener('click', () => {
-          const modal = document.getElementById('folder-modal');
-          if (modal) modal.style.display = 'flex';
-        });
-      }
-
-      const modalClose = document.querySelector('#folder-modal .modal-close');
-      if (modalClose) {
-        modalClose.addEventListener('click', () => closeModal('folder-modal'));
-      }
-
-      document.querySelectorAll('.color-option').forEach(option => {
-        option.addEventListener('click', () => {
-          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-          option.classList.add('selected');
-          document.getElementById('folder-color').value = option.dataset.color;
-        });
-      });
-    }
-
-    // Initialize search
-    function initSearch(userId) {
-      const searchInput = document.getElementById('search-input');
-      const searchBtn = document.getElementById('search-btn');
-      if (searchInput && searchBtn) {
-        const performSearch = () => {
-          const category = document.querySelector('.category-btn.active').dataset.category;
-          loadDocuments(userId, category, searchInput.value.trim());
-        };
-        searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('input', performSearch);
-      }
-    }
-
-    // Initialize category filter
-    function initCategoryFilter(userId) {
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const searchQuery = document.getElementById('search-input').value.trim();
-          loadDocuments(userId, btn.dataset.category, searchQuery);
-        });
-      });
-    }
-
-    // Initialize view toggle
-    function initViewToggle(userId) {
-      document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const tableView = document.getElementById('table-view');
-          const folderView = document.getElementById('folder-view');
-          if (btn.dataset.view === 'table') {
-            tableView.style.display = 'block';
-            folderView.style.display = 'none';
-            const category = document.querySelector('.category-btn.active').dataset.category;
-            const searchQuery = document.getElementById('search-input').value.trim();
-            loadDocuments(userId, category, searchQuery);
-          } else {
-            tableView.style.display = 'none';
-            folderView.style.display = 'grid';
-            loadFolderView(userId);
-          }
-        });
-      });
-    }
-
-    // Handle auth state
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM loaded');
-      if (typeof firebase === 'undefined') {
-        console.error('Firebase SDK not loaded');
-        showMessage('Failed to load authentication service.', 'error');
-        return;
-      }
-      console.log('Firebase SDK loaded');
-
-      const loadingElement = document.getElementById('loading');
-      const appContentElement = document.getElementById('app-content');
-
-      if (!loadingElement || !appContentElement) {
-        console.error('Loading or app-content not found');
-        showMessage('Page elements missing.', 'error');
-        return;
-      }
-
-      auth.onAuthStateChanged((user) => {
-        console.log('Auth state:', user);
-        if (user && user.emailVerified) {
-          console.log('User authenticated');
-          loadingElement.style.display = 'none';
-          appContentElement.style.display = 'block';
-          initUploadForm();
-          initFolderForm();
-          initSearch(user.uid);
-          initCategoryFilter(user.uid);
-          initViewToggle(user.uid);
-          loadFolders(user.uid);
-          loadDocuments(user.uid);
-          loadFolderView(user.uid);
-
-          // Set user info
-          document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
-          document.getElementById('popup-user-name').textContent = user.displayName || user.email.split('.')[0];
-          document.getElementById('popup-user-email').textContent = user.email;
-
-          // Handle user popup
-          const userAvatar = document.getElementById('user-avatar');
-          const userPopup = document.getElementById('user-popup');
-          userAvatar.addEventListener('click', () => {
-            userPopup.classList.toggle('active');
-          });
-
-          // Handle logout
-          const logoutBtn = document.getElementById('popup-logout-btn');
-          const logoutLink = document.getElementById('logout-link');
-          const logout = async () => {
-            try {
-              await auth.signOut();
-              window.location.href = 'index.html';
-            } catch (error) {
-              console.error('Logout error:', error);
-              showMessage('Failed to logout.', 'error');
-            }
-          };
-          logoutBtn.addEventListener('click', logout);
-          logoutLink.addEventListener('click', logout);
-        } else {
-          console.log('No user or email not verified');
-          loadingElement.style.display = 'none';
-          showMessage('Please sign in and verify your email.', 'error');
-          setTimeout(() => window.location.href = 'index.html', 2000);
-        }
-      }, (error) => {
-        console.error('Auth error:', error);
-        loadingElement.style.display = 'none';
-        showMessage('Authentication error.', 'error');
-      });
+// Initialize upload form
+function initUploadForm() {
+  console.log('Initializing upload form');
+  const uploadForm = document.getElementById('upload-form');
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      uploadDocument();
     });
+  }
+
+  const fileUploadArea = document.getElementById('file-upload-area');
+  if (fileUploadArea) {
+    fileUploadArea.addEventListener('click', () => {
+      const fileInput = document.getElementById('document-file');
+      if (fileInput) fileInput.click();
+    });
+
+    fileUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileUploadArea.style.borderColor = 'var(--primary-light)';
+      fileUploadArea.style.background = 'rgba(0, 112, 186, 0.05)';
+    });
+
+    fileUploadArea.addEventListener('dragleave', () => {
+      fileUploadArea.style.borderColor = 'var(--gray)';
+      fileUploadArea.style.background = '';
+    });
+
+    fileUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileUploadArea.style.borderColor = 'var(--gray)';
+      fileUploadArea.style.background = '';
+      if (e.dataTransfer.files.length) {
+        const fileInput = document.getElementById('document-file');
+        if (fileInput) {
+          fileInput.files = e.dataTransfer.files;
+          const fileName = e.dataTransfer.files[0].name.split('.').slice(0, -1).join('.');
+          const nameInput = document.getElementById('document-name');
+          if (nameInput) nameInput.value = fileName;
+        }
+      }
+    });
+  }
+
+  const fileInput = document.getElementById('document-file');
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        const fileName = fileInput.files[0].name.split('.').slice(0, -1).join('.');
+        const nameInput = document.getElementById('document-name');
+        if (nameInput) nameInput.value = fileName;
+      }
+    });
+  }
+
+  const uploadBtn = document.getElementById('upload-doc,
+
+-btn');
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', () => {
+      const modal = document.getElementById('upload-modal');
+      if (modal) modal.style.display = 'flex';
+    });
+  }
+
+  const modalClose = document.querySelector('#upload-modal .modal-close');
+  if (modalClose) {
+    modalClose.addEventListener('click', () => closeModal('upload-modal'));
+  }
+}
+
+// Initialize folder form
+function initFolderForm() {
+  const folderForm = document.getElementById('folder-form');
+  if (folderForm) {
+    folderForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      createFolder();
+    });
+  }
+
+  const newFolderBtn = document.getElementById('new-folder-btn');
+  if (newFolderBtn) {
+    newFolderBtn.addEventListener('click', () => {
+      const modal = document.getElementById('folder-modal');
+      if (modal) modal.style.display = 'flex';
+    });
+  }
+
+  const modalClose = document.querySelector('#folder-modal .modal-close');
+  if (modalClose) {
+    modalClose.addEventListener('click', () => closeModal('folder-modal'));
+  }
+
+  document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', () => {
+      document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      document.getElementById('folder-color').value = option.dataset.color;
+    });
+  });
+}
+
+// Initialize search
+function initSearch(userId) {
+  const searchInput = document.getElementById('search-input');
+  const searchBtn = document.getElementById('search-btn');
+  if (searchInput && searchBtn) {
+    const performSearch = () => {
+      const category = document.querySelector('.category-btn.active').dataset.category;
+      loadDocuments(userId, category, searchInput.value.trim());
+    };
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('input', performSearch);
+  }
+}
+
+// Initialize category filter
+function initCategoryFilter(userId) {
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const searchQuery = document.getElementById('search-input').value.trim();
+      loadDocuments(userId, btn.dataset.category, searchQuery);
+    });
+  });
+}
+
+// Initialize view toggle
+function initViewToggle(userId) {
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tableView = document.getElementById('table-view');
+      const folderView = document.getElementById('folder-view');
+      if (btn.dataset.view === 'table') {
+        tableView.style.display = 'block';
+        folderView.style.display = 'none';
+        const category = document.querySelector('.category-btn.active').dataset.category;
+        const searchQuery = document.getElementById('search-input').value.trim();
+        loadDocuments(userId, category, searchQuery);
+      } else {
+        tableView.style.display = 'none';
+        folderView.style.display = 'grid';
+        loadFolderView(userId);
+      }
+    });
+  });
+}
+
+// Handle logout
+async function handleLogout() {
+  const userPopup = document.getElementById('user-popup');
+  try {
+    // Close the user popup if open
+    if (userPopup) {
+      userPopup.classList.remove('active');
+    }
+    // Show loading message
+    showMessage('Logging out...', 'success');
+    // Sign out from Firebase
+    await auth.signOut();
+    // Redirect to index.html
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error('Logout error:', error);
+    showMessage(`Failed to logout: ${error.message}`, 'error');
+  }
+}
+
+// Handle auth state
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM loaded');
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase SDK not loaded');
+    showMessage('Failed to load authentication service.', 'error');
+    return;
+  }
+  console.log('Firebase SDK loaded');
+
+  const loadingElement = document.getElementById('loading');
+  const appContentElement = document.getElementById('app-content');
+
+  if (!loadingElement || !appContentElement) {
+    console.error('Loading or app-content not found');
+    showMessage('Page elements missing.', 'error');
+    return;
+  }
+
+  auth.onAuthStateChanged((user) => {
+    console.log('Auth state:', user);
+    if (user && user.emailVerified) {
+      console.log('User authenticated');
+      loadingElement.style.display = 'none';
+      appContentElement.style.display = 'block';
+      initUploadForm();
+      initFolderForm();
+      initSearch(user.uid);
+      initCategoryFilter(user.uid);
+      initViewToggle(user.uid);
+      loadFolders(user.uid);
+      loadDocuments(user.uid);
+      loadFolderView(user.uid);
+
+      // Set user info
+      document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
+      document.getElementById('popup-user-name').textContent = user.displayName || user.email.split('.')[0];
+      document.getElementById('popup-user-email').textContent = user.email;
+
+      // Handle user popup
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      if (userAvatar && userPopup) {
+        userAvatar.addEventListener('click', () => {
+          userPopup.classList.toggle('active');
+        });
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!userAvatar.contains(e.target) && !userPopup.contains(e.target)) {
+            userPopup.classList.remove('active');
+          }
+        });
+      }
+
+      // Handle logout for both popup button and sidebar link
+      const logoutBtn = document.getElementById('popup-logout-btn');
+      const logoutLink = document.getElementById('logout-link');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleLogout();
+        });
+      }
+      if (logoutLink) {
+        logoutLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleLogout();
+        });
+      }
+    } else {
+      console.log('No user or email not verified');
+      loadingElement.style.display = 'none';
+      showMessage('Please sign in and verify your email.', 'error');
+      setTimeout(() => window.location.href = 'index.html', 2000);
+    }
+  }, (error) => {
+    console.error('Auth error:', error);
+    loadingElement.style.display = 'none';
+    showMessage('Authentication error.', 'error');
+  });
+});
   </script>
 </body>
 </html>
