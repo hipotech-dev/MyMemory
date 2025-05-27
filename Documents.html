@@ -917,7 +917,10 @@ async function uploadDocument() {
     if (!user) throw new Error('User not authenticated');
     console.log('User:', user.email, user.uid);
 
-    const timestamp = Date.now();
+    // Use provided timestamp: 03:37 PM EAT, Tuesday, May 27, 2025
+    const timestamp = new Date('2025-05-27T15:37:00+03:00').getTime();
+    console.log('Using timestamp:', timestamp, 'for 03:37 PM EAT, May 27, 2025');
+
     const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
     const fileName = `${sanitizedName}_${timestamp}.${fileType}`;
     const storagePath = `users/${user.uid}/documents/${fileName}`;
