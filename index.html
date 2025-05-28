@@ -1516,7 +1516,12 @@
   // Supabase configuration
   const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTgzMzQ2OTcsImV4cCI6MjAzMzkxMDY5N30.LbrDMkxytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  let supabase;
+  try {
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  } catch (error) {
+    console.error('Supabase initialization failed:', error);
+  }
 
   // Initialize Firebase
   let app, auth, db, storage;
@@ -1530,12 +1535,6 @@
     console.error('Firebase initialization failed:', error);
     showMessage('login-message', 'Failed to connect to services. Please try again.', 'error');
   }
-
-  // Global error handler
-  window.addEventListener('error', function (event) {
-    console.error('Global error:', event.error);
-    showMessage('login-message', 'An unexpected error occurred. Please try again.', 'error');
-  });
 
   // Utility Functions
   function showMessage(elementId, message, type = 'success') {
@@ -1553,15 +1552,6 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  function isValidUrl(url) {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
   function calculatePasswordStrength(password) {
     let strength = 0;
     if (password.length >= 8) strength += 25;
@@ -1572,36 +1562,18 @@
     return Math.min(strength, 100);
   }
 
-  function encryptPassword(password) {
-    return btoa(password);
-  }
-
-  function decryptPassword(encryptedPassword) {
-    try {
-      return atob(encryptedPassword);
-    } catch {
-      return 'Error decrypting';
-    }
-  }
-
   // Rate Limiting
   const RATE_LIMIT_MS = 30 * 1000;
 
-  function canSendPasswordReset(email) {
-    const lastReset = localStorage.getItem(`reset-attempt-${email}`);
-    if (!lastReset) return true;
-    const timeSinceLast = Date.now() - parseInt(lastReset);
-    return timeSinceLast > RATE_LIMIT_MS;
-  }
-
-  function canResendVerification(email) {
-    const lastAttempt = localStorage.getItem(`verification-attempt-${email}`);
+  function canSendForm(email, type) {
+    const key = `${type}-attempt-${email}`;
+    const lastAttempt = localStorage.getItem(key);
     if (!lastAttempt) return true;
     const timeSinceLast = Date.now() - parseInt(lastAttempt);
-    return timeSinceLast > RATE_LIMIT_MS;
+    return timeSinceLast >= RATE_LIMIT_MS;
   }
 
-  // Form Toggle
+  // Form Toggle Functions
   function toggleForms() {
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
@@ -1609,25 +1581,25 @@
     const signupMessage = document.getElementById('signup-message');
 
     if (loginForm.style.display === 'none') {
-      loginForm.style.display = 'block';
+      loginForm.style.display = 'flex';
       signupForm.style.display = 'none';
       signupMessage.style.display = 'none';
     } else {
       loginForm.style.display = 'none';
-      signupForm.style.display = 'block';
+      signupForm.style.display = 'flex';
       loginMessage.style.display = 'none';
     }
 
-    const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
+    const activeForm = loginForm;
     activeForm.classList.add('fade-in');
-    setTimeout(() => activeForm.classList.remove('fade-in'), 300);
+    setTimeout(() => activeForm.classList.remove('fade-in'), 500);
   }
 
   // Password Strength Indicator
   const passwordInput = document.getElementById('password-signup');
   const strengthMeter = document.getElementById('strength-meter');
   if (passwordInput && strengthMeter) {
-    passwordInput.addEventListener('input', function () {
+    passwordInput.addEventListener('input', function() {
       const password = this.value;
       const strength = calculatePasswordStrength(password);
       strengthMeter.style.width = `${strength}%`;
@@ -1751,26 +1723,20 @@
       return;
     }
 
-    function toggleUserPopup(e) {
+    userAvatar.addEventListener('click', (e) => {
       e.stopPropagation();
       userPopup.classList.toggle('active');
-    }
+    });
 
-    function closeUserPopup() {
-      userPopup.classList.remove('active');
-    }
-
-    userAvatar.addEventListener('click', toggleUserPopup);
-
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', (e) => {
       if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-        closeUserPopup();
+        userPopup.classList.remove('active');
       }
     });
 
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        closeUserPopup();
+        userPopup.classList.remove('active');
       }
     });
 
@@ -1780,28 +1746,21 @@
   // Logout Handler
   async function handleLogout(e) {
     e.preventDefault();
-    if (!auth) {
-      console.error('Firebase auth not initialized');
-      showMessage('login-message', 'Authentication service not available', 'error');
-      return;
-    }
-
     try {
       await auth.signOut();
       localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('userData');
       localStorage.removeItem('rememberMe');
       document.getElementById('auth-page').style.display = 'flex';
       document.getElementById('dashboard').style.display = 'none';
-      showMessage('login-message', 'You have been logged out successfully.', 'success');
+      showMessage('login-message', 'Logged out successfully.', 'success');
     } catch (error) {
       console.error('Logout error:', error);
-      showMessage('login-message', `Logout failed: ${error.message}`, 'error');
+      showMessage('login-message', 'Logout failed. Please try again.', 'error');
     }
   }
 
   // Authentication Handlers
-  document.getElementById('login').addEventListener('submit', async function (e) {
+  document.getElementById('login').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateLoginForm()) return;
 
@@ -1811,31 +1770,16 @@
 
     try {
       const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      let user = userCredential.user;
+      const user = userCredential.user;
 
-      // Check email verification with polling
-      let attempts = 0;
-      const maxAttempts = 5;
-      while (!user.emailVerified && attempts < maxAttempts) {
-        await user.reload();
-        user = auth.currentUser;
-        if (!user.emailVerified) {
-          showMessage('login-message', 'Please verify your email. Checking again in 5 seconds...', 'error');
-          await new Promise(resolve => setTimeout(resolve, 5000));
-          attempts++;
-        }
-      }
-
-      if (!user.emailVerified) {
+      if (!user.emailVerified && !user.providerData.some(p => p.providerId === 'google.com')) {
         await auth.signOut();
-        showMessage('login-message', 'Email not verified. Please check your inbox or resend verification.', 'error');
+        showMessage('login-message', 'Please verify your email. Check your inbox or resend verification.', 'error');
         return;
       }
 
       localStorage.setItem('isAuthenticated', 'true');
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-      }
+      if (rememberMe) localStorage.setItem('rememberMe', 'true');
 
       document.getElementById('auth-page').style.display = 'none';
       document.getElementById('dashboard').style.display = 'flex';
@@ -1848,29 +1792,30 @@
       document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
 
       // Load dashboard data
-      await Promise.all([
-        loadTodos(user),
-        loadPasswords(user),
-        loadDocuments(user),
-        updateDashboardCards(user)
-      ]);
-    } catch (error) {
-      console.error('Login error:', error);
-      let message = 'Login failed. Please check your credentials.';
-      if (error.code === 'auth/user-not-found') {
-        message = 'No account found with this email.';
-      } else if (error.code === 'auth/wrong-password') {
-        message = 'Incorrect password.';
-      } else if (error.code === 'auth/too-many-requests') {
-        message = 'Too many attempts. Please try again later.';
-      } else if (error.code === 'auth/network-request-failed') {
-        message = 'Network error. Please check your connection.';
+      try {
+        await Promise.all([
+          typeof loadTodos === 'function' ? loadTodos(user) : Promise.resolve(),
+          typeof loadPasswords === 'function' ? loadPasswords(user) : Promise.resolve(),
+          typeof loadDocuments === 'function' ? loadDocuments(user) : Promise.resolve(),
+          typeof updateDashboardCards === 'function' ? updateDashboardCards(user) : Promise.resolve()
+        ]);
+      } catch (dataError) {
+        console.error('Dashboard data load error:', dataError);
+        showMessage('login-message', 'Error loading dashboard data.', 'error');
       }
-      showMessage('login-message', message, 'error');
+    } catch (error) {
+      console.error('Login error:', error.code, error.message);
+      const errorMessages = {
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Incorrect password.',
+        'auth/too-many-requests': 'Too many attempts. Please try again later.',
+        'auth/network-request-failed': 'Network error. Please check your connection.'
+      };
+      showMessage('login-message', errorMessages[error.code] || 'Login failed. Please try again.', 'error');
     }
   });
 
-  document.getElementById('signup').addEventListener('submit', async function (e) {
+  document.getElementById('signup').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateSignupForm()) return;
 
@@ -1892,46 +1837,41 @@
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      // Store user data in Supabase with conflict handling
-      const { data, error: supabaseError } = await supabase.from('users').upsert(
-        [{ id: user.uid, name, email }],
-        { onConflict: ['id'], ignoreDuplicates: false }
-      );
-
-      if (supabaseError) {
-        console.error('Supabase error:', supabaseError);
-        showMessage('signup-message', 'Error syncing user data. Please try again.', 'error');
+      // Store user data in Supabase (non-critical)
+      if (supabase) {
+        const { error } = await supabase.from('users').upsert(
+          [{ id: user.uid, name, email }],
+          { onConflict: ['id'], ignoreDuplicates: false }
+        );
+        if (error) console.error('Supabase upsert error:', error);
       }
 
-      showMessage('signup-message', 'Account created! Please check your inbox to verify your email.', 'success');
-      await auth.signOut(); // Sign out to enforce verification
+      showMessage('signup-message', 'Account created! Please verify your email.', 'success');
+      await auth.signOut();
       toggleForms();
     } catch (error) {
-      console.error('Signup error:', error);
-      let message = 'Signup failed. Please try again.';
-      if (error.code === 'auth/email-already-in-use') {
-        message = 'This email is already registered.';
-      } else if (error.code === 'auth/weak-password') {
-        message = 'Password is too weak. Use at least 8 characters.';
-      } else if (error.code === 'auth/network-request-failed') {
-        message = 'Network error. Please check your connection.';
-      }
-      showMessage('signup-message', message, 'error');
+      console.error('Signup error:', error.code, error.message);
+      const errorMessages = {
+        'auth/email-already-in-use': 'This email is already registered.',
+        'auth/weak-password': 'Password is too weak. Use at least 8 characters.',
+        'auth/network-request-failed': 'Network error. Please check your connection.'
+      };
+      showMessage('signup-message', errorMessages[error.code] || 'Signup failed. Please try again.', 'error');
     }
   });
 
-  document.getElementById('forgot-password').addEventListener('click', function (e) {
+  document.getElementById('forgot-password').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('forgot-password-modal').style.display = 'flex';
   });
 
-  document.getElementById('forgot-password-form').addEventListener('submit', async function (e) {
+  document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateForgotForm()) return;
 
     const email = document.getElementById('forgot-email').value;
 
-    if (!canSendPasswordReset(email)) {
+    if (!canSendForm(email, 'reset')) {
       showMessage('forgot-message', 'Please wait 30 seconds before requesting another reset.', 'error');
       return;
     }
@@ -1942,18 +1882,16 @@
       showMessage('forgot-message', 'Password reset email sent! Check your inbox.', 'success');
       document.getElementById('forgot-password-modal').style.display = 'none';
     } catch (error) {
-      console.error('Password reset error:', error);
-      let message = 'Failed to send reset email. Please try again.';
-      if (error.code === 'auth/user-not-found') {
-        message = 'No account found with this email.';
-      } else if (error.code === 'auth/network-request-failed') {
-        message = 'Network error. Please check your connection.';
-      }
-      showMessage('forgot-message', message, 'error');
+      console.error('Password reset error:', error.code, error.message);
+      const errorMessages = {
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/network-request-failed': 'Network error. Please check your connection.'
+      };
+      showMessage('forgot-message', errorMessages[error.code] || 'Failed to send reset email.', 'error');
     }
   });
 
-  document.getElementById('resend-verification').addEventListener('click', async function (e) {
+  document.getElementById('resend-verification').addEventListener('click', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -1963,7 +1901,7 @@
       return;
     }
 
-    if (!canResendVerification(email)) {
+    if (!canSendForm(email, 'verification')) {
       showMessage('login-message', 'Please wait 30 seconds before requesting another verification email.', 'error');
       return;
     }
@@ -1973,94 +1911,90 @@
       const user = userCredential.user;
 
       if (user.emailVerified) {
-        showMessage('login-message', 'Your email is already verified. Logging you in...', 'success');
-        // Proceed to dashboard
+        showMessage('login-message', 'Email already verified. Logging in...', 'success');
         document.getElementById('auth-page').style.display = 'none';
         document.getElementById('dashboard').style.display = 'flex';
-        await Promise.all([
-          loadTodos(user),
-          loadPasswords(user),
-          loadDocuments(user),
-          updateDashboardCards(user)
-        ]);
+        try {
+          await Promise.all([
+            typeof loadTodos === 'function' ? loadTodos(user) : Promise.resolve(),
+            typeof loadPasswords === 'function' ? loadPasswords(user) : Promise.resolve(),
+            typeof loadDocuments === 'function' ? loadDocuments(user) : Promise.resolve(),
+            typeof updateDashboardCards === 'function' ? updateDashboardCards(user) : Promise.resolve()
+          ]);
+        } catch (dataError) {
+          console.error('Dashboard data load error:', dataError);
+        }
         return;
       }
 
       await user.sendEmailVerification();
       localStorage.setItem(`verification-attempt-${email}`, Date.now());
-      showMessage('login-message', 'Verification email sent! Please check your inbox.', 'success');
-      await auth.signOut(); // Sign out to enforce verification
+      showMessage('login-message', 'Verification email sent! Check your inbox.', 'success');
+      await auth.signOut();
     } catch (error) {
-      console.error('Resend verification error:', error);
-      let message = 'Failed to send verification email. Please try again.';
-      if (error.code === 'auth/user-not-found') {
-        message = 'No account found with this email.';
-      } else if (error.code === 'auth/wrong-password') {
-        message = 'Incorrect password.';
-      } else if (error.code === 'auth/network-request-failed') {
-        message = 'Network error. Please check your connection.';
-      }
-      showMessage('login-message', message, 'error');
+      console.error('Resend verification error:', error.code, error.message);
+      const errorMessages = {
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Incorrect password.',
+        'auth/network-request-failed': 'Network error. Please check your connection.'
+      };
+      showMessage('login-message', errorMessages[error.code] || 'Failed to send verification email.', 'error');
     }
   });
 
-  document.getElementById('google-login').addEventListener('click', async function () {
+  document.getElementById('google-login').addEventListener('click', async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
       const result = await auth.signInWithPopup(provider);
       const user = result.user;
 
-      // Store user data in Firestore
       await db.collection('users').doc(user.uid).set({
         name: user.displayName,
         email: user.email,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
 
-      // Store user data in Supabase
-      const { error: supabaseError } = await supabase.from('users').upsert(
-        [{ id: user.uid, name: user.displayName, email: user.email }],
-        { onConflict: ['id'], ignoreDuplicates: false }
-      );
-
-      if (supabaseError) {
-        console.error('Supabase error:', supabaseError);
-        showMessage('login-message', 'Error syncing user data.', 'error');
+      if (supabase) {
+        const { error } = await supabase.from('users').upsert(
+          [{ id: user.uid, name: user.displayName, email: user.email }],
+          { onConflict: ['id'], ignoreDuplicates: false }
+        );
+        if (error) console.error('Supabase upsert error:', error);
       }
 
       localStorage.setItem('isAuthenticated', 'true');
       document.getElementById('auth-page').style.display = 'none';
       document.getElementById('dashboard').style.display = 'flex';
 
-      // Update user info
       document.getElementById('user-name').textContent = user.displayName || 'User';
       document.getElementById('popup-user-name').textContent = user.displayName || 'User';
       document.getElementById('popup-user-email').textContent = user.email;
       document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
 
-      // Load dashboard data
-      await Promise.all([
-        loadTodos(user),
-        loadPasswords(user),
-        loadDocuments(user),
-        updateDashboardCards(user)
-      ]);
-    } catch (error) {
-      console.error('Google login error:', error);
-      let message = 'Google login failed. Please try again.';
-      if (error.code === 'auth/popup-closed-by-user') {
-        message = 'Google login cancelled.';
-      } else if (error.code === 'auth/network-request-failed') {
-        message = 'Network error. Please check your connection.';
+      try {
+        await Promise.all([
+          typeof loadTodos === 'function' ? loadTodos(user) : Promise.resolve(),
+          typeof loadPasswords === 'function' ? loadPasswords(user) : Promise.resolve(),
+          typeof loadDocuments === 'function' ? loadDocuments(user) : Promise.resolve(),
+          typeof updateDashboardCards === 'function' ? updateDashboardCards(user) : Promise.resolve()
+        ]);
+      } catch (dataError) {
+        console.error('Dashboard data load error:', dataError);
+        showMessage('login-message', 'Error loading dashboard data.', 'error');
       }
-      showMessage('login-message', message, 'error');
+    } catch (error) {
+      console.error('Google login error:', error.code, error.message);
+      const errorMessages = {
+        'auth/popup-closed-by-user': 'Google login cancelled.',
+        'auth/network-request-failed': 'Network error. Please check your connection.'
+      };
+      showMessage('login-message', errorMessages[error.code] || 'Google login failed.', 'error');
     }
   });
 
   // Auth State Listener
-  auth.onAuthStateChanged(async user => {
+  auth.onAuthStateChanged(async (user) => {
     if (user) {
-      // Check email verification
       if (!user.emailVerified && !user.providerData.some(p => p.providerId === 'google.com')) {
         showMessage('login-message', 'Please verify your email to access the dashboard.', 'error');
         await auth.signOut();
@@ -2073,19 +2007,17 @@
       document.getElementById('auth-page').style.display = 'none';
       document.getElementById('dashboard').style.display = 'flex';
 
-      // Update user info
       document.getElementById('user-name').textContent = user.displayName || 'User';
       document.getElementById('popup-user-name').textContent = user.displayName || 'User';
       document.getElementById('popup-user-email').textContent = user.email;
       document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
 
-      // Load dashboard data
       try {
         await Promise.all([
-          loadTodos(user),
-          loadPasswords(user),
-          loadDocuments(user),
-          updateDashboardCards(user)
+          typeof loadTodos === 'function' ? loadTodos(user) : Promise.resolve(),
+          typeof loadPasswords === 'function' ? loadPasswords(user) : Promise.resolve(),
+          typeof loadDocuments === 'function' ? loadDocuments(user) : Promise.resolve(),
+          typeof updateDashboardCards === 'function' ? updateDashboardCards(user) : Promise.resolve()
         ]);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -2100,8 +2032,15 @@
     }
   });
 
+  // Modal Close Handlers
+  document.querySelectorAll('.modal-close').forEach(button => {
+    button.addEventListener('click', () => {
+      button.closest('.modal').style.display = 'none';
+    });
+  });
+
   // Initialize
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('rememberMe') !== 'true') {
       auth.signOut();
     }
