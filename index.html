@@ -1503,7 +1503,6 @@
   </div>
  <script>
 // Firebase configuration
-// Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
     authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1757,6 +1756,15 @@
     logoutBtn.addEventListener('click', handleLogout);
   }
 
+  // Sidebar Toggle
+  const sidebarToggle = document.querySelector('.sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+  }
+
   // Logout Handler
   async function handleLogout(e) {
     e.preventDefault();
@@ -1773,6 +1781,67 @@
       showMessage('login-message', 'Logout failed. Please try again.', 'error');
     }
   }
+
+  // Google Sign-In Handler
+  document.getElementById('google-login').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value || 'google-signin';
+    
+    if (!canSendForm(email, 'google-login')) {
+      showMessage('login-message', 'Please wait 30 seconds before trying again.', 'error');
+      return;
+    }
+
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await auth.signInWithPopup(provider);
+      const user = result.user;
+
+      // Store user data in Firestore
+      await db.collection('users').doc(user.uid).set({
+        name: user.displayName || 'Google User',
+        email: user.email,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+
+      // Store user data in Supabase (optional)
+      if (supabase) {
+        try {
+          const { error } = await supabase.from('users').upsert(
+            [{ id: user.uid, name: user.displayName || 'Google User', email: user.email }],
+            { onConflict: ['id'], ignoreDuplicates: false }
+          );
+          if (error) console.error('Supabase upsert error:', error);
+        } catch (supError) {
+          console.error('Supabase upsert failed:', supError);
+        }
+      }
+
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('rememberMe', 'true');
+
+      document.getElementById('auth-page').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+      showMessage('login-message', 'Signed in with Google!', 'success');
+
+      document.getElementById('user-name').textContent = user.displayName || 'User';
+      document.getElementById('popup-user-name').textContent = user.displayName || 'User';
+      document.getElementById('popup-user-email').textContent = user.email;
+      document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+
+      await loadDashboard(user);
+      localStorage.setItem(`google-login-attempt-${email}`, Date.now());
+    } catch (error) {
+      console.error('Google Sign-In error:', error.code, error.message);
+      const errorMessages = {
+        'auth/popup-closed-by-user': 'Sign-in cancelled.',
+        'auth/network-request-failed': 'Network error. Please check your connection.',
+        'auth/too-many-requests': 'Too many attempts. Please try again later.'
+      };
+      showMessage('login-message', errorMessages[error.code] || 'Google Sign-In failed.', 'error');
+      localStorage.setItem(`google-login-attempt-${email}`, Date.now());
+    }
+  });
 
   // Authentication Handlers
   document.getElementById('login').addEventListener('submit', async (e) => {
@@ -1809,6 +1878,7 @@
     } catch (error) {
       console.error('Login error:', error.code, error.message);
       const errorMessages = {
+        'auth/invalid-credential': 'Invalid email or password.',
         'auth/user-not-found': 'No account found with this email.',
         'auth/wrong-password': 'Incorrect password.',
         'auth/too-many-requests': 'Too many attempts. Please try again later.',
@@ -1858,6 +1928,7 @@
       console.error('Signup error:', error.code, error.message);
       const errorMessages = {
         'auth/email-already-in-use': 'This email is already registered.',
+        'auth/invalid-email': 'Invalid email address.',
         'auth/weak-password': 'Password is too weak. Use at least 8 characters.',
         'auth/network-request-failed': 'Network error. Please check your connection.'
       };
@@ -1889,6 +1960,7 @@
     } catch (error) {
       console.error('Password reset error:', error.code, error.message);
       const errorMessages = {
+        'auth/invalid-email': 'Invalid email address.',
         'auth/user-not-found': 'No account found with this email.',
         'auth/network-request-failed': 'Network error. Please check your connection.'
       };
@@ -1899,7 +1971,6 @@
   document.getElementById('resend-verification').addEventListener('click', async (e) => {
     e.preventDefault();
     const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
 
     if (!isValidEmail(email)) {
       showMessage('login-message', 'Please enter a valid email address.', 'error');
@@ -1912,8 +1983,26 @@
     }
 
     try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+      // Temporarily sign in to get the user object
+      const password = document.getElementById('password').value;
+      let user;
+      try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        user = userCredential.user;
+      } catch (loginError) {
+        if (loginError.code === 'auth/wrong-password' || loginError.code === 'auth/invalid-credential') {
+          // If login fails, try sending verification without signing in
+          await auth.signOut();
+          const actionCodeSettings = {
+            url: 'https://hipotech-dev.github.io/MyMemory/'
+          };
+          await auth.sendSignInLinkToEmail(email, actionCodeSettings);
+          localStorage.setItem(`verification-result-${email}`, Date.now());
+          showMessage('login-message', 'Verification email sent! Check your inbox.', 'success');
+          return;
+        }
+        throw loginError;
+      }
 
       if (user.emailVerified) {
         showMessage('login-message', 'Email already verified. Logging in...', 'success');
@@ -1930,8 +2019,9 @@
     } catch (error) {
       console.error('Resend verification error:', error.code, error.message);
       const errorMessages = {
+        'auth/invalid-email': 'Invalid email address.',
         'auth/user-not-found': 'No account found with this email.',
-        'auth/wrong-password': 'Incorrect password.',
+        'auth/too-many-requests': 'Too many attempts. Please try again later.',
         'auth/network-request-failed': 'Network error. Please check your connection.'
       };
       showMessage('login-message', errorMessages[error.code] || 'Failed to send verification email.', 'error');
@@ -1944,7 +2034,7 @@
     const dashboard = document.getElementById('dashboard');
 
     if (user) {
-      if (!user.emailVerified) {
+      if (!user.emailVerified && user.providerData[0].providerId !== 'google.com') {
         showMessage('login-message', 'Please verify your email to access the dashboard.', 'error');
         await auth.signOut();
         authPage.style.display = 'flex';
@@ -1991,7 +2081,7 @@
     });
   });
 
-  // Dashboard Functions (unchanged from provided HTML)
+  // Dashboard Functions
   async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
     try {
       const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
@@ -2680,7 +2770,7 @@
       return;
     }
 
-    const file = document.getElementById('document-file').files[0];
+    const file = document.getElementById('document-file').value;
     const name = document.getElementById('document-name').value;
     const category = document.getElementById('document-category').value;
 
@@ -2696,7 +2786,7 @@
         .from('public-documents')
         .upload(storagePath, file, { cacheControl: '3600', upsert: false });
 
-      if (error) throw new Error(`Upload failed: ${error.message}`);
+      if (error) throw new Error(`Upload failed: ${error.message`);
 
       const { data } = supabase.storage.from('public-documents').getPublicUrl(storagePath);
       const downloadURL = data.publicUrl;
