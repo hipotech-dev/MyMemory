@@ -34,7 +34,6 @@
       --sepia-theme-bg: #fef8e8;
     }
     
-    /* Dark Mode Variables */
     body.dark {
       --background: #1f2527;
       --card-bg: #2a2f32;
@@ -59,15 +58,9 @@
       transition: background 0.3s, color 0.3s;
     }
     
-    body.blue {
-      background: var(--blue-theme-bg);
-    }
+    body.blue { background: var(--blue-theme-bg); }
+    body.sepia { background: var(--sepia-theme-bg); }
     
-    body.sepia {
-      background: var(--sepia-theme-bg);
-    }
-    
-    /* Header Styles */
     .header {
       background: var(--card-bg);
       box-shadow: var(--shadow);
@@ -137,9 +130,7 @@
       border: 1px solid var(--border);
     }
     
-    .user-popup.active {
-      display: block;
-    }
+    .user-popup.active { display: block; }
     
     .user-popup .user-info {
       display: flex;
@@ -192,7 +183,6 @@
       transform: translateY(-1px);
     }
     
-    /* Main Container */
     .container {
       display: flex;
       min-height: calc(100vh - 64px);
@@ -202,7 +192,6 @@
       gap: 2rem;
     }
     
-    /* Sidebar */
     .sidebar {
       width: 280px;
       background: var(--card-bg);
@@ -212,13 +201,9 @@
       border: 1px solid var(--border);
     }
     
-    .sidebar-menu {
-      list-style: none;
-    }
+    .sidebar-menu { list-style: none; }
     
-    .sidebar-menu li {
-      margin-bottom: 0.75rem;
-    }
+    .sidebar-menu li { margin-bottom: 0.75rem; }
     
     .sidebar-menu a {
       display: flex;
@@ -250,7 +235,6 @@
       width: 24px;
     }
     
-    /* Main Content */
     .main-content {
       flex: 1;
       background: var(--card-bg);
@@ -260,14 +244,9 @@
       border: 1px solid var(--border);
     }
     
-    .content-wrapper {
-      max-width: 900px;
-      margin: 0;
-    }
+    .content-wrapper { max-width: 900px; margin: 0; }
     
-    .page-header {
-      margin-bottom: 2rem;
-    }
+    .page-header { margin-bottom: 2rem; }
     
     .page-title {
       font-size: 2rem;
@@ -282,7 +261,6 @@
       font-size: 1.75rem;
     }
     
-    /* Settings Sections */
     .settings {
       background-color: var(--card-bg);
       border-radius: 10px;
@@ -292,9 +270,7 @@
       transition: box-shadow 0.4s;
     }
     
-    .settings:hover {
-      box-shadow: var(--shadow-hover);
-    }
+    .settings:hover { box-shadow: var(--shadow-hover); }
     
     .settings h3 {
       font-size: 1.5rem;
@@ -306,11 +282,7 @@
       gap: 0.75rem;
     }
     
-    /* Form Styles */
-    .form-group {
-      position: relative;
-      margin-bottom: 1.75rem;
-    }
+    .form-group { position: relative; margin-bottom: 1.75rem; }
     
     .form-group label {
       position: absolute;
@@ -341,7 +313,7 @@
       border-radius: 6px;
       font-size: 0.95rem;
       color: var(--text-primary);
-      background: var(--background);
+      background: var(--card-bg);
       transition: all 0.3s;
     }
     
@@ -358,26 +330,21 @@
     
     .form-group select.form-control {
       appearance: none;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%234a5a6a" d="M6 9l4-5H2z"/></svg>') no-repeat right 1rem center / 0 0 12px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%234a5a6a" d="M6 9l4-5H2z"/></svg>') no-repeat right 1rem center / 12px 12px;
     }
     
-    .input-icon {
-      position: relative;
-    }
+    .input-icon { position: relative; }
     
     .input-icon i {
       position: absolute;
-      top: 50%:
+      top: 50%;
       left: 1rem;
-      transform: translateY(-50px);
+      transform: translateY(-50%);
       color: var(--text-secondary);
     }
     
-    .input-icon input {
-      padding-left: 2.5rem;
-    }
+    .input-icon input { padding-left: 2.5rem; }
     
-    /* Password Strength */
     .password-strength {
       font-size: 0.875rem;
       margin-top: 0.5rem;
@@ -387,9 +354,7 @@
     .password-strength.weak { color: var(--secondary); }
     .password-strength.moderate { color: #f59e0b; }
     .password-strength.strong { color: var(--success); }
-    }
     
-    /* Buttons */
     .btn {
       padding: 0.875rem 1.5rem;
       background: var(--primary);
@@ -405,22 +370,16 @@
     }
     
     .btn:hover {
-      background-color: var(--primary-light);
+      background: var(--primary-light);
       transform: translateY(-2px);
       box-shadow: var(--shadow-hover);
     }
     
-    .btn:active {
-      transform: none;
-    }
+    .btn:active { transform: none; }
     
-    .btn-danger {
-      background: var(--secondary);
-    }
+    .btn-danger { background: var(--secondary); }
     
-    .btn-danger:hover {
-      background: #e63946;
-    }
+    .btn-danger:hover { background: #e63946; }
     
     .btn::after {
       content: '';
@@ -440,12 +399,7 @@
       height: 200px;
     }
     
-    /* Theme Preview */
-    .theme-preview {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.75rem;
-    }
+    .theme-preview { display: flex; gap: 1rem; margin-top: 0.75rem; }
     
     .theme-option {
       width: 44px;
@@ -466,26 +420,13 @@
       box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.2);
     }
     
-    /* 2FA Toggle */
-    .toggle-container {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+    .toggle-container { display: flex; align-items: center; gap: 1rem; }
     
-    .toggle {
-      position: relative;
-      width: 44px;
-      height: 24px;
-    }
+    .toggle { position: relative; width: 44px; height: 24px; }
     
-    .toggle input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
     
-    .flip {
+    .slider {
       position: absolute;
       cursor: pointer;
       top: 0;
@@ -497,7 +438,7 @@
       border-radius: 24px;
     }
     
-    .flip:before {
+    .slider:before {
       position: absolute;
       content: '';
       height: 20px;
@@ -509,15 +450,10 @@
       border-radius: 50%;
     }
     
-    input:checked + .flip {
-      background-color: var(--success);
-    }
+    input:checked + .slider { background-color: var(--success); }
     
-    input:checked + .flip:before {
-      transform: translateX(20px);
-    }
+    input:checked + .slider:before { transform: translateX(20px); }
     
-    /* Message Styles */
     .message {
       display: none;
       padding: 0.75rem 1.5rem;
@@ -529,17 +465,14 @@
       position: fixed;
       top: 80px;
       left: 50%;
-      transform: translateX(-50px);
-      z-index: 100;
+      transform: translateX(-50%);
+      z-index: 1000;
       text-align: center;
       box-shadow: var(--shadow);
     }
     
-    .message.success {
-      background-color: var(--success);
-    }
+    .message.success { background-color: var(--success); }
     
-    /* Loading Animation */
     .loading-container {
       display: flex;
       justify-content: center;
@@ -550,7 +483,7 @@
       top: 0;
       left: 0;
       width: 100%;
-      z-index: 100%;
+      z-index: 2000;
     }
     
     .loader {
@@ -563,7 +496,7 @@
     .loader::before,
     .loader::after {
       content: '';
-      grid-area: 50%/50%;
+      grid-area: 1/1;
       border-radius: 50%;
       transform-origin: bottom;
       position: relative;
@@ -588,137 +521,69 @@
     @keyframes l11-2 { 4%, 100% { transform: scaleY(1); } }
     @keyframes l11-3 { 100% { transform: scaleY(0.3) translate(0.1px, -0.1px); } }
     
-    #app-content.hidden {
-      display: none;
-    }
+    #app-content.hidden { display: none; }
     
-    /* Divider */
-    .divider {
-      height: 2px;
-      background: var(--border);
-      margin: 2rem 0;
-    }
+    .divider { height: 2px; background: var(--border); margin: 2rem 0; }
     
-    /* Responsive Design */
     @media (max-width: 600px) {
-      .container {
-        flex-direction: column;
-        padding: 10px;
-      }
-      
-      .sidebar {
-        width: 100%;
-        padding: 10px;
-      }
-      
+      .container { flex-direction: column; padding: 10px; }
+      .sidebar { width: 100%; padding: 10px; }
       .sidebar-menu {
         display: flex;
         overflow-x: auto;
         gap: 0.5rem;
         scrollbar-width: none;
       }
-      
-      .sidebar-menu::-webkit-scrollbar {
-        display: none;
-      }
-      
-      .main-content {
-        padding: 10px;
-      }
-      
-      .page-title {
-        font-size: 1.5rem;
-      }
-      
-      .header {
-        padding: 0 10px;
-      }
-      
-      .logo h1 {
-        font-size: 1rem;
-      }
-      
-      .logo-img {
-        height: 32px;
-      }
-      
-      .user-popup {
-        width: 220px;
-        top: 50px;
-      }
+      .sidebar-menu::-webkit-scrollbar { display: none; }
+      .main-content { padding: 10px; }
+      .page-title { font-size: 1.5rem; }
+      .header { padding: 0 10px; }
+      .logo h1 { font-size: 1rem; }
+      .logo img { height: 32px; }
+      .user-popup { width: 220px; top: 50px; }
     }
     
     @media (max-width: 400px) {
-      .btn {
-        width: 100%;
-      }
-      
-      .page-title {
-        font-size: 1rem;
-      }
-      
-      .settings h3 {
-        font-size: 1rem;
-      }
-      
-      .user-avatar {
-        width: 32px;
-        height: 32px;
-      }
-      
-      .user-popup {
-        width: 180px;
-        top: 45px;
-      }
+      .btn { width: 100%; }
+      .page-title { font-size: 1rem; }
+      .settings h3 { font-size: 1rem; }
+      .user-avatar { width: 32px; height: 32px; }
+      .user-popup { width: 180px; top: 45px; }
     }
     
-    html, .container {
-      max-width: 100%;
-      overflow-x: hidden;
-    }
+    html, body { max-width: 100%; overflow-x: hidden; }
     
-    button, .btn:hover {
-      touch-action: manipulation;
-      min-height: 44px;
-    }
+    button, a, .theme-option { touch-action: manipulation; min-height: 44px; }
   </style>
 </head>
 <body>
-  <!-- Message Container -->
   <div class="message" id="auth-message"></div>
-  <!-- Loading -->
   <div id="loading" class="loading-container">
     <div class="loader"></div>
   </div>
-
-  <!-- Main App Content -->
   <div id="app-content" class="hidden">
-    <!-- Header -->
     <header class="header">
       <div class="logo">
         <img src="https://via.placeholder.com/40" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
-        <div class="user-avatar" id="avatarBtn" aria-label="User Menu"></div>
+        <div class="user-avatar" id="user-avatar" aria-label="User Menu"></div>
         <div class="user-popup" id="user-popup">
           <div class="user-info">
             <div class="avatar" id="popup-user-avatar"></div>
-            <div class="avatar-details">
-              <h4 id="user-name"></h4>
-              <p id="user-email"></p>
+            <div class="details">
+              <h4 id="popup-user-name"></h4>
+              <p id="popup-user-email"></p>
             </div>
           </div>
-          <button class="logout-btn" id="logout-btn" aria-label="Log out">
-            <i class="fas fa-sign-out-alt"></i> logout
+          <button class="logout-btn" id="logout-btn" aria-label="Logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
           </button>
         </div>
       </div>
     </header>
-
-    <!-- Main Container -->
     <div class="container">
-      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
           <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -728,130 +593,110 @@
           <li><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
       </aside>
-
-      <!-- Main Content -->
       <main class="main-content">
         <div class="content-wrapper">
           <div class="page-header">
             <h2 class="page-title"><i class="fas fa-cog"></i> Settings</h2>
           </div>
-
-          <!-- Profile -->
           <div class="settings">
             <h3><i class="fas fa-user"></i> Profile</h3>
             <form id="profile-form">
-              <div class="form-group">
-                <input type="text" id="display-name" class="form-control" placeholder=" " name="display-name" aria-label="Display Name" required>
-                <i class="input-icon i"></i>
+              <div class="form-group input-icon">
+                <input type="text" id="display-name" class="form-control" placeholder=" " aria-label="Display Name" required>
+                <i class="fas fa-user"></i>
                 <label for="display-name">Display Name</label>
               </div>
-              <div class="form-group">
-                <input type="email" id="email" class="form-control" placeholder=" " name="email" disabled aria-label="Email">
-                <i class="input-icon i"></i>
-                <label for="email">email</label>
+              <div class="form-group input-icon">
+                <input type="email" id="email" class="form-control" placeholder=" " disabled aria-label="Email">
+                <i class="fas fa-envelope"></i>
+                <label for="email">Email</label>
               </div>
-              <button type="submit" aria-label="Save Profile">Update Profile</button>
+              <button type="submit" class="btn" aria-label="Save Profile Changes">Save Changes</button>
             </form>
           </div>
-
           <div class="divider"></div>
-
-          <!-- Password -->
-          <div class="settings-section">
+          <div class="settings">
             <h3><i class="fas fa-lock"></i> Change Password</h3>
             <form id="password-form">
-              <div class="form-group">
-                <input type="password" id="current-password" class="form-control" type="password" placeholder="password" name="password" required aria-label="Current-password">
-                <i class="input-icon"></i>
-                <label for="password">Current Password</label>
+              <div class="form-group input-icon">
+                <input type="password" id="current-password" class="form-control" placeholder=" " aria-label="Current Password" required>
+                <i class="fas fa-key"></i>
+                <label for="current-password">Current Password</label>
               </div>
-              <div class="form-group">
-                <input type="password" id="new-password" class="password-control" name="password" placeholder="New Password" required aria-label="New Password">
-                <i class="input-icon"></i>
-                <label for="password">New Password</label>
+              <div class="form-group input-icon">
+                <input type="password" id="new-password" class="form-control" placeholder=" " aria-label="New Password" required>
+                <i class="fas fa-lock"></i>
+                <label for="new-password">New Password</label>
                 <div class="password-strength" id="password-strength"></div>
               </div>
-              <div class="form-group">
-                <input type="password" id="confirm-password" class="password-control" type="password" placeholder="Confirm Password" required aria-label="Confirm New Password">
-                <i class="input-icon"></i>
-                <label for="password">Confirm Password</label>
+              <div class="form-group input-icon">
+                <input type="password" id="confirm-password" class="form-control" placeholder=" " aria-label="Confirm New Password" required>
+                <i class="fas fa-lock"></i>
+                <label for="confirm-password">Confirm New Password</label>
               </div>
-              <button type="submit" class="btn" id="password-btn" aria-label="Change Password">Change</button>
+              <button type="submit" class="btn" aria-label="Change Password">Change Password</button>
             </form>
           </div>
-
           <div class="divider"></div>
-
-          <!-- Appearance -->
-          <div class="settings-section">
+          <div class="settings">
             <h3><i class="fas fa-paint-brush"></i> Appearance</h3>
             <div class="form-group">
-              <select id="theme" class="dropdown" aria-label="Select Theme">
+              <select id="theme" class="form-control" aria-label="Select Theme">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
                 <option value="blue">Blue</option>
                 <option value="sepia">Sepia</option>
                 <option value="system">System</option>
               </select>
-              <div class="theme-preview">
-                <div class="theme-option" data-theme="light" style="background-color: #ffffff; border: 2px solid #e2e8f0;" name="theme-option" value="light theme">light</option>
-                <div class="theme-option" data="theme" id="theme-dark" value="dark" style="background-color: #282f32;" aria-label="Dark Theme">Dark</option>
-                <div class="theme-option" data-theme="blue" style="background-color: #f0f5ff;" id="theme-blue" aria-label="Blue Theme">Blue</div>
-                <div class="theme-option" data-theme="sepia" style="theme-color: #fef8e8;" id="theme-sepia" aria-label="Sepia Theme">Sepia</div>
-                <div class="theme="system" style="theme-color: linear-gradient(to right, #ffffff 50%, #282f32 50%);" id="theme-system" value="system theme">System</option>
-              </div>
+              <label for="theme">Theme</label>
             </div>
-
+            <div class="theme-preview">
+              <div class="theme-option" data-theme="light" style="background: #ffffff; border: 1px solid #e2e8f0;" aria-label="Light Theme"></div>
+              <div class="theme-option" data-theme="dark" style="background: #2a2f32;" aria-label="Dark Theme"></div>
+              <div class="theme-option" data-theme="blue" style="background: #f0f5ff;" aria-label="Blue Theme"></div>
+              <div class="theme-option" data-theme="sepia" style="background: #fef8e8;" aria-label="Sepia Theme"></div>
+              <div class="theme-option" data-theme="system" style="background: linear-gradient(45deg, #ffffff 50%, #2a2f32 50%);" aria-label="System Theme"></div>
+            </div>
           </div>
-
           <div class="divider"></div>
-
-          <!-- Theme2FA -->
-          <div class="settings-section">
+          <div class="settings">
             <h3><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h3>
             <div class="form-group">
-              <label for="2fa-enabled">Enable 2FA</label>
+              <label for="2fa-toggle">Enable 2FA</label>
               <div class="toggle-container">
-                <label class="theme-toggle">
+                <label class="toggle">
                   <input type="checkbox" id="2fa-toggle" aria-label="Toggle 2FA">
-                  <span class="flip"></span>
+                  <span class="slider"></span>
                 </label>
-                <span id="2fa-status">Enabled</span>
+                <span id="2fa-status">Disabled</span>
               </div>
             </div>
             <div id="2fa-qr-code" style="display: none; margin-top: 1rem; color: var(--text-primary);"></div>
           </div>
-
           <div class="divider"></div>
-
-          <!-- Account Data -->
-          <div class="settings-section">
+          <div class="settings">
             <h3><i class="fas fa-download"></i> Account Data</h3>
-            <button id="export-btn" class="btn" aria-label="Export Data">Export Data</button>
+            <button id="export-data" class="btn" aria-label="Export Account Data">Export Data</button>
           </div>
-
           <div class="divider"></div>
-
-          <!-- Account -->
-          <div class="settings-section">
-            <h3><i class="fas fa-trash"></i> Delete Account</h3>
-            <button id="delete-btn" class="btn btn-danger" aria-label="Delete Account">Delete</button>
+          <div class="settings">
+            <h3><i class="fas fa-trash"></i> Account</h3>
+            <button id="delete-account" class="btn btn-danger" aria-label="Delete Account">Delete Account</button>
           </div>
         </div>
       </main>
     </div>
   </div>
-
   <script>
     // Firebase configuration
     // TODO: Replace with your Firebase project credentials from Firebase Console > Project Settings
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
-      email: "YOUR_EMAIL",
+      authDomain: "YOUR_AUTH_DOMAIN",
       projectId: "YOUR_PROJECT_ID",
-      password: "YOUR_PASSWORD",
-      messagingSender:Id: "YOUR_MESSAGING_SENDER_ID",
-      id: "YOUR_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID",
       measurementId: "YOUR_MEASUREMENT_ID"
     };
 
@@ -865,35 +710,82 @@
       console.error('Firebase initialization failed:', error);
       showMessage('Failed to initialize application.', 'error');
       hideLoading();
-      window.location.replace('index.html');
+      redirectToLogin();
     }
 
-    // Show message
     function showMessage(message, type = 'error') {
       const messageElement = document.getElementById('auth-message');
       messageElement.textContent = message;
-      messageElement.classList.add('message');
-      messageElement.classList.add(type);
+      messageElement.className = `message ${type}`;
       messageElement.style.display = 'block';
-      setTimeout(() => {
-        messageElement.style.display = 'none';
-      }, 3000); // Reduced timeout for faster feedback
-    });
+      setTimeout(() => messageElement.style.display = 'none', 3000);
+    }
 
-    // Loading control
-    function showLoadingState() {
+    function showLoading() {
       document.getElementById('loading').style.display = 'flex';
       document.getElementById('app-content').classList.add('hidden');
       console.log('Showing loading state');
     }
 
-    function hideLoadingState() {
+    function hideLoading() {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('app-content').classList.remove('hidden');
       console.log('Hiding loading state');
     }
-    
-    // Secure navigation
+
+    function redirectToLogin() {
+      showMessage('Please log in to access this page.', 'error');
+      localStorage.clear();
+      console.log('Redirecting to login page');
+      setTimeout(() => window.location.replace('index.html'), 1000);
+    }
+
+    function setupUserPopup(userData) {
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      const popupUserAvatar = document.getElementById('popup-user-avatar');
+      const popupUserName = document.getElementById('popup-user-name');
+      const popupUserEmail = document.getElementById('popup-user-email');
+      const logoutBtn = document.getElementById('logout-btn');
+
+      popupUserAvatar.textContent = userData.avatarInitials;
+      popupUserName.textContent = userData.name;
+      popupUserEmail.textContent = userData.email;
+
+      userAvatar.addEventListener('click', e => {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
+        console.log('Toggled user menu');
+      });
+
+      document.addEventListener('click', e => {
+        if (!userPopup.contains(e.target) && e.target !== userAvatar) {
+          userPopup.classList.remove('active');
+          console.log('Closed user menu');
+        }
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && userPopup.classList.contains('active')) {
+          userPopup.classList.remove('active');
+          console.log('Closed user menu with Escape key');
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        showLoading();
+        console.log('Initiating logout');
+        auth.signOut().then(() => {
+          console.log('User logged out');
+          redirectToLogin();
+        }).catch(error => {
+          hideLoading();
+          console.error('Logout error:', error);
+          showMessage('Logout error: ' + error.message, 'error');
+        });
+      });
+    }
+
     function secureNavigation() {
       let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
@@ -902,7 +794,7 @@
           const targetUrl = link.getAttribute('href');
           console.log('Navigating to:', targetUrl);
           if (isCheckingAuth) {
-            console.warn('Auth check already in progress');
+            console.warn('Auth check in progress');
             return;
           }
           isCheckingAuth = true;
@@ -910,92 +802,36 @@
             const user = await new Promise((resolve, reject) => {
               const unsubscribe = auth.onAuthStateChanged(user => {
                 unsubscribe();
-                console.log('Auth state during navigation:', user ? { uid: user.uid, email: user.email, emailVerified: user.emailVerified } : : null);
+                console.log('Auth state during navigation:', user ? { uid: user.uid, email: user.email, emailVerified: user.emailVerified } : null);
                 resolve(user);
               }, reject);
             });
-            if (user && (user.emailVerified) {
+            if (user && user.emailVerified) {
               console.log('User authenticated, redirecting to', targetUrl);
               window.location.href = targetUrl;
             } else {
+              console.error('Authentication required or email not verified');
               showMessage('Authentication required or email not verified.', 'error');
-              console.error('RedirectToLogin();
-            } catch (error) {
-              console.error('Navigation error:', error);
-              showMessage('Authentication error: ' + error.message, 'error');
               redirectToLogin();
-            } finally {
-              isCheckingAuth = false;
             }
-          });
-        });
-      }
-
-    // Utility to redirect to login
-    function redirectToLogin() {
-      showMessage('Please log in to access this page.', 'error');
-      localStorage.clear();
-      console.log('Redirecting to login page');
-      window.location.replace('index.html');
-    }
-
-    // User popup
-    function setupUserMenu(userData) {
-      const userBtn = document.querySelectorById('user-btn');
-      const userPopupMenu = document.querySelectorById('popup-auth');
-      const popupUserAvatar = document.getElementById('popupUserAvatar');
-      const popupUserName = document.getElementById('popup-userName');
-      const popupUserEmail = document.getElementById('popup-user-email');
-      const logoutBtn = document.getElementById('logout-btn');
-
-      popupUserAvatar.textContent = userData.avatarInitials;
-      popupUserName.textContent = userData.name;
-      popupUserEmail.textContent = userData.email;
-
-      userBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        userPopupMenu.style.display = userPopupMenu.classList.contains('active') ? 'none' : 'block';
-        console.log('Toggled user menu');
-      }));
-
-      document.addEventListener('click', e => {
-        if (!userPopupMenu.contains(e.target) && e.target !== userBtn) {
-          userPopupMenu.classList.remove('active');
-          console.log('Closed user menu');
-        }
-      });
-
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && userPopupMenu.classList.contains('active')) {
-          userPopupMenu.classList.remove('active');
-          console.log('Closed user menu with Escape key');
-        });
-      });
-
-      logoutBtn.addEventListener('click', () => {
-        showLoadingState();
-        console.log('Initiating logout');
-        auth.signOut().then(() => {
-          console.log('User logged out');
-          redirectToLogin();
-        }).catch(error => {
-          hideLoadingState();
-          console.error('Logout error:', error);
-          showMessage('Logout error: ' + error.message, 'error');
-          hideLoadingState();
+          } catch (error) {
+            console.error('Navigation error:', error);
+            showMessage('Authentication error: ' + error.message, 'error');
+            redirectToLogin();
+          } finally {
+            isCheckingAuth = false;
+          }
         });
       });
     }
 
-    // Check auth state
     function checkAuthState(eventType) {
       showLoading();
       console.log('Checking auth state for event:', eventType);
-      
       const authTimeout = setTimeout(() => {
         hideLoading();
-        showMessage('Authentication timed out.', 'error');
         console.error('Authentication timeout');
+        showMessage('Authentication timed out.', 'error');
         redirectToLogin();
       }, 5000);
 
@@ -1005,7 +841,7 @@
         try {
           if (user && user.emailVerified) {
             const userData = {
-              name: user.displayName || user.email.split(''@')[0],
+              name: user.displayName || user.email.split('@')[0],
               email: user.email,
               avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
             };
@@ -1013,276 +849,265 @@
             localStorage.setItem('userData', JSON.stringify(userData));
             localStorage.setItem('isAuthenticated', 'true');
             hideLoading();
-            console.log('Initializing page with user data');
             initializePage(userData);
           } else {
             hideLoading();
-            if (user && (!user.emailVerified)) {
+            if (user && !user.emailVerified) {
               showMessage('Please verify your email.', 'error');
               console.log('Email not verified, signing out');
               auth.signOut();
             }
             console.error('No authenticated user or email not verified');
             redirectToLogin();
-          } catch (error) {
-            console.error('Auth state error:', error);
-            showMessage('Authentication error: ' + error.message, 'error');
-            redirectToLogin();
-          } catch(error) {
-            console.error('Auth state callback error:', error);
-            clearTimeout(authTimeout);
+          }
+        } catch (error) {
+          console.error('Auth state error:', error);
+          hideLoading();
+          showMessage('Authentication error: ' + error.message, 'error');
+          redirectToLogin();
+        }
+      }, error => {
+        console.error('Auth state callback error:', error);
+        clearTimeout(authTimeout);
+        hideLoading();
+        showMessage('Error loading user state: ' + error.message, 'error');
+        redirectToLogin();
+      });
+    }
+
+    function initializePage(userData) {
+      console.log('Initializing page with user data:', userData);
+      try {
+        document.getElementById('user-avatar').textContent = userData.avatarInitials;
+        setupUserPopup(userData);
+        document.getElementById('display-name').value = userData.name;
+        document.getElementById('email').value = userData.email;
+
+        secureNavigation();
+
+        document.getElementById('profile-form').addEventListener('submit', async e => {
+          e.preventDefault();
+          showLoading();
+          console.log('Profile form submitted');
+          const displayName = document.getElementById('display-name').value.trim();
+          if (!displayName) {
             hideLoading();
-            showMessage('Error loading user state: ' + error.message, 'error');
-            redirectToLogin();
-          });
+            console.error('Display name is required');
+            showMessage('Display name is required.', 'error');
+            return;
+          }
+          try {
+            await auth.currentUser.updateProfile({ displayName });
+            showMessage('Profile updated successfully!', 'success');
+            localStorage.setItem('userData', JSON.stringify({
+              name: displayName,
+              email: userData.email,
+              avatarInitials: displayName.substring(0, 2).toUpperCase()
+            }));
+            document.getElementById('user-avatar').textContent = displayName.substring(0, 2).toUpperCase();
+            setupUserPopup({
+              name: displayName,
+              email: userData.email,
+              avatarInitials: displayName.substring(0, 2).toUpperCase()
+            });
+            hideLoading();
+          } catch (error) {
+            hideLoading();
+            console.error('Error updating profile:', error);
+            showMessage('Error updating profile: ' + error.message, 'error');
+          }
+        });
+
+        const passwordForm = document.getElementById('password-form');
+        const newPasswordInput = document.getElementById('new-password');
+        const passwordStrength = document.getElementById('password-strength');
+
+        function checkPasswordStrength(password) {
+          const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          const moderateRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+          if (strongRegex.test(password)) {
+            passwordStrength.textContent = 'Strong';
+            passwordStrength.className = 'password-strength strong';
+          } else if (moderateRegex.test(password)) {
+            passwordStrength.textContent = 'Moderate';
+            passwordStrength.className = 'password-strength moderate';
+          } else {
+            passwordStrength.textContent = 'Weak';
+            passwordStrength.className = 'password-strength weak';
+          }
         }
 
-        // Page load
-        document.addEventListener('DOMContentLoaded', () => {
-          console.log('DOMContentLoaded event');
-          checkAuthState('DOMContentLoaded');
-        });
-        window.addEventListener('pageshow', e => {
-          if (e.persisted || (window.performance && window.performance.navigation.type === 2)) {
-            console.log('Pageshow event triggered');
-            checkAuthState('pageshow');
-          }
+        newPasswordInput.addEventListener('input', () => {
+          console.log('Checking password strength');
+          checkPasswordStrength(newPasswordInput.value);
         });
 
-        // Initialize page
-        function initializePage(userData) {
-          console.log('Initializing page with user data:', userData);
-          
- try {
-          document.getElementById('user-avatar').textContent = userData.avatarInitials;
-          setupUserMenu(userData);
-          document.getElementById('display-name').value = userData.name;
-          document.getElementById('email').value = userData.email;
+        passwordForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          showLoading();
+          console.log('Password form submitted');
+          const currentPassword = document.getElementById('current-password').value;
+          const newPassword = document.getElementById('new-password').value;
+          const confirmPassword = document.getElementById('confirm-password').value;
 
-          secureNavigation();
-
-          // Profile form
-          document.getElementById('profile-form').addEventListener('submit', async e => {
-            e.preventDefault();
-              showLoading();
-              console.log('Profile form submitted');
-              const displayName = document.getElementById('display-name').value.trim();
-              if (!displayName) {
-                hideLoading();
-                console.error('Display name is required');
-                showMessage('Display name is required.', 'error');
-                return;
-              }
-              try {
-                await auth.currentUserData.updateProfile({ displayName });
-                showMessage('Profile updated successfully!');
-                console.log('success');
-                localStorage.setItem('userData', JSON.stringify({
-                  name: displayName,
-                  email: userData.email,
-                  avatarInitials: displayName.substring(0, 2).toUpperCase()
-                }));
-                document.getElementById('user-avatar').valueContent = displayName.substring(0, 2).toUpperCase();
-                setupUserMenu({
-                  name: displayName,
-                  email: userData.email,
-                  avatarInitials: displayName.substring(0, 2).toUpperCase()
-                });
-                hideLoading();
-              } catch (error) {
-                hideLoading();
-                console.error('Error updating profile:', error);
-                showMessage('Error updating profile: ' + error.message, 'error');
-              }
-            });
-
-          // Password form
-          const passwordForm = document.getElementById('password-form');
-          const newPasswordInput = document.getElementById('new-password');
-          const passwordStrengthText = document.getElementById('password-strength');
-
-          function checkPasswordStrength(password) {
-            const strongRegex = /^(?=.*[a-z])(?=.*\A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            const moderateRegex = /^(?=.*[a-z])(?=.*\[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]={6,}$/;
-
-            if (strongRegex.test(password)) {
-              passwordStrength.textContent = 'Strong';
-              passwordStrength.className = 'password-strength strong';
-            } else {
- if (moderateRegex.test(password)) {
-              passwordStrength.textContent = 'Moderate';
-              passwordStrength.className = 'password-strength moderate';
-            } else {
-              passwordStrength.textContent = 'Weak';
-              passwordStrength.className = 'password-strength weak';
-            }
+          if (!currentPassword || !newPassword || !confirmPassword) {
+            hideLoading();
+            console.error('Missing required fields');
+            showMessage('All fields are required.', 'error');
+            return;
           }
 
-          newPasswordInput.addEventListener('input', () => {
-            console.log('Checking password strength');
-            checkPasswordStrength(newPasswordInput.value);
-          });
-
-          passwordForm.addEventListener('submit', async e => {
-            e.preventDefault();
-            showLoading();
-            console.log('Password form submitted');
-            try {
-              const currentPassword = document.getElementById('current-password').value;
-              const newPassword = document.getElementById('new-password').value;
-              const confirmPassword = document.getElementById('confirm-password').value);
-
-              if (!currentPassword || (!newPassword || !confirmPassword)) {
-                showMessage('All fields are required.', 'error');
-                console.error('Missing required fields');
-                hideLoading();
-                return;
-              }
-
-              if (newPassword !== confirmPassword) {
-                showMessage('New passwords do not match.', 'error');
-                console.error('Passwords do not match');
-                hideLoading();
-                return;
-              }
-
-              const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d])(?=.*[@$!@#$?&])[A-Za-z\d@$!%*?&]{8,}$/;
-              if (!strongRegex.test(newPassword)) {
-                showMessage('Password must be strong: 8+ chars, uppercase, lowercase, special char.', 'error');
-                console.error('Password not strong enough');
-                hideLoading();
-                return;
-              }
-
-              const userData = auth.currentUser;
-              const credentials = firebase.authenticate().EmailAuthProvider.credential(user.email, currentPassword);
-              await auth.currentUserData.reauthenticateWithCredentials(credential);
-              await user.updatePassword(newPassword);
-
-              showMessage('Password updated successfully!', 'success');
-              console.log('success');
-              passwordForm.reset();
-              passwordStrengthText.textContent = '';
-              hideLoading();
-            } catch (error) {
-              hideLoading();
-              console.error('Error updating password:', error);
-              if (error.code === 'auth/auth/wrong-password') {
-                showMessage('Current password is incorrect.', 'error');
-              } else {
-                showMessage('Error updating password: ' + error.message, 'error');
-              }
-            }
-          });
-
-          // Theme switching
-          const themeSelect = document.getElementById('theme');
-          const themeOptions = document.querySelectorAll('.theme-option');
-          let currentTheme = localStorage.getItem('theme') || 'light';
-          themeSelect.value = currentTheme;
-          document.querySelectorAll(`.theme-option[data-theme="${currentTheme}"]`).classList.add('selected');
-
-          function applyTheme(theme) {
-            console.log('Applying theme:', theme);
-            if (theme === 'system') {
-              theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            document.body.classList = theme;
-            localStorage.setItem('theme', themeSelect.value);
-            themeOptions.forEach(opt => opt.classList.remove('selected'));
-            document.querySelectorAll(`.theme-option[data-theme="${themeSelect.value}"]`).classList.add('selected');
+          if (newPassword !== confirmPassword) {
+            hideLoading();
+            console.error('Passwords do not match');
+            showMessage('New passwords do not match.', 'error');
+            return;
           }
 
-          applyTheme(currentTheme);
+          const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          if (!strongRegex.test(newPassword)) {
+            hideLoading();
+            console.error('Password not strong enough');
+            showMessage('Password must be 8+ chars, uppercase, lowercase, number, special char.', 'error');
+            return;
+          }
 
-          themeSelect.addEventListener('change', () => {
-            console.log('Theme select changed to:', themeSelect.value);
+          try {
+            const user = auth.currentUser;
+            const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+            await user.reauthenticateWithCredential(credential);
+            await user.updatePassword(newPassword);
+            showMessage('Password updated successfully!', 'success');
+            passwordForm.reset();
+            passwordStrength.textContent = '';
+            hideLoading();
+          } catch (error) {
+            hideLoading();
+            console.error('Error updating password:', error);
+            if (error.code === 'auth/wrong-password') {
+              showMessage('Current password is incorrect.', 'error');
+            } else {
+              showMessage('Error updating password: ' + error.message, 'error');
+            }
+          }
+        });
+
+        const themeSelect = document.getElementById('theme');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        themeSelect.value = currentTheme;
+        document.querySelector(`.theme-option[data-theme="${currentTheme}"]`).classList.add('selected');
+
+        function applyTheme(theme) {
+          console.log('Applying theme:', theme);
+          if (theme === 'system') {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.body.className = theme;
+          localStorage.setItem('theme', themeSelect.value);
+          themeOptions.forEach(opt => opt.classList.remove('selected'));
+          document.querySelector(`.theme-option[data-theme="${themeSelect.value}"]`).classList.add('selected');
+        }
+
+        applyTheme(currentTheme);
+
+        themeSelect.addEventListener('change', () => {
+          console.log('Theme select changed to:', themeSelect.value);
+          applyTheme(themeSelect.value);
+        });
+
+        themeOptions.forEach(option => {
+          option.addEventListener('click', () => {
+            console.log('Theme option clicked:', option.dataset.theme);
+            themeSelect.value = option.dataset.theme;
             applyTheme(themeSelect.value);
           });
+        });
 
-          themeOptions.forEach(option => {
-            option.addEventListener('click', () => {
-              console.log('Theme option clicked:', option.dataset.theme);
-              themeSelect.value = option.dataset.theme;
-              applyTheme(themeSelect.value);
-            });
-          });
+        const twoFAToggle = document.getElementById('2fa-toggle');
+        const twoFAStatus = document.getElementById('2fa-status');
+        const twoFAQrCode = document.getElementById('2fa-qr-code');
 
-          // 2FA setup (simulated)
-          const twoFA = document.getElementById('2fa-toggle');
-          const twoFAStatus = document.getElementById('2fa-status');
-          const twoFAQRCode = document.getElementById('2fa-qr-code');
-
-          twoFA.addEventListener('change', () => {
-            showLoading();
-            console.log('2FA toggle changed:', twoFA.checked);
-            if (twoFA.checked) {
-              try {
-                twoFAStatus.textContent = 'Enabled';
-                twoFAQRCode.textContent = 'Scan this QR code with your authenticator app (simulated)';
-                twoFAQRCode.style.display = 'block';
-                showMessage('2FA enabled (simulated).', 'success');
-              } catch (error) {
-                twoFA.checked = false;
-                console.error('Error enabling 2FA:', error);
-                showMessage('Error enabling 2FA: ' + error.message, 'error');
-              }
-            } else {
-              twoFAStatus.textContent = 'Disabled';
-              twoFAQRCode.style.display = 'none';
-              showMessage('2FA disabled (simulated).', 'success');
-            }
-            hideLoading();
-          });
-
-          // Export data
-          document.getElementById('export-data').addEventListener('click', () => {
-            console.log('Exporting data');
+        twoFAToggle.addEventListener('change', () => {
+          showLoading();
+          console.log('2FA toggle changed:', twoFAToggle.checked);
+          if (twoFAToggle.checked) {
             try {
-              const data = {
-                displayName: userData.name,
-                email: userData.email,
-                timestamp: new Date().toISOString()
-              };
-              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'mymemory-data.json';
-              a.click();
-              URL.revokeObjectURL(url);
-              showMessage('Data exported successfully!', 'success');
+              twoFAStatus.textContent = 'Enabled';
+              twoFAQrCode.textContent = 'Scan this QR code with your authenticator app (simulated).';
+              twoFAQrCode.style.display = 'block';
+              showMessage('2FA enabled (simulated).', 'success');
             } catch (error) {
-              console.error('Error exporting data:', error);
-              showMessage('Error exporting data: ' + error.message, 'error');
+              twoFAToggle.checked = false;
+              console.error('Error enabling 2FA:', error);
+              showMessage('Error enabling 2FA: ' + error.message, 'error');
             }
-          });
-
-          // Delete account
-          document.getElementById('delete-account').addEventListener('click', async () => {
-            console.log('Delete account initiated');
-            if (!confirm('Are you sure you want to delete your account?')) {
-              console.log('Account deletion cancelled');
-              return;
-            }
-            showLoading();
-            try {
-              await auth.currentUser.delete();
-              console.log('Account deleted successfully');
-              showMessage('Account deleted successfully.', 'success');
-              redirectToLogin();
-            } catch (error) {
-              hideLoading();
-              console.error('Error deleting account:', error);
-              showMessage('Error deleting account: ' + error.message, 'error');
-            }
-          });
-        } catch (error) {
-          console.error('Page initialization error:', error);
-          showMessage('Error initializing page: ' + error.message, 'error');
+          } else {
+            twoFAStatus.textContent = 'Disabled';
+            twoFAQrCode.style.display = 'none';
+            showMessage('2FA disabled (simulated).', 'success');
+          }
           hideLoading();
-        }
+        });
+
+        document.getElementById('export-data').addEventListener('click', () => {
+          console.log('Exporting data');
+          try {
+            const data = {
+              displayName: userData.name,
+              email: userData.email,
+              timestamp: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mymemory-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showMessage('Data exported successfully!', 'success');
+          } catch (error) {
+            console.error('Error exporting data:', error);
+            showMessage('Error exporting data: ' + error.message, 'error');
+          }
+        });
+
+        document.getElementById('delete-account').addEventListener('click', async () => {
+          console.log('Delete account initiated');
+          if (!confirm('Are you sure you want to delete your account?')) {
+            console.log('Account deletion cancelled');
+            return;
+          }
+          showLoading();
+          try {
+            await auth.currentUser.delete();
+            console.log('Account deleted successfully');
+            showMessage('Account deleted successfully.', 'success');
+            redirectToLogin();
+          } catch (error) {
+            hideLoading();
+            console.error('Error deleting account:', error);
+            showMessage('Error deleting account: ' + error.message, 'error');
+          }
+        });
+      } catch (error) {
+        console.error('Page initialization error:', error);
+        showMessage('Error initializing page: ' + error.message, 'error');
+        hideLoading();
       }
-    </script>
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOMContentLoaded event');
+      checkAuthState('DOMContentLoaded');
+    });
+
+    window.addEventListener('pageshow', e => {
+      if (e.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        console.log('Pageshow event triggered');
+        checkAuthState('pageshow');
+      }
+    });
+  </script>
 </body>
 </html>
