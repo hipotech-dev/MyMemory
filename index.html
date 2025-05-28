@@ -17,7 +17,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Previous styles remain unchanged */
     :root {
       --primary: #14B8A6;
       --primary-dark: #0D9488;
@@ -53,7 +52,6 @@
       color: var(--dark);
     }
 
-    /* Authentication Page Styles */
     .auth-page {
       display: flex;
       justify-content: center;
@@ -1038,7 +1036,6 @@
       text-decoration: underline;
     }
 
-    /* Mobile Sidebar Toggle */
     .sidebar-toggle {
       display: none;
       background: none;
@@ -1156,53 +1153,54 @@
   <div class="auth-page" id="auth-page">
     <div class="auth-container" id="login-form">
       <div class="logo">
-        <img src="amnesia.png" alt="MyMemory Logo">
+        <img src="https://cdn-icons-png.flaticon.com/512/7660/7660733.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
       <div class="message" id="login-message"></div>
       <form id="login">
+        <input type="hidden" name="csrf_token" id="csrf_token" value="DUMMY_TOKEN">
         <div class="form-group" id="email-group">
           <label for="email">Email Address</label>
           <i class="fas fa-envelope input-icon"></i>
-          <input type="email" id="email" placeholder="you@example.com" required />
+          <input type="email" id="email" placeholder="you@example.com" required aria-label="Email Address" />
           <div class="error-text" id="email-error"></div>
         </div>
         
         <div class="form-group" id="password-group">
           <label for="password">Password</label>
           <i class="fas fa-lock input-icon"></i>
-          <input type="password" id="password" placeholder="••••••••" required />
+          <input type="password" id="password" placeholder="••••••••" required aria-label="Password" />
           <div class="error-text" id="password-error"></div>
           <div class="password-actions">
             <div class="remember-me">
-              <input type="checkbox" id="remember" checked>
+              <input type="checkbox" id="remember" checked aria-label="Remember me">
               <label for="remember">Remember me</label>
             </div>
             <div class="forgot-password">
-              <a href="#" id="forgot-password">Forgot password?</a>
+              <a href="#" id="forgot-password" aria-label="Forgot password">Forgot password?</a>
             </div>
           </div>
         </div>
         <div class="resend-verification">
-          <a href="#" id="resend-verification">Resend Verification Email</a>
+          <a href="#" id="resend-verification" aria-label="Resend verification email">Resend Verification Email</a>
         </div>
-        <button type="submit" class="btn">Log In</button>
+        <button type="submit" class="btn" aria-label="Log In">Log In</button>
       </form>
       <div class="divider">OR</div>
       <div class="social-login">
-        <button class="social-btn" id="google-login">
+        <button class="social-btn" id="google-login" aria-label="Sign in with Google">
           <i class="fab fa-google"></i>
         </button>
       </div>
       <div class="switch">
         Don't have an account?
-        <a href="#" onclick="toggleForms()">Sign Up</a>
+        <a href="#" onclick="toggleForms()" aria-label="Sign Up">Sign Up</a>
       </div>
     </div>
 
     <div class="auth-container" id="signup-form" style="display: none;">
       <div class="logo">
-        <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
+        <img src="https://cdn-icons-png.flaticon.com/512/7660/7660733.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
       
@@ -1210,40 +1208,41 @@
       <div class="message" id="signup-message"></div>
       
       <form id="signup">
+        <input type="hidden" name="csrf_token" id="csrf_token_signup" value="DUMMY_TOKEN">
         <div class="form-group" id="name-group">
           <label for="name">Full Name</label>
           <i class="fas fa-user input-icon"></i>
-          <input type="text" id="name" placeholder="John Doe" required />
+          <input type="text" id="name" placeholder="John Doe" required aria-label="Full Name" />
           <div class="error-text" id="name-error"></div>
         </div>
         
         <div class="form-group" id="email-signup-group">
           <label for="email-signup">Email Address</label>
           <i class="fas fa-envelope input-icon"></i>
-          <input type="email" id="email-signup" placeholder="you@example.com" required />
+          <input type="email" id="email-signup" placeholder="you@example.com" required aria-label="Email Address" />
           <div class="error-text" id="email-signup-error"></div>
         </div>
         
         <div class="form-group" id="password-signup-group">
           <label for="password-signup">Password</label>
           <i class="fas fa-lock input-icon"></i>
-          <input type="password" id="password-signup" placeholder="Create a password" required />
+          <input type="password" id="password-signup" placeholder="Create a password" required aria-label="Password" />
           <div class="error-text" id="password-signup-error"></div>
           <div class="password-strength">
             <div class="strength-meter" id="strength-meter"></div>
           </div>
         </div>
         
-        <button type="submit" class="btn">Sign Up</button>
+        <button type="submit" class="btn" aria-label="Sign Up">Sign Up</button>
       </form>
       
       <div class="terms">
-        By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        By signing up, you agree to our <a href="#" aria-label="Terms of Service">Terms of Service</a> and <a href="#" aria-label="Privacy Policy">Privacy Policy</a>.
       </div>
       
       <div class="switch">
         Already have an account?
-        <a href="#" onclick="toggleForms()">Log In</a>
+        <a href="#" onclick="toggleForms()" aria-label="Log In">Log In</a>
       </div>
     </div>
 
@@ -1251,17 +1250,18 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3>Reset Password</h3>
-          <button class="modal-close">×</button>
+          <button class="modal-close" aria-label="Close modal">×</button>
         </div>
         <div class="message" id="forgot-message"></div>
         <form id="forgot-password-form">
+          <input type="hidden" name="csrf_token" id="csrf_token_forgot" value="DUMMY_TOKEN">
           <div class="form-group" id="forgot-email-group">
             <label for="forgot-email">Email Address</label>
             <i class="fas fa-envelope input-icon"></i>
-            <input type="email" id="forgot-email" class="form-control" placeholder="you@example.com" required>
+            <input type="email" id="forgot-email" class="form-control" placeholder="you@example.com" required aria-label="Email Address">
             <div class="error-text" id="forgot-email-error"></div>
           </div>
-          <button type="submit" class="btn">Send Reset Email</button>
+          <button type="submit" class="btn" aria-label="Send Reset Email">Send Reset Email</button>
         </form>
       </div>
     </div>
@@ -1270,19 +1270,19 @@
   <!-- Dashboard Content -->
   <div class="dashboard" id="dashboard" style="display: none;">
     <header class="header">
-      <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+      <button class="sidebar-toggle" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
       <div class="logo">
-        <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
+        <img src="https://cdn-icons-png.flaticon.com/512/7660/7660733.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
-        <div class="user-avatar" id="user-avatar"></div>
+        <div class="user-avatar" id="user-avatar" aria-label="User menu"></div>
         <div class="user-popup" id="user-popup">
           <div class="user-info">
             <div class="user-name" id="popup-user-name"></div>
             <div class="user-email" id="popup-user-email"></div>
           </div>
-          <button class="logout-btn" id="popup-logout-btn">Logout</button>
+          <button class="logout-btn" id="popup-logout-btn" aria-label="Logout">Logout</button>
         </div>
       </div>
     </header>
@@ -1290,12 +1290,12 @@
     <div class="container">
       <aside class="sidebar">
         <ul class="sidebar-menu">
-          <li><a href="#" class="active" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="#" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
-          <li><a href="#" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="#" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
-          <li><a href="#" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
-          <li class="logout-item"><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          <li><a href="#" class="active" id="dashboard-link" aria-label="Dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="#" id="todo-link" aria-label="To-Do List"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="#" id="password-link" aria-label="Password Manager"><i class="fas fa-lock"></i> Password Manager</a></li>
+          <li><a href="#" id="documents-link" aria-label="Documents"><i class="fas fa-file-contract"></i> Documents</a></li>
+          <li><a href="#" id="settings-link" aria-label="Settings"><i class="fas fa-cog"></i> Settings</a></li>
+          <li class="logout-item"><a href="#" id="logout-link" aria-label="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
@@ -1374,35 +1374,36 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="modal-title">Add New Task</h3>
-          <button class="modal-close">×</button>
+          <button class="modal-close" aria-label="Close modal">×</button>
         </div>
         <form id="todo-form">
           <input type="hidden" id="todo-id">
+          <input type="hidden" name="csrf_token" id="csrf_token_todo" value="DUMMY_TOKEN">
           
           <div class="form-group">
             <label for="todo-title">Task Title</label>
-            <input type="text" id="todo-title" class="form-control" required>
+            <input type="text" id="todo-title" class="form-control" required aria-label="Task Title">
           </div>
           
           <div class="form-group">
             <label for="todo-description">Description (Optional)</label>
-            <textarea id="todo-description" class="form-control" rows="3"></textarea>
+            <textarea id="todo-description" class="form-control" rows="3" aria-label="Task Description"></textarea>
           </div>
           
           <div class="form-row">
             <div class="form-group">
               <label for="todo-due">Due Date</label>
-              <input type="date" id="todo-due" class="form-control">
+              <input type="date" id="todo-due" class="form-control" aria-label="Due Date">
             </div>
             <div class="form-group">
               <label for="todo-time">Time (Optional)</label>
-              <input type="time" id="todo-time" class="form-control">
+              <input type="time" id="todo-time" class="form-control" aria-label="Due Time">
             </div>
           </div>
           
           <div class="form-group">
             <label for="todo-category">Category</label>
-            <select id="todo-category" class="form-control">
+            <select id="todo-category" class="form-control" aria-label="Task Category">
               <option value="work">Work</option>
               <option value="personal">Personal</option>
               <option value="urgent">Urgent</option>
@@ -1412,14 +1413,14 @@
           <div class="form-group">
             <label>Priority</label>
             <div class="priority-selector">
-              <div class="priority-option high" data-priority="high">High</div>
-              <div class="priority-option medium selected" data-priority="medium">Medium</div>
-              <div class="priority-option low" data-priority="low">Low</div>
+              <div class="priority-option high" data-priority="high" aria-label="High Priority">High</div>
+              <div class="priority-option medium selected" data-priority="medium" aria-label="Medium Priority">Medium</div>
+              <div class="priority-option low" data-priority="low" aria-label="Low Priority">Low</div>
             </div>
             <input type="hidden" id="todo-priority" value="medium">
           </div>
           
-          <button type="submit" class="btn">Save Task</button>
+          <button type="submit" class="btn" aria-label="Save Task">Save Task</button>
         </form>
       </div>
     </div>
@@ -1428,29 +1429,30 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="modal-title">Add New Password</h3>
-          <button class="modal-close">×</button>
+          <button class="modal-close" aria-label="Close modal">×</button>
         </div>
         <div class="message" id="password-message"></div>
         <form id="password-form">
+          <input type="hidden" name="csrf_token" id="csrf_token_password" value="DUMMY_TOKEN">
           <div class="form-group">
             <label for="password-title">Title</label>
-            <input type="text" id="password-title" class="form-control" required>
+            <input type="text" id="password-title" class="form-control" required aria-label="Password Title">
           </div>
           <div class="form-group">
             <label for="password-username">Username/Email</label>
-            <input type="text" id="password-username" class="form-control" required>
+            <input type="text" id="password-username" class="form-control" required aria-label="Username or Email">
           </div>
           <div class="form-group">
             <label for="password-value">Password</label>
-            <input type="password" id="password-value" class="form-control" required>
+            <input type="password" id="password-value" class="form-control" required aria-label="Password">
           </div>
           <div class="form-group">
             <label for="password-url">Website URL</label>
-            <input type="url" id="password-url" class="form-control">
+            <input type="url" id="password-url" class="form-control" aria-label="Website URL">
           </div>
           <div class="form-group">
             <label for="password-category">Category</label>
-            <select id="password-category" class="form-control">
+            <select id="password-category" class="form-control" aria-label="Password Category">
               <option value="email">Email</option>
               <option value="banking">Banking</option>
               <option value="social">Social</option>
@@ -1461,12 +1463,12 @@
           </div>
           <div class="form-group">
             <label for="password-notes">Notes</label>
-            <textarea id="password-notes" class="form-control" rows="3"></textarea>
+            <textarea id="password-notes" class="form-control" rows="3" aria-label="Notes"></textarea>
           </div>
           <input type="hidden" id="password-id">
           <div class="form-actions">
-            <button type="button" class="btn cancel-btn" style="background: var(--gray); color: var(--dark);">Cancel</button>
-            <button type="submit" class="btn">Save</button>
+            <button type="button" class="btn cancel-btn" style="background: var(--gray); color: var(--dark);" aria-label="Cancel">Cancel</button>
+            <button type="submit" class="btn" aria-label="Save Password">Save</button>
           </div>
         </form>
       </div>
@@ -1476,46 +1478,46 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3>Upload Document</h3>
-          <button class="modal-close">×</button>
+          <button class="modal-close" aria-label="Close modal">×</button>
         </div>
         <form id="document-form">
+          <input type="hidden" name="csrf_token" id="csrf_token_document" value="DUMMY_TOKEN">
           <div class="form-group">
             <label for="document-name">Document Name</label>
-            <input type="text" id="document-name" class="form-control" required>
+            <input type="text" id="document-name" class="form-control" required aria-label="Document Name">
           </div>
           <div class="form-group">
             <label for="document-file">Select File</label>
-            <input type="file" id="document-file" class="form-control" required>
+            <input type="file" id="document-file" class="form-control" required aria-label="Select File">
           </div>
           <div class="form-group">
             <label for="document-category">Category</label>
-            <select id="document-category" class="form-control">
+            <select id="document-category" class="form-control" aria-label="Document Category">
               <option value="contract">Contract</option>
               <option value="proposal">Proposal</option>
               <option value="report">Report</option>
               <option value="other">Other</option>
             </select>
           </div>
-          <button type="submit" class="btn">Upload Document</button>
+          <button type="submit" class="btn" aria-label="Upload Document">Upload Document</button>
         </form>
       </div>
     </div>
   </div>
-<script>
-// Firebase configuration (replace with environment variables in production)
-const firebaseConfig = {
-  apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-  authDomain: "mymemory-ddc21.firebaseapp.com",
-  projectId: "mymemory-ddc21",
-  storageBucket: "mymemory-ddc21.firebasestorage.app",
-  messagingSenderId: "875926928384",
-  appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-  measurementId: "G-8XZZNJB0QD"
-};
+  <script>
+    let app, auth, db, storage, supabase;
 
 // Initialize Firebase
-let app, auth, db, storage;
 try {
+  const firebaseConfig = {
+    apiKey: process.env.FIREBASE_API_KEY || "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+    authDomain: "mymemory-ddc21.firebaseapp.com",
+    projectId: "mymemory-ddc21",
+    storageBucket: "mymemory-ddc21.firebasestorage.app",
+    messagingSenderId: "875926928384",
+    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+    measurementId: "G-8XZZNJB0QD"
+  };
   app = firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db = firebase.firestore();
@@ -1528,14 +1530,27 @@ try {
 }
 
 // Initialize Supabase
-const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k';
-let supabase;
 try {
+  const supabaseUrl = process.env.SUPABASE_URL || 'https://obeeybozdvnpbyjtaflr.supabase.co';
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k';
   supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 } catch (error) {
   console.error('Supabase initialization failed:', error);
   showMessage('login-message', 'Failed to initialize storage service. Some features may be unavailable.', 'error');
+}
+
+// Synchronize Firebase and Supabase sessions
+async function setSupabaseSession() {
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      const idToken = await user.getIdToken();
+      const { error } = await supabase.auth.setSession({ access_token: idToken });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to set Supabase session:', error);
+    }
+  }
 }
 
 // Utility Functions
@@ -1576,9 +1591,7 @@ function isValidUrl(url) {
   }
 }
 
-// Rate Limiting
 const RATE_LIMIT_MS = 30 * 1000;
-
 function canSendForm(email, type) {
   const key = `${type}-attempt-${email}`;
   const lastAttempt = localStorage.getItem(key);
@@ -1726,853 +1739,6 @@ function validateForgotForm() {
   return isValid;
 }
 
-// User Popup
-function setupUserPopup() {
-  const userAvatar = document.getElementById('user-avatar');
-  const userPopup = document.getElementById('user-popup');
-  const logoutBtn = document.getElementById('popup-logout-btn');
-
-  if (!userAvatar || !userPopup || !logoutBtn) {
-    console.error('User popup elements not found');
-    return;
-  }
-
-  userAvatar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    userPopup.classList.toggle('active');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-      userPopup.classList.remove('active');
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      userPopup.classList.remove('active');
-    }
-  });
-
-  logoutBtn.addEventListener('click', handleLogout);
-}
-
-// Sidebar Toggle
-const sidebarToggle = document.querySelector('.sidebar-toggle');
-const sidebar = document.querySelector('.sidebar');
-if (sidebarToggle && sidebar) {
-  sidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-  });
-}
-
-// Logout Handler
-async function handleLogout(e) {
-  e.preventDefault();
-  try {
-    await auth.signOut();
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('rememberMe');
-    document.getElementById('auth-page').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-    showMessage('login-message', 'Logged out successfully.', 'success');
-    window.location.href = 'index.html';
-  } catch (error) {
-    console.error('Logout error:', error);
-    showMessage('login-message', 'Logout failed. Please try again.', 'error');
-  }
-}
-
-// Google Sign-In Handler
-document.getElementById('google-login').addEventListener('click', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('email').value || 'google-signin';
-  const googleBtn = document.getElementById('google-login');
-  googleBtn.disabled = true;
-
-  if (!canSendForm(email, 'google-login')) {
-    showMessage('login-message', 'Please wait 30 seconds before trying again.', 'error');
-    googleBtn.disabled = false;
-    return;
-  }
-
-  try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    try {
-      const result = await auth.signInWithPopup(provider);
-      const user = result.user;
-
-      await db.collection('users').doc(user.uid).set({
-        name: user.displayName || 'Google User',
-        email: user.email,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-
-      if (supabase) {
-        try {
-          const { error } = await supabase.from('users').upsert(
-            [{ id: user.uid, name: user.displayName || 'Google User', email: user.email }],
-            { onConflict: ['id'], ignoreDuplicates: false }
-          );
-          if (error) console.error('Supabase upsert error:', error);
-        } catch (supError) {
-          console.error('Supabase upsert failed:', supError);
-        }
-      }
-
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('rememberMe', 'true');
-
-      document.getElementById('auth-page').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'flex';
-      showMessage('login-message', 'Signed in with Google!', 'success');
-
-      document.getElementById('user-name').textContent = user.displayName || 'User';
-      document.getElementById('popup-user-name').textContent = user.displayName || 'User';
-      document.getElementById('popup-user-email').textContent = user.email;
-      document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
-
-      await loadDashboard(user);
-      localStorage.setItem(`google-login-attempt-${email}`, Date.now());
-    } catch (popupError) {
-      if (popupError.code === 'auth/popup-blocked') {
-        showMessage('login-message', 'Popup blocked. Redirecting to Google sign-in...', 'error');
-        await auth.signInWithRedirect(provider);
-      } else {
-        throw popupError;
-      }
-    }
-  } catch (error) {
-    console.error('Google Sign-In error:', error.code, error.message);
-    const errorMessages = {
-      'auth/popup-closed-by-user': 'Sign-in cancelled.',
-      'auth/network-request-failed': 'Network error. Please check your connection.',
-      'auth/too-many-requests': 'Too many attempts. Please try again later.'
-    };
-    showMessage('login-message', errorMessages[error.code] || 'Google Sign-In failed.', 'error');
-    localStorage.setItem(`google-login-attempt-${email}`, Date.now());
-  } finally {
-    googleBtn.disabled = false;
-  }
-});
-
-// Authentication Handlers
-document.getElementById('login').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!validateLoginForm()) return;
-
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const remember = document.getElementById('remember').checked;
-  const loginBtn = document.querySelector('#login .btn');
-  loginBtn.disabled = true;
-  loginBtn.textContent = 'Logging in...';
-
-  if (!canSendForm(email, 'login')) {
-    showMessage('login-message', 'Please wait 30 seconds before trying again.', 'error');
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Log In';
-    return;
-  }
-
-  try {
-    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-
-    if (!user.emailVerified) {
-      await auth.signOut();
-      showMessage('login-message', 'Please verify your email. Check your inbox or resend verification.', 'error');
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Log In';
-      return;
-    }
-
-    localStorage.setItem('isAuthenticated', 'true');
-    if (remember) localStorage.setItem('rememberMe', 'true');
-
-    document.getElementById('auth-page').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'flex';
-    showMessage('login-message', 'Login successful!', 'success');
-
-    document.getElementById('user-name').textContent = user.displayName || 'User';
-    document.getElementById('popup-user-name').textContent = user.displayName || 'User';
-    document.getElementById('popup-user-email').textContent = user.email;
-    document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
-
-    await loadDashboard(user);
-    localStorage.setItem(`login-attempt-${email}`, Date.now());
-  } catch (error) {
-    console.error('Login error:', error.code, error.message);
-    const errorMessages = {
-      'auth/invalid-credential': 'Invalid email or password.',
-      'auth/user-not-found': 'No account found with this email.',
-      'auth/wrong-password': 'Incorrect password.',
-      'auth/too-many-requests': 'Too many attempts. Please try again later.',
-      'auth/network-request-failed': 'Network error. Please check your connection.'
-    };
-    showMessage('login-message', errorMessages[error.code] || 'Login failed. Please try again.', 'error');
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Log In';
-  }
-});
-
-document.getElementById('signup').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!validateSignupForm()) return;
-
-  const signupBtn = document.querySelector('#signup .btn');
-  signupBtn.disabled = true;
-  signupBtn.textContent = 'Signing up...';
-
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email-signup').value;
-  const password = document.getElementById('password-signup').value;
-
-  try {
-    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-
-    await user.updateProfile({ displayName: name });
-    await user.sendEmailVerification();
-
-    await db.collection('users').doc(user.uid).set({
-      name,
-      email,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    if (supabase) {
-      try {
-        const { error } = await supabase.from('users').upsert(
-          [{ id: user.uid, name, email }],
-          { onConflict: ['id'], ignoreDuplicates: false }
-        );
-        if (error) console.error('Supabase upsert error:', error);
-      } catch (supError) {
-        console.error('Supabase upsert failed:', supError);
-      }
-    }
-
-    showMessage('signup-message', 'Account created! Please verify your email.', 'success');
-    await auth.signOut();
-    toggleForms();
-  } catch (error) {
-    console.error('Signup error:', error.code, error.message);
-    const errorMessages = {
-      'auth/email-already-in-use': 'This email is already registered.',
-      'auth/invalid-email': 'Invalid email address.',
-      'auth/weak-password': 'Password is too weak. Use at least 8 characters.',
-      'auth/network-request-failed': 'Network error. Please check your connection.'
-    };
-    showMessage('signup-message', errorMessages[error.code] || 'Signup failed. Please try again.', 'error');
-  } finally {
-    signupBtn.disabled = false;
-    signupBtn.textContent = 'Sign Up';
-  }
-});
-
-document.getElementById('forgot-password').addEventListener('click', (e) => {
-  e.preventDefault();
-  document.getElementById('forgot-password-modal').style.display = 'flex';
-});
-
-document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!validateForgotForm()) return;
-
-  const email = document.getElementById('forgot-email').value;
-  const resetBtn = document.querySelector('#forgot-password-form .btn');
-  resetBtn.disabled = true;
-  resetBtn.textContent = 'Sending...';
-
-  if (!canSendForm(email, 'reset')) {
-    showMessage('forgot-message', 'Please wait 30 seconds before requesting another reset.', 'error');
-    resetBtn.disabled = false;
-    resetBtn.textContent = 'Send Reset Email';
-    return;
-  }
-
-  try {
-    await auth.sendPasswordResetEmail(email);
-    localStorage.setItem(`reset-attempt-${email}`, Date.now());
-    showMessage('forgot-message', 'Password reset email sent! Check your inbox.', 'success');
-    document.getElementById('forgot-password-modal').style.display = 'none';
-  } catch (error) {
-    console.error('Password reset error:', error.code, error.message);
-    const errorMessages = {
-      'auth/invalid-email': 'Invalid email address.',
-      'auth/user-not-found': 'No account found with this email.',
-      'auth/network-request-failed': 'Network error. Please check your connection.'
-    };
-    showMessage('forgot-message', errorMessages[error.code] || 'Failed to send reset email.', 'error');
-  } finally {
-    resetBtn.disabled = false;
-    resetBtn.textContent = 'Send Reset Email';
-  }
-});
-
-document.getElementById('resend-verification').addEventListener('click', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('email').value;
-
-  if (!isValidEmail(email)) {
-    showMessage('login-message', 'Please enter a valid email address.', 'error');
-    return;
-  }
-
-  if (!canSendForm(email, 'verification')) {
-    showMessage('login-message', 'Please wait 30 seconds before requesting another verification email.', 'error');
-    return;
-  }
-
-  try {
-    const actionCodeSettings = {
-      url: 'https://hipotech-dev.github.io/MyMemory/'
-    };
-    await auth.sendSignInLinkToEmail(email, actionCodeSettings);
-    localStorage.setItem(`verification-attempt-${email}`, Date.now());
-    showMessage('login-message', 'Verification email sent! Check your inbox.', 'success');
-  } catch (error) {
-    console.error('Resend verification error:', error.code, error.message);
-    const errorMessages = {
-      'auth/invalid-email': 'Invalid email address.',
-      'auth/user-not-found': 'No account found with this email.',
-      'auth/too-many-requests': 'Too many attempts. Please try again later.',
-      'auth/network-request-failed': 'Network error. Please check your connection.'
-    };
-    showMessage('login-message', errorMessages[error.code] || 'Failed to send verification email.', 'error');
-  }
-});
-
-// Auth State Listener
-auth.onAuthStateChanged(async (user) => {
-  const authPage = document.getElementById('auth-page');
-  const dashboard = document.getElementById('dashboard');
-
-  if (user) {
-    if (!user.emailVerified && user.providerData[0].providerId !== 'google.com') {
-      showMessage('login-message', 'Please verify your email to access the dashboard.', 'error');
-      await auth.signOut();
-      authPage.style.display = 'flex';
-      dashboard.style.display = 'none';
-      localStorage.removeItem('isAuthenticated');
-      return;
-    }
-
-    localStorage.setItem('isAuthenticated', 'true');
-    document.getElementById('user-name').textContent = user.displayName || 'User';
-    document.getElementById('popup-user-name').textContent = user.displayName || 'User';
-    document.getElementById('popup-user-email').textContent = user.email;
-    document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
-
-    authPage.style.display = 'none';
-    dashboard.style.display = 'flex';
-
-    setupUserPopup();
-    await loadDashboard(user);
-
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-      logoutLink.addEventListener('click', handleLogout);
-    }
-  } else {
-    localStorage.removeItem('isAuthenticated');
-    authPage.style.display = 'flex';
-    dashboard.style.display = 'none';
-  }
-});
-
-// Modal Close Handlers
-document.querySelectorAll('.modal-close').forEach(btn => {
-  btn.addEventListener('click', () => {
-    btn.closest('.modal').style.display = 'none';
-  });
-});
-
-document.querySelectorAll('.modal').forEach(modal => {
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-});
-
-// Dashboard Functions
-async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
-  try {
-    const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    const now = new Date();
-    const oneWeekAgo = new Date(now);
-    oneWeekAgo.setDate(now.getDate() - 7);
-
-    let recentCount = 0;
-    let strengthData = { weak: 0, medium: 0, strong: 0 };
-
-    passwordSnapshot.forEach(doc => {
-      const password = doc.data();
-      if (!password.createdAt) {
-        console.warn(`Password ${doc.id} missing createdAt`);
-        return;
-      }
-      let createdDate;
-      try {
-        createdDate = password.createdAt.toDate();
-      } catch (e) {
-        console.warn(`Invalid createdAt for password ${doc.id}`);
-        return;
-      }
-      if (createdDate > oneWeekAgo) {
-        recentCount++;
-      }
-      const strength = calculatePasswordStrength(password.password || '');
-      if (strength < 50) {
-        strengthData.weak++;
-      } else if (strength < 75) {
-        strengthData.medium++;
-      } else {
-        strengthData.strong++;
-      }
-    });
-
-    return {
-      total: passwordSnapshot.size,
-      recent: recentCount,
-      strength: strengthData,
-      lastUpdated: now.toLocaleString()
-    };
-  } catch (error) {
-    console.error(`Password stats attempt ${attempt} failed:`, error);
-    if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return calculatePasswordStats(uid, attempt + 1, maxAttempts);
-    }
-    showMessage('login-message', 'Failed to load password stats.', 'error');
-    return {
-      total: 0,
-      recent: 0,
-      strength: { weak: 0, medium: 0, strong: 0 },
-      lastUpdated: 'Error'
-    };
-  }
-}
-
-async function calculateDocumentStats(uid) {
-  try {
-    const documentSnapshot = await db.collection('users').doc(uid).collection('documents')
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    const now = new Date();
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    let recentCount = 0;
-
-    documentSnapshot.forEach(doc => {
-      const docData = doc.data();
-      try {
-        const createdAt = docData.createdAt?.toDate();
-        if (createdAt && createdAt > oneWeekAgo) {
-          recentCount++;
-        }
-      } catch (e) {
-        console.warn(`Invalid createdAt for document ${doc.id}:`, docData.createdAt);
-      }
-    });
-
-    return {
-      total: documentSnapshot.size,
-      recent: recentCount
-    };
-  } catch (error) {
-    console.error('Error calculating document stats:', error);
-    showMessage('login-message', 'Failed to load document stats.', 'error');
-    return { total: 0, recent: 0 };
-  }
-}
-
-function formatDueDate(dueDate) {
-  if (!dueDate) return 'No due date';
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(dueDate);
-  due.setHours(0, 0, 0, 0);
-
-  const diffTime = due - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return 'Due today';
-  if (diffDays === 1) return 'Due tomorrow';
-  if (diffDays === -1) return 'Due yesterday';
-  if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
-  if (diffDays <= 7) return `Due in ${diffDays} days`;
-
-  return `Due on ${due.toLocaleDateString()}`;
-}
-
-function createTodoElement(todo) {
-  const todoItem = document.createElement('div');
-  todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
-  todoItem.dataset.id = todo.id;
-  todoItem.dataset.due = todo.dueDate;
-  todoItem.dataset.completed = todo.completed;
-  todoItem.dataset.category = todo.category;
-
-  const dueText = formatDueDate(todo.dueDate);
-  const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
-
-  todoItem.innerHTML = `
-    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
-    <div class="todo-content">
-      <div class="todo-title">${todo.title} ${categoryText}</div>
-      <div class="todo-due">
-        <i class="far fa-calendar-alt"></i> ${dueText}
-      </div>
-    </div>
-    <div class="todo-actions">
-      <button title="Edit"><i class="fas fa-edit"></i></button>
-      <button title="Delete"><i class="fas fa-trash"></i></button>
-    </div>
-  `;
-
-  return todoItem;
-}
-
-function addTodoEventListeners(todoItem, user) {
-  const checkbox = todoItem.querySelector('.todo-checkbox');
-  const editBtn = todoItem.querySelector('.fa-edit').parentNode;
-  const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
-
-  checkbox.addEventListener('change', async function (e) {
-    e.stopPropagation();
-    const todoId = todoItem.dataset.id;
-    try {
-      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
-        completed: this.checked,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      todoItem.dataset.completed = this.checked;
-      if (this.checked) {
-        todoItem.classList.add('todo-completed');
-      } else {
-        todoItem.classList.remove('todo-completed');
-      }
-      showMessage('login-message', 'Task updated successfully!', 'success');
-    } catch (error) {
-      console.error('Error updating task:', error);
-      showMessage('login-message', 'Error updating task.', 'error');
-    }
-  });
-
-  editBtn.addEventListener('click', async function (e) {
-    e.stopPropagation();
-    const modal = document.getElementById('todo-modal');
-    const todoId = todoItem.dataset.id;
-    try {
-      const todoDoc = await db.collection('users').doc(user.uid).collection('todos').doc(todoId).get();
-      const todo = todoDoc.data();
-
-      document.getElementById('modal-title').textContent = 'Edit Task';
-      document.getElementById('todo-id').value = todoId;
-      document.getElementById('todo-title').value = todo.title;
-      document.getElementById('todo-description').value = todo.description || '';
-      document.getElementById('todo-due').value = todo.dueDate || '';
-      document.getElementById('todo-time').value = todo.time || '';
-      document.getElementById('todo-category').value = todo.category || 'work';
-
-      document.getElementById('todo-priority').value = todo.priority;
-      document.querySelectorAll('.priority-option').forEach(opt => {
-        opt.classList.remove('selected');
-        if (opt.dataset.priority === todo.priority) {
-          opt.classList.add('selected');
-        }
-      });
-
-      modal.style.display = 'flex';
-    } catch (error) {
-      console.error('Error loading task:', error);
-      showMessage('login-message', 'Error loading task.', 'error');
-    }
-  });
-
-  deleteBtn.addEventListener('click', async function (e) {
-    e.stopPropagation();
-    if (confirm('Are you sure you want to delete this task?')) {
-      const todoId = todoItem.dataset.id;
-      try {
-        await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
-        todoItem.remove();
-        showMessage('login-message', 'Task deleted successfully!', 'success');
-      } catch (error) {
-        console.error('Error deleting task:', error);
-        showMessage('login-message', 'Error deleting task.', 'error');
-      }
-    }
-  });
-}
-
-function createPasswordElement(password) {
-  const card = document.createElement('div');
-  card.className = 'password-card';
-  card.dataset.id = password.id;
-
-  const title = password.title || 'Untitled Password';
-  const strength = calculatePasswordStrength(password.password || '');
-  const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
-
-  card.innerHTML = `
-    <div class="password-card-header">
-      <div class="password-name">${title}</div>
-      <div class="password-card-actions">
-        <button title="Copy Username"><i class="fas fa-user"></i></button>
-        <button title="Copy Password"><i class="fas fa-key"></i></button>
-        <button title="Edit"><i class="fas fa-edit"></i></button>
-        <button title="Delete"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>
-    <div class="password-details">
-      <div class="password-detail">
-        <span class="password-label">Username:</span>
-        <div class="password-value">${password.username || 'N/A'}</div>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">Password:</span>
-        <div class="password-value">
-          <input type="password" value="${password.password || ''}" class="masked" readonly>
-          <button class="toggle-password"><i class="fas fa-eye"></i></button>
-        </div>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">URL:</span>
-        <div class="password-value">${password.url || 'N/A'}</div>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">Category:</span>
-        <div class="password-value">${password.category || 'N/A'}</div>
-      </div>
-    </div>
-    <div class="password-strength">
-      <div class="strength-meter" style="width: ${strength}%; background-color: ${strengthColor};"></div>
-    </div>
-  `;
-
-  return card;
-}
-
-function addPasswordEventListeners(card, user) {
-  const copyUsernameBtn = card.querySelector('.fa-user').parentNode;
-  const copyPasswordBtn = card.querySelector('.fa-key').parentNode;
-  const togglePasswordBtn = card.querySelector('.toggle-password');
-  const editBtn = card.querySelector('.fa-edit').parentNode;
-  const deleteBtn = card.querySelector('.fa-trash').parentNode;
-  const passwordInput = card.querySelector('.password-value input');
-
-  copyUsernameBtn.addEventListener('click', function () {
-    const username = card.querySelector('.password-detail:nth-child(1) .password-value').textContent;
-    navigator.clipboard.writeText(username).then(() => {
-      showMessage('login-message', 'Username copied to clipboard!', 'success');
-    });
-  });
-
-  copyPasswordBtn.addEventListener('click', function () {
-    const password = passwordInput.value;
-    navigator.clipboard.writeText(password).then(() => {
-      showMessage('login-message', 'Password copied to clipboard!', 'success');
-    });
-  });
-
-  togglePasswordBtn.addEventListener('click', function () {
-    const isMasked = passwordInput.classList.contains('masked');
-    passwordInput.classList.toggle('masked');
-    this.innerHTML = isMasked ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
-    passwordInput.type = isMasked ? 'text' : 'password';
-  });
-
-  editBtn.addEventListener('click', async function () {
-    const modal = document.getElementById('password-modal');
-    const passwordId = card.dataset.id;
-    try {
-      const passwordDoc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
-      const password = passwordDoc.data();
-
-      document.getElementById('modal-title').textContent = 'Edit Password';
-      document.getElementById('password-id').value = passwordId;
-      document.getElementById('password-title').value = password.title || '';
-      document.getElementById('password-username').value = password.username || '';
-      document.getElementById('password-value').value = password.password || '';
-      document.getElementById('password-url').value = password.url || '';
-      document.getElementById('password-category').value = password.category || 'other';
-      document.getElementById('password-notes').value = password.notes || '';
-
-      modal.style.display = 'flex';
-    } catch (error) {
-      console.error('Error loading password:', error);
-      showMessage('password-message', 'Error loading password.', 'error');
-    }
-  });
-
-  deleteBtn.addEventListener('click', async function () {
-    if (confirm('Are you sure you want to delete this password?')) {
-      const passwordId = card.dataset.id;
-      try {
-        await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
-        card.remove();
-        showMessage('login-message', 'Password deleted successfully!', 'success');
-        loadDashboard(user);
-      } catch (error) {
-        console.error('Error deleting password:', error);
-        showMessage('login-message', 'Error deleting password.', 'error');
-      }
-    }
-  });
-}
-
-async function loadDashboard(user) {
-  try {
-    const passwordStats = await calculatePasswordStats(user.uid);
-    const passwordCount = document.getElementById('password-count');
-    const passwordRecent = document.getElementById('password-recent');
-    if (passwordCount) passwordCount.textContent = passwordStats.total;
-    if (passwordRecent) passwordRecent.textContent = passwordStats.recent;
-
-    const documentStats = await calculateDocumentStats(user.uid);
-    const documentCount = document.getElementById('document-count');
-    const documentRecent = document.getElementById('document-recent');
-    if (documentCount) documentCount.textContent = documentStats.total;
-    if (documentRecent) documentRecent.textContent = documentStats.recent;
-
-    const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
-      .orderBy('createdAt', 'desc')
-      .limit(5)
-      .get();
-
-    const todoList = document.getElementById('todo-list');
-    const todoCount = document.getElementById('todo-count');
-    const todoUrgent = document.getElementById('todo-urgent');
-    if (todoList) todoList.innerHTML = '';
-
-    let urgentCount = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    todoSnapshot.forEach(doc => {
-      const todo = { id: doc.id, ...doc.data() };
-      const todoElement = createTodoElement(todo);
-      addTodoEventListeners(todoElement, user);
-      todoList.appendChild(todoElement);
-
-      if (todo.dueDate) {
-        try {
-          const dueDate = new Date(todo.dueDate);
-          dueDate.setHours(0, 0, 0, 0);
-          if (dueDate.getTime() <= today.getTime() && !todo.completed) {
-            urgentCount++;
-          }
-        } catch (e) {
-          console.warn(`Invalid dueDate for todo ${doc.id}:`, todo.dueDate);
-        }
-      }
-    });
-
-    if (todoCount) todoCount.textContent = todoSnapshot.size;
-    if (todoUrgent) todoUrgent.textContent = urgentCount;
-
-    if (todoSnapshot.empty && todoList) {
-      todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
-    }
-
-    const todoCard = document.querySelector('.dashboard-cards .todo-card');
-    if (todoCard) {
-      todoCard.style.cursor = 'pointer';
-      todoCard.addEventListener('click', function (e) {
-        if (e.target.closest('.todo-checkbox, .todo-actions')) return;
-        window.location.href = 'To do list.html';
-      });
-    }
-
-    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
-      .orderBy('createdAt', 'desc')
-      .limit(3)
-      .get();
-
-    const passwordList = document.getElementById('password-list');
-    if (passwordList) passwordList.innerHTML = '';
-
-    passwordSnapshot.forEach(doc => {
-      const password = { id: doc.id, ...doc.data() };
-      if (!password.title) {
-        password.title = 'Untitled Password';
-      }
-      const passwordElement = createPasswordElement(password);
-      addPasswordEventListeners(passwordElement, user);
-      passwordList.appendChild(passwordElement);
-    });
-
-    if (passwordSnapshot.empty && passwordList) {
-      passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
-    }
-
-    const passwordCard = document.querySelector('.dashboard-cards .password-card');
-    if (passwordCard) {
-      passwordCard.style.cursor = 'pointer';
-      passwordCard.addEventListener('click', function (e) {
-        if (e.target.closest('.password-card-actions, .toggle-password')) return;
-        window.location.href = 'Password Manager.html';
-      });
-    }
-
-    const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
-      .orderBy('createdAt', 'desc')
-      .limit(1)
-      .get();
-
-    const documentList = document.getElementById('document-list');
-    if (documentList) documentList.innerHTML = '';
-
-    if (!documentSnapshot.empty) {
-      const latestDoc = documentSnapshot.docs[0];
-      const docData = { id: latestDoc.id, ...latestDoc.data() };
-      const docElement = document.createElement('div');
-      docElement.className = 'document-item';
-      const createdDate = docData.createdAt?.toDate()?.toLocaleDateString() || 'N/A';
-      const downloadUrl = docData.downloadURL || '#';
-      docElement.innerHTML = `
-        <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
-          <div>
-            <div style="font-weight: 600; color: var(--dark);">${docData.name || 'Untitled'}</div>
-            <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
-            <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${createdDate}</div>
-          </div>
-          <div class="document-actions" style="display: flex; gap: 0.5rem;">
-            <a href="${downloadUrl}" target="_blank" title="Download" style="color: var(--primary);"><i class="fas fa-download"></i></a>
-          </div>
-        </div>
-      `;
-      documentList.appendChild(docElement);
-    } else {
-      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
-    }
-
-    const documentCard = document.querySelector('.dashboard-cards .document-card');
-    if (documentCard) {
-      documentCard.style.cursor = 'pointer';
-      documentCard.addEventListener('click', function () {
-        window.location.href = 'Documents.html';
-      });
-    }
-
-    if (document.getElementById('todo-loading')) document.getElementById('todo-loading').style.display = 'none';
-    if (document.getElementById('password-loading')) document.getElementById('password-loading').style.display = 'none';
-    document.querySelector('.document-list .loading')?.remove();
-  } catch (error) {
-    console.error('Error loading dashboard:', error);
-    showMessage('login-message', 'Error loading dashboard.', 'error');
-  }
-}
-
 function validateTodoForm() {
   const title = document.getElementById('todo-title').value;
   const titleGroup = document.getElementById('todo-title').parentElement;
@@ -2688,150 +1854,293 @@ function validateDocumentForm() {
   return isValid;
 }
 
-document.getElementById('todo-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validateTodoForm()) return;
+// User Popup
+function setupUserPopup() {
+  const userAvatar = document.getElementById('user-avatar');
+  const userPopup = document.getElementById('user-popup');
+  const logoutBtn = document.getElementById('popup-logout-btn');
 
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage('login-message', 'You must be logged in to add tasks.', 'error');
+  if (!userAvatar || !userPopup || !logoutBtn) {
+    console.error('User popup elements not found');
     return;
   }
 
-  const todoId = document.getElementById('todo-id').value;
-  const todoData = {
-    title: document.getElementById('todo-title').value,
-    description: document.getElementById('todo-description').value,
-    dueDate: document.getElementById('todo-due').value,
-    time: document.getElementById('todo-time').value,
-    category: document.getElementById('todo-category').value,
-    priority: document.getElementById('todo-priority').value,
-    completed: false,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    if (todoId) {
-      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update(todoData);
-      showMessage('login-message', 'Task updated successfully!', 'success');
-    } else {
-      todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection('users').doc(user.uid).collection('todos').add(todoData);
-      showMessage('login-message', 'Task added successfully!', 'success');
-    }
-    document.getElementById('todo-modal').style.display = 'none';
-    document.getElementById('todo-form').reset();
-    document.getElementById('todo-id').value = '';
-    loadDashboard(user);
-  } catch (error) {
-    console.error('Error saving task:', error);
-    showMessage('login-message', 'Error saving task.', 'error');
-  }
-});
-
-document.querySelectorAll('.priority-option').forEach(option => {
-  option.addEventListener('click', function () {
-    document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
-    this.classList.add('selected');
-    document.getElementById('todo-priority').value = this.dataset.priority;
+  userAvatar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    userPopup.classList.toggle('active');
   });
-});
 
-document.getElementById('password-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validatePasswordForm()) return;
-
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage('password-message', 'You must be logged in to add passwords.', 'error');
-    return;
-  }
-
-  const passwordId = document.getElementById('password-id').value;
-  const passwordData = {
-    title: document.getElementById('password-title').value,
-    username: document.getElementById('password-username').value,
-    password: document.getElementById('password-value').value,
-    url: document.getElementById('password-url').value,
-    category: document.getElementById('password-category').value,
-    notes: document.getElementById('password-notes').value,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    if (passwordId) {
-      await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
-      showMessage('password-message', 'Password updated successfully!', 'success');
-    } else {
-      passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
-      showMessage('password-message', 'Password added successfully!', 'success');
+  document.addEventListener('click', (e) => {
+    if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+      userPopup.classList.remove('active');
     }
-    document.getElementById('password-modal').style.display = 'none';
-    document.getElementById('password-form').reset();
-    document.getElementById('password-id').value = '';
-    loadDashboard(user);
-  } catch (error) {
-    console.error('Error saving password:', error);
-    showMessage('password-message', 'Error saving password.', 'error');
-  }
-});
+  });
 
-document.getElementById('document-form').addEventListener('submit', async function (e) {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      userPopup.classList.remove('active');
+    }
+  });
+
+  logoutBtn.addEventListener('click', handleLogout);
+}
+
+// Sidebar Toggle
+const sidebarToggle = document.querySelector('.sidebar-toggle');
+const sidebar = document.querySelector('.sidebar');
+if (sidebarToggle && sidebar) {
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+  });
+}
+
+// Logout Handler
+async function handleLogout(e) {
   e.preventDefault();
-  if (!validateDocumentForm()) return;
+  try {
+    await auth.signOut();
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('rememberMe');
+    document.getElementById('auth-page').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    showMessage('login-message', 'Logged out successfully.', 'success');
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error('Logout error:', error);
+    showMessage('login-message', 'Logout failed. Please try again.', 'error');
+  }
+}
 
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage('login-message', 'You must be logged in to upload documents.', 'error');
+// Authentication Handlers
+document.getElementById('login').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateLoginForm()) return;
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
+  const loginBtn = document.querySelector('#login .btn');
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Logging in...';
+
+  if (!canSendForm(email, 'login')) {
+    showMessage('login-message', 'Please wait 30 seconds before trying again.', 'error');
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Log In';
     return;
   }
 
-  const file = document.getElementById('document-file').files[0];
-  const name = document.getElementById('document-name').value;
-  const category = document.getElementById('document-category').value;
-
   try {
-    const timestamp = Date.now();
-    const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
-    const fileName = `${sanitizedName}_${timestamp}.${file.name.split('.').pop()}`;
-    const storagePath = `users/${user.uid}/documents/${fileName}`;
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
 
-    if (!supabase) throw new Error('Storage service not initialized');
+    if (!user.emailVerified) {
+      await auth.signOut();
+      showMessage('login-message', 'Please verify your email. Check your inbox or click "Resend Verification Email".', 'error');
+      return;
+    }
 
-    const { error } = await supabase.storage
-      .from('public-documents')
-      .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+    localStorage.setItem('isAuthenticated', 'true');
+    if (remember) localStorage.setItem('rememberMe', 'true');
 
-    if (error) throw new Error(`Upload failed: ${error.message}`);
-
-    const { data } = supabase.storage.from('public-documents').getPublicUrl(storagePath);
-    const downloadURL = data.publicUrl;
-
-    const documentData = {
-      name,
-      category,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      storagePath,
-      downloadURL,
-      fileName,
-      size: file.size,
-      type: file.name.split('.').pop().toLowerCase(),
-      owner: user.displayName || user.email.split('.')[0]
-    };
-
-    await db.collection('users').doc(user.uid).collection('documents').add(documentData);
-
-    showMessage('login-message', 'Document uploaded successfully!', 'success');
-    document.getElementById('document-modal').style.display = 'none';
-    document.getElementById('document-form').reset();
-    await loadDashboard(user);
+    localStorage.setItem(`login-attempt-${email}`, Date.now());
   } catch (error) {
-    console.error('Error uploading document:', error);
-    showMessage('login-message', 'Error uploading document.', 'error');
+    console.error('Login error:', error.code, error.message);
+    const errorMessages = {
+      'auth/invalid-credential': 'Invalid email or password.',
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/too-many-requests': 'Too many attempts. Please try again later.',
+      'auth/network-request-failed': 'Network error. Please check your connection.',
+      'auth/invalid-email': 'Invalid email format.'
+    };
+    showMessage('login-message', errorMessages[error.code] || 'Login failed. Please try again.', 'error');
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Log In';
   }
 });
-</script>
+
+document.getElementById('signup').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateSignupForm()) return;
+
+  const signupBtn = document.querySelector('#signup .btn');
+  signupBtn.disabled = true;
+  signupBtn.textContent = 'Signing up...';
+
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email-signup').value;
+  const password = document.getElementById('password-signup').value;
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    await user.updateProfile({ displayName: name });
+    await user.sendEmailVerification({
+      url: 'https://hipotech-dev.github.io/MyMemory/',
+      handleCodeInApp: true
+    });
+
+    await db.collection('users').doc(user.uid).set({
+      name,
+      email,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    if (supabase) {
+      await supabase.from('users').upsert(
+        [{ id: user.uid, name, email }],
+        { onConflict: ['id'], ignoreDuplicates: false }
+      );
+    }
+
+    showMessage('signup-message', 'Account created! Please check your inbox to verify your email.', 'success');
+    await auth.signOut();
+    toggleForms();
+  } catch (error) {
+    console.error('Signup error:', error.code, error.message);
+    const errorMessages = {
+      'auth/email-already-in-use': 'This email is already registered.',
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/weak-password': 'Password is too weak. Use at least 8 characters.',
+      'auth/network-request-failed': 'Network error. Please check your connection.'
+    };
+    showMessage('signup-message', errorMessages[error.code] || 'Signup failed. Please try again.', 'error');
+  } finally {
+    signupBtn.disabled = false;
+    signupBtn.textContent = 'Sign Up';
+  }
+});
+
+document.getElementById('forgot-password').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('forgot-password-modal').style.display = 'flex';
+});
+
+document.getElementById('forgot-password-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validateForgotForm()) return;
+
+  const email = document.getElementById('forgot-email').value;
+  const resetBtn = document.querySelector('#forgot-password-form .btn');
+  resetBtn.disabled = true;
+  resetBtn.textContent = 'Sending...';
+
+  if (!canSendForm(email, 'reset')) {
+    showMessage('forgot-message', 'Please wait 30 seconds before requesting another reset.', 'error');
+    resetBtn.disabled = false;
+    resetBtn.textContent = 'Send Reset Email';
+    return;
+  }
+
+  try {
+    await auth.sendPasswordResetEmail(email, {
+      url: 'https://hipotech-dev.github.io/MyMemory/'
+    });
+    localStorage.setItem(`reset-attempt-${email}`, Date.now());
+    showMessage('forgot-message', 'Password reset email sent! Check your inbox.', 'success');
+    document.getElementById('forgot-password-modal').style.display = 'none';
+  } catch (error) {
+    console.error('Password reset error:', error.code, error.message);
+    const errorMessages = {
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/network-request-failed': 'Network error. Please check your connection.'
+    };
+    showMessage('forgot-message', errorMessages[error.code] || 'Failed to send reset email.', 'error');
+  } finally {
+    resetBtn.disabled = false;
+    resetBtn.textContent = 'Send Reset Email';
+  }
+});
+
+document.getElementById('resend-verification').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+
+  if (!isValidEmail(email)) {
+    showMessage('login-message', 'Please enter a valid email address.', 'error');
+    return;
+  }
+
+  if (!canSendForm(email, 'verification')) {
+    showMessage('login-message', 'Please wait 30 seconds before requesting another verification email.', 'error');
+    return;
+  }
+
+  try {
+    const user = auth.currentUser;
+    if (user && user.email === email) {
+      await user.sendEmailVerification({
+        url: 'https://hipotech-dev.github.io/MyMemory/'
+      });
+    } else {
+      showMessage('login-message', 'Please log in to resend verification email.', 'error');
+      return;
+    }
+    localStorage.setItem(`verification-attempt-${email}`, Date.now());
+    showMessage('login-message', 'Verification email sent! Check your inbox.', 'success');
+  } catch (error) {
+    console.error('Resend verification error:', error.code, error.message);
+    const errorMessages = {
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/too-many-requests': 'Too many attempts. Please try again later.',
+      'auth/network-request-failed': 'Network error. Please check your connection.'
+    };
+    showMessage('login-message', errorMessages[error.code] || 'Failed to send verification email.', 'error');
+  }
+});
+
+// Google Sign-In Handler
+auth.getRedirectResult().then(async (result) => {
+  if (result.user) {
+    const user = result.user;
+
+    await db.collection('users').doc(user.uid).set({
+      name: user.displayName || 'Google User',
+      email: user.email,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    if (supabase) {
+      await supabase.from('users').upsert(
+        [{ id: user.uid, name: user.displayName || 'Google User', email: user.email }],
+        { onConflict: ['id'], ignoreDuplicates: false }
+      );
+    }
+
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('rememberMe', 'true');
+    localStorage.setItem(`google-login-attempt-${user.email}`, Date.now());
+  }
+}).catch((error) => {
+  console.error('Google Sign-In redirect error:', error);
+  showMessage('login-message', 'Google Sign-In failed. Please try again.', 'error');
+});
+
+document.getElementById('google-login').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value || 'google-signin';
+  const googleBtn = document.getElementById('google-login');
+  googleBtn.disabled = true;
+
+  if (!canSendForm(email, 'google-login')) {
+    showMessage('login-message', 'Please wait 30 seconds before trying again.', 'error');
+    googleBtn.disabled = false;
+    return;
+  }
+
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await auth.signInWithPopup(provider);
+    localStorage.setItem(`google-login-attempt-${email}`, Date.now());
+  } catch (error) {
+    if (error.code === 'auth/popup-blocked') {
+      showMessage('login-message', 'Popup blocked. Redirecting to Google sign-in...', 'error');
+      await auth.signIn
+  </script>
 </body>
 </html>
