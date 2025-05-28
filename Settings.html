@@ -1037,7 +1037,7 @@
       strengthMeter.style.width = '0%';
     } catch (error) {
       console.error('Password change error:', error);
-      let errorMessage = 'Failed to change password.';
+      let errorMessage = 'Incorrect current password.';
       if (error.code === 'auth/wrong-password') {
         errorMessage = 'Incorrect current password.';
         document.getElementById('current-password-error').textContent = errorMessage;
