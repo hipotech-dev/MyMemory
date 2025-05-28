@@ -1,31 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings | MyMemory</title>
   <!-- Prevent Caching -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="-1" />
-  <meta http-equiv="Vary" content="*" />
-  <!-- Firebase scripts -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="-1">
+  <meta http-equiv="Vary" content="*">
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <!-- Font Awesome and Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #003087;
-      --primary-light: #0070ba;
-      --secondary: #ff5a5f;
-      --dark: #2d3748;
-      --light: #f5f7fa;
-      --gray: #e2e8f0;
-      --success: #38a169;
+      --primary: #0052cc;
+      --primary-dark: #003087;
+      --primary-light: #2684ff;
+      --secondary: #ff4b5e;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+      --text-primary: #1a202c;
+      --text-secondary: #4a5a6a;
+      --border: #e2e8f0;
+      --success: #10b981;
       --white: #ffffff;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      --blue-theme-bg: #e6f0fa;
-      --sepia-theme-bg: #f4ecd8;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.12);
+      --blue-theme-bg: #f0f5ff;
+      --sepia-theme-bg: #fef8e8;
+    }
+    
+    /* Dark Mode Variables */
+    body.dark {
+      --background: #1f2527;
+      --card-bg: #2a2f32;
+      --text-primary: #e0e6e7;
+      --text-secondary: #a0b4b6;
+      --border: #3a3f42;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.4);
     }
     
     * {
@@ -35,17 +52,11 @@
     }
     
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: url('hipo.jpg') no-repeat center center fixed;
-      background-size: cover;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--background);
       min-height: 100vh;
-      margin: 0;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    
-    body.dark {
-      background: #1a202c;
-      color: #f7fafc;
+      color: var(--text-primary);
+      transition: background 0.3s, color 0.3s;
     }
     
     body.blue {
@@ -58,87 +69,72 @@
     
     /* Header Styles */
     .header {
-      background: var(--white);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background: var(--card-bg);
+      box-shadow: var(--shadow);
       padding: 0 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 60px;
+      height: 64px;
       position: sticky;
       top: 0;
       z-index: 1000;
     }
     
-    body.dark .header {
-      background: #2d3748;
-    }
-    
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      height: 100%;
+      gap: 12px;
     }
     
     .logo img {
-      height: 36px;
+      height: 40px;
       width: auto;
-      object-fit: contain;
-      vertical-align: middle;
     }
     
     .logo h1 {
-      color: var(--primary);
       font-size: 1.5rem;
-      margin: 0;
-      line-height: 1;
-      vertical-align: middle;
+      font-weight: 600;
+      color: var(--primary);
     }
     
     .user-menu {
       display: flex;
       align-items: center;
-      height: 100%;
       position: relative;
     }
     
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      background-color: var(--primary-light);
-      color: white;
+      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      color: var(--white);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      margin: 0;
-      vertical-align: middle;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
     
     .user-avatar:hover {
-      transform: scale(1.1);
+      transform: scale(1.05);
+      box-shadow: var(--shadow-hover);
     }
     
     .user-popup {
       display: none;
       position: absolute;
-      top: 50px;
+      top: 56px;
       right: 0;
-      background: var(--white);
+      background: var(--card-bg);
       border-radius: 8px;
       box-shadow: var(--shadow);
-      width: 220px;
-      padding: 1rem;
+      width: 240px;
+      padding: 1.25rem;
       z-index: 1000;
-    }
-    
-    body.dark .user-popup {
-      background: #2d3748;
-      color: #f7fafc;
+      border: 1px solid var(--border);
     }
     
     .user-popup.active {
@@ -148,224 +144,269 @@
     .user-popup .user-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 1rem;
     }
     
     .user-popup .user-info .avatar {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: var(--primary-light);
-      color: white;
+      color: var(--white);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
+      font-weight: 600;
     }
     
     .user-popup .user-info .details h4 {
       font-size: 1rem;
-      color: var(--dark);
-      margin: 0;
-    }
-    
-    body.dark .user-popup .user-info .details h4 {
-      color: #f7fafc;
+      font-weight: 600;
+      color: var(--text-primary);
     }
     
     .user-popup .user-info .details p {
-      font-size: 0.85rem;
-      color: #718096;
-      margin: 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
     }
     
     .user-popup .logout-btn {
       width: 100%;
-      padding: 8px;
+      padding: 0.75rem;
       background: var(--secondary);
-      color: white;
+      color: var(--white);
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
       justify-content: center;
-      transition: background 0.3s;
+      transition: background 0.2s, transform 0.2s;
     }
     
     .user-popup .logout-btn:hover {
-      background: #e04e53;
+      background: #e63946;
+      transform: translateY(-1px);
     }
     
     /* Main Container */
     .container {
       display: flex;
-      min-height: calc(100vh - 60px);
-      max-width: 1400px;
+      min-height: calc(100vh - 64px);
+      max-width: 1440px;
       margin: 0 auto;
-      padding: 2rem;
+      padding: 2.5rem;
       gap: 2rem;
     }
     
     /* Sidebar */
     .sidebar {
-      width: 250px;
-      background: var(--primary);
+      width: 280px;
+      background: var(--card-bg);
       border-radius: 12px;
-      padding: 1rem;
+      padding: 1.5rem;
       box-shadow: var(--shadow);
+      border: 1px solid var(--border);
     }
     
     .sidebar-menu {
       list-style: none;
-      padding: 0;
     }
     
     .sidebar-menu li {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
     
     .sidebar-menu a {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      color: var(--white);
+      gap: 1rem;
+      padding: 0.875rem 1.25rem;
+      color: var(--text-primary);
       text-decoration: none;
       border-radius: 8px;
-      transition: all 0.3s ease;
       font-size: 0.95rem;
       font-weight: 500;
+      transition: all 0.2s;
     }
     
     .sidebar-menu a:hover {
       background: var(--primary-light);
-      transform: translateX(5px);
+      color: var(--white);
+      transform: translateX(4px);
     }
     
     .sidebar-menu a.active {
-      background: var(--white);
-      color: var(--primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 2px 6px rgba(0, 82, 204, 0.2);
     }
     
     .sidebar-menu i {
-      font-size: 1.1rem;
-      width: 20px;
-      text-align: center;
+      font-size: 1.2rem;
+      width: 24px;
     }
     
-    .sidebar-menu a.active i {
-      color: var(--primary);
-    }
-    
-    /* Main Content Area */
+    /* Main Content */
     .main-content {
       flex: 1;
-      background: var(--white);
+      background: var(--card-bg);
       border-radius: 12px;
-      padding: 2rem;
+      padding: 2.5rem;
       box-shadow: var(--shadow);
-    }
-    
-    body.dark .main-content {
-      background: #2d3748;
-      color: #f7fafc;
+      border: 1px solid var(--border);
     }
     
     .content-wrapper {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
     }
     
     .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 2rem;
     }
     
     .page-title {
+      font-size: 2rem;
+      font-weight: 700;
       color: var(--primary);
-      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     
-    /* Settings Form */
+    .page-title i {
+      color: var(--primary-light);
+    }
+    
+    /* Settings Sections */
     .settings-section {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 1.5rem;
       margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      transition: box-shadow 0.2s;
+    }
+    
+    .settings-section:hover {
+      box-shadow: var(--shadow-hover);
     }
     
     .settings-section h3 {
-      color: var(--dark);
-      margin-bottom: 1rem;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     
-    body.dark .settings-section h3 {
-      color: #f7fafc;
-    }
-    
+    /* Form Styles */
     .form-group {
-      margin-bottom: 1.5rem;
+      position: relative;
+      margin-bottom: 1.75rem;
     }
     
     .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: var(--dark);
+      position: absolute;
+      top: 0.75rem;
+      left: 1rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      pointer-events: none;
     }
     
-    body.dark .form-group label {
-      color: #f7fafc;
+    .form-group input:focus + label,
+    .form-group input:not(:placeholder-shown) + label,
+    .form-group select:focus + label,
+    .form-group select:not(:placeholder-shown) + label {
+      top: -0.75rem;
+      left: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--primary);
+      background: var(--card-bg);
+      padding: 0 0.25rem;
     }
     
     .form-control {
-      width: var(--width-content);
-      padding: calc(8px 0.75rem);
-      background-color: var(--white);
-      border: 1px solid var(--gray);
-      border-radius: calc(6px);
-      font-size: calc(1rem);
-      color: var(--black);
-      transition: all 0.3s ease;
-    }
-    
-    body.dark .form-control {
-      background: #4a4a4a;
-      color: #f7fafc;
-      border-color: #718096;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      background: var(--card-bg);
+      transition: all 0.2s;
     }
     
     .form-control:focus {
-      outline: calc(0px);
-      border-color: calc(var(--primary-light));
-      box-shadow: inset 0 0 0px calc(var(--primary-light) 0px);
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(38, 132, 255, 0.1);
+    }
+    
+    .form-control:disabled {
+      background: var(--border);
+      cursor: not-allowed;
     }
     
     .form-group select.form-control {
-        appearance: none;
-        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12px"><path fill="%232d3748" d="M6 9l4-5h-8z"/></svg>') no-repeat right 0.75rem calc(12.5%) calc(12px);
-      }
+      appearance: none;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%234a5a6a" d="M6 9l4-5H2z"/></svg>') no-repeat right 1rem center/12px 12px;
     }
     
+    .input-icon {
+      position: relative;
+    }
+    
+    .input-icon i {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+    
+    .input-icon input {
+      padding-left: 2.5rem;
+    }
+    
+    /* Password Strength */
+    .password-strength {
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      color: var(--text-secondary);
+    }
+    
+    .password-strength.weak { color: var(--secondary); }
+    .password-strength.moderate { color: #f59e0b; }
+    .password-strength.strong { color: var(--success); }
+    
+    /* Buttons */
     .btn {
-      padding: calc(0.75rem 1.5rem);
+      padding: 0.75rem 1.5rem;
       background: var(--primary);
-      border: none;
       color: var(--white);
-      border-radius: calc(6px);
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: calc(0.95rem);
-      font-weight: calc(600);
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
     }
     
     .btn:hover {
       background: var(--primary-light);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-hover);
     }
     
     .btn:active {
@@ -377,23 +418,41 @@
     }
     
     .btn-danger:hover {
-      background: #e53e3e;
+      background: #e63946;
+    }
+    
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+    
+    .btn:active::after {
+      width: 200px;
+      height: 200px;
     }
     
     /* Theme Preview */
     .theme-preview {
       display: flex;
       gap: 1rem;
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
     }
     
     .theme-option {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: all 0.3s ease;
+      transition: all 0.2s;
     }
     
     .theme-option:hover {
@@ -402,33 +461,21 @@
     }
     
     .theme-option.selected {
-      border-color: var(--dark);
-      transform: scale(1.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(38, 132, 255, 0.2);
     }
-    
-    /* Password Strength Indicator */
-    .password-strength {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      color: #718096;
-    }
-    
-    .password-strength.weak { color: var(--secondary); }
-    .password-strength.moderate { color: #dd6b20; }
-    .password-strength.strong { color: var(--success); }
     
     /* 2FA Toggle */
     .toggle-container {
       display: flex;
       align-items: center;
       gap: 1rem;
-      margin-top: 0.5rem;
     }
     
     .toggle {
       position: relative;
-      width: 40px;
-      height: 20px;
+      width: 44px;
+      height: 24px;
     }
     
     .toggle input {
@@ -444,20 +491,20 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: #ccc;
-      transition: 0.4s;
-      border-radius: 20px;
+      background: var(--border);
+      transition: 0.3s;
+      border-radius: 24px;
     }
     
     .slider:before {
       position: absolute;
       content: "";
-      height: 16px;
-      width: 16px;
+      height: 20px;
+      width: 20px;
       left: 2px;
       bottom: 2px;
-      background: white;
-      transition: 0.4s;
+      background: var(--white);
+      transition: 0.3s;
       border-radius: 50%;
     }
     
@@ -472,18 +519,19 @@
     /* Message Styles */
     .message {
       display: none;
-      padding: 0.75rem;
+      padding: 0.75rem 1.5rem;
       margin-bottom: 1rem;
       border-radius: 6px;
       font-size: 0.9rem;
       text-align: center;
       background: var(--secondary);
-      color: white;
+      color: var(--white);
       position: fixed;
       top: 80px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 2000;
+      box-shadow: var(--shadow);
     }
     
     .message.success {
@@ -496,7 +544,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: #0077B6;
+      background: #0077b6;
       position: fixed;
       top: 0;
       left: 0;
@@ -543,23 +591,29 @@
       display: none;
     }
     
-    /* Responsive Adjustments */
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+    
+    /* Responsive Design */
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
-        padding: 1rem;
+        padding: 1.5rem;
       }
       
       .sidebar {
         width: 100%;
-        padding: 0.5rem;
+        padding: 1rem;
       }
       
       .sidebar-menu {
         display: flex;
         overflow-x: auto;
-        padding-bottom: 5px;
-        gap: 5px;
+        gap: 0.5rem;
         scrollbar-width: none;
       }
       
@@ -567,36 +621,16 @@
         display: none;
       }
       
-      .sidebar-menu li {
-        margin-bottom: 0;
-      }
-      
-      .sidebar-menu a {
-        padding: 0.5rem;
-        font-size: 0.9rem;
-        white-space: nowrap;
-      }
-      
       .main-content {
         padding: 1.5rem;
       }
       
-      .content-wrapper {
-        max-width: 100%;
-      }
-      
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-      
-      .theme-preview {
-        flex-wrap: wrap;
+      .page-title {
+        font-size: 1.75rem;
       }
       
       .header {
-        padding: 1rem;
+        padding: 0 1rem;
       }
       
       .logo h1 {
@@ -604,23 +638,18 @@
       }
       
       .logo img {
-        height: 30px;
+        height: 32px;
       }
       
       .user-popup {
-        width: 200px;
-        top: 48px;
+        width: 220px;
+        top: 50px;
       }
     }
     
     @media (max-width: 480px) {
       .btn {
         width: 100%;
-        padding: 0.75rem;
-      }
-      
-      .form-control {
-        font-size: 0.95rem;
       }
       
       .page-title {
@@ -628,29 +657,26 @@
       }
       
       .settings-section h3 {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
       }
       
       .user-avatar {
         width: 32px;
         height: 32px;
-        font-size: 0.9rem;
       }
       
       .user-popup {
-        width: 180px;
-        top: 44px;
+        width: 200px;
+        top: 45px;
       }
     }
     
-    /* Prevent horizontal scrolling */
     html, body {
       max-width: 100%;
       overflow-x: hidden;
     }
     
-    /* Better touch targets */
-    button, a, .theme-option {
+    button, a {
       touch-action: manipulation;
       min-height: 44px;
     }
@@ -659,8 +685,7 @@
 <body>
   <!-- Message Container -->
   <div class="message" id="auth-message"></div>
-
-  <!-- Loading State -->
+  <!-- Loading -->
   <div id="loading" class="loading-container">
     <div class="loader"></div>
   </div>
@@ -670,7 +695,7 @@
     <!-- Header -->
     <header class="header">
       <div class="logo">
-        <img src="amnesia.png" alt="MyMemory Logo">
+        <img src="https://via.placeholder.com/40" alt="MyMemory Logo">
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
@@ -685,10 +710,9 @@
           </div>
           <button class="logout-btn" id="popup-logout-btn" aria-label="Logout">
             <i class="fas fa-sign-out-alt"></i> Logout
-          </button>
+          </button>          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
     <!-- Main Container -->
     <div class="container">
@@ -698,8 +722,9 @@
           <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
           <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
-          <li><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
+          <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-alt"></i> Documents</a></li>
+          <div class="settings-section">
+            <h3><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></h3></li>
         </ul>
       </aside>
 
@@ -707,48 +732,59 @@
       <main class="main-content">
         <div class="content-wrapper">
           <div class="page-header">
-            <h2 class="page-title">Settings</h2>
+            <h2 class="page-title"><i class="fas fa-cog"></i> Settings</h2>
           </div>
 
+          <!-- Profile -->
           <div class="settings-section">
-            <h3>Profile</h3>
+            <h3><i class="fas fa-user"></i> Profile</h3>
             <form id="profile-form">
-              <div class="form-group">
+              <div class="form-group input-icon">
+                <input type="text" id="display-name" class="form-control" placeholder=" " aria-label="Display Name" required>
+                <i class="fas fa-user"></i>
                 <label for="display-name">Display Name</label>
-                <input type="text" id="display-name" class="form-control" aria-label="Display Name" required>
               </div>
-              <div class="form-group">
+              <div class="form-group input-icon">
+                <input type="email" id="email" class="form-control" placeholder=" " disabled aria-label="Email">
+                <i class="fas fa-envelope"></i>
                 <label for="email">Email</label>
-                <input type="email" id="email" class="form-control" disabled aria-label="Email">
               </div>
               <button type="submit" class="btn" aria-label="Save Profile Changes">Save Changes</button>
             </form>
           </div>
 
+          <div class="divider"></div>
+
+          <!-- Password -->
           <div class="settings-section">
-            <h3>Change Password</h3>
+            <h3><i class="fas fa-lock"></i> Change Password</h3>
             <form id="password-form">
-              <div class="form-group">
+              <div class="form-group input-icon">
+                <input type="password" id="current-password" class="form-control" placeholder=" " aria-label="Current Password" required>
+                <i class="fas fa-key"></i>
                 <label for="current-password">Current Password</label>
-                <input type="password" id="current-password" class="form-control" aria-label="Current Password" required>
               </div>
-              <div class="form-group">
+              <div class="form-group input-icon">
+                <input type="password" id="new-password" class="form-control" placeholder=" " aria-label="New Password" required>
+                <i class="fas fa-lock"></i>
                 <label for="new-password">New Password</label>
-                <input type="password" id="new-password" class="form-control" aria-label="New Password" required>
                 <div class="password-strength" id="password-strength"></div>
               </div>
-              <div class="form-group">
+              <div class="form-group input-icon">
+                <input type="password" id="confirm-password" class="form-control" placeholder=" " aria-label="Confirm New Password" required>
+                <i class="fas fa-lock"></i>
                 <label for="confirm-password">Confirm New Password</label>
-                <input type="password" id="confirm-password" class="form-control" aria-label="Confirm New Password" required>
               </div>
               <button type="submit" class="btn" aria-label="Change Password">Change Password</button>
             </form>
           </div>
 
+          <div class="divider"></div>
+
+          <!-- Appearance -->
           <div class="settings-section">
-            <h3>Appearance</h3>
+            <h3><i class="fas fa-paint-brush"></i> Appearance</h3>
             <div class="form-group">
-              <label for="theme">Theme</label>
               <select id="theme" class="form-control" aria-label="Select Theme">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
@@ -756,18 +792,22 @@
                 <option value="sepia">Sepia</option>
                 <option value="system">System</option>
               </select>
+              <label for="theme">Theme</label>
             </div>
             <div class="theme-preview">
               <div class="theme-option" data-theme="light" style="background: #ffffff; border: 1px solid #e2e8f0;" aria-label="Light Theme"></div>
-              <div class="theme-option" data-theme="dark" style="background: #2d3748;" aria-label="Dark Theme"></div>
-              <div class="theme-option" data-theme="blue" style="background: #e6f0fa;" aria-label="Blue Theme"></div>
-              <div class="theme-option" data-theme="sepia" style="background: #f4ecd8;" aria-label="Sepia Theme"></div>
-              <div class="theme-option" data-theme="system" style="background: linear-gradient(45deg, #ffffff 50%, #2d3748 50%);" aria-label="System Theme"></div>
+              <div class="theme-option" data-theme="dark" style="background: #2a2f32;" aria-label="Dark Theme"></div>
+              <div class="theme-option" data-theme="blue" style="background: #f0f5ff;" aria-label="Blue Theme"></div>
+              <div class="theme-option" data-theme="sepia" style="background: #fef8e8;" aria-label="Sepia Theme"></div>
+              <div class="theme-option" data-theme-option" system" style="background: linear-gradient(45deg, #ffffff 50%, #2a2f32 50%);" aria-label="System Theme"></div>
             </div>
           </div>
 
+          <div class="divider"></div>
+
+          <!-- 2FA -->
           <div class="settings-section">
-            <h3>Two-Factor Authentication</h3>
+            <h3><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h3>
             <div class="form-group">
               <label for="2fa-toggle">Enable 2FA</label>
               <div class="toggle-container">
@@ -778,16 +818,22 @@
                 <span id="2fa-status">Disabled</span>
               </div>
             </div>
-            <div id="2fa-qr-code" style="display: none; margin-top: 1rem;"></div>
+            <div id="2fa-qr-code" style="display: none; margin-top: 1rem; color: var(--text-primary);"></div>
           </div>
 
+          <div class="divider"></div>
+
+          <!-- Account Data -->
           <div class="settings-section">
-            <h3>Account Data</h3>
+            <h3><i class="fas fa-download"></i> Account Data</h3>
             <button id="export-data" class="btn" aria-label="Export Account Data">Export Data</button>
           </div>
 
+          <div class="divider"></div>
+
+          <!-- Account -->
           <div class="settings-section">
-            <h3>Account</h3>
+            <h3><i class="fas fa-trash"></i> Account</h3>
             <button id="delete-account" class="btn btn-danger" aria-label="Delete Account">Delete Account</button>
           </div>
         </div>
@@ -799,11 +845,11 @@
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-      authDomain: "mymemory-ddc21.firebaseapp.com",
-      projectId: "mymemory-ddc21",
-      storageBucket: "mymemory-ddc21.firebasestorage.app",
-      messagingSenderId: "875926928384",
-      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+      authDomain: "mymemember-ddc21.firebaseapp.com",
+      projectId: "mymemember-ddc21",
+      storageBucket: "mymemember-ddc21.firebasestorage.app",
+      messagingSenderId: "87592892384",
+      appId: "1:87592892384:web:57c210f56f24ec4a3dace5e",
       measurementId: "G-8XZZNJB0QD"
     };
 
@@ -814,7 +860,7 @@
       auth = firebase.auth();
     } catch (error) {
       console.error('Firebase initialization failed:', error);
-      showMessage('Failed to initialize application. Please try again later.', 'error');
+      showMessage('Failed to initialize application.', 'error');
       hideLoading();
       window.location.replace('index.html');
     }
@@ -830,7 +876,7 @@
       }, 5000);
     }
 
-    // Show/hide loading
+    // Loading control
     function showLoading() {
       document.getElementById('loading').style.display = 'flex';
       document.getElementById('app-content').style.display = 'none';
@@ -840,14 +886,14 @@
       document.getElementById('loading').style.display = 'none';
       document.getElementById('app-content').style.display = 'block';
     }
-
-    // Secure sidebar navigation
+    
+    // Secure navigation
     function secureNavigation() {
       let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        link.addEventListener('click', async function(e) {
+        link.addEventListener('click', async e => {
           e.preventDefault();
-          const targetUrl = this.getAttribute('href');
+          const targetUrl = link.getAttribute('href');
           if (isCheckingAuth) return;
           isCheckingAuth = true;
           try {
@@ -863,9 +909,9 @@
               showMessage('Please log in to access this page.', 'error');
               localStorage.clear();
               window.location.replace('index.html');
-            }
+            });
           } catch (error) {
-            showMessage('Error verifying authentication.', 'error');
+            showMessage('Authentication error.', 'error');
             localStorage.clear();
             window.location.replace('index.html');
           } finally {
@@ -875,7 +921,7 @@
       });
     }
 
-    // Setup user popup
+    // User popup
     function setupUserPopup(userData) {
       const userAvatar = document.getElementById('user-avatar');
       const userPopup = document.getElementById('user-popup');
@@ -888,18 +934,18 @@
       popupUserName.textContent = userData.name;
       popupUserEmail.textContent = userData.email;
 
-      userAvatar.addEventListener('click', (e) => {
+      userAvatar.addEventListener('click', e => {
         e.stopPropagation();
         userPopup.classList.toggle('active');
       });
 
-      document.addEventListener('click', (e) => {
+      document.addEventListener('click', e => {
         if (!userPopup.contains(e.target) && e.target !== userAvatar) {
           userPopup.classList.remove('active');
         }
       });
 
-      document.addEventListener('keydown', (e) => {
+      document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && userPopup.classList.contains('active')) {
           userPopup.classList.remove('active');
         }
@@ -912,26 +958,26 @@
           window.location.replace('index.html');
         }).catch(error => {
           hideLoading();
-          showMessage('Error logging out: ' + error.message, 'error');
+          showMessage('Logout error: ' + error.message, 'error');
         });
       });
     }
 
-    // Check authentication state
+    // Check auth state
     function checkAuthState(eventType) {
       showLoading();
       const authTimeout = setTimeout(() => {
         hideLoading();
-        showMessage('Authentication timed out. Please try again.', 'error');
+        showMessage('Authentication timed out.', 'error');
         localStorage.clear();
         window.location.replace('index.html');
       }, 7000);
 
-      auth.onAuthStateChanged((user) => {
+      auth.onAuthStateChanged(user => {
         clearTimeout(authTimeout);
         if (user && user.emailVerified) {
           const userData = {
-            name: user.displayName || user.email.split('.')[0],
+            name: user.displayName || user.email.split('@')[0],
             email: user.email,
             avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
           };
@@ -956,9 +1002,9 @@
       });
     }
 
-    // Handle page load and bfcache restore
+    // Page load
     document.addEventListener('DOMContentLoaded', () => checkAuthState('DOMContentLoaded'));
-    window.addEventListener('pageshow', (e) => {
+    window.addEventListener('pageshow', e => {
       if (e.persisted || (window.performance && window.performance.navigation.type === 2)) {
         checkAuthState('pageshow');
       }
@@ -974,7 +1020,7 @@
       secureNavigation();
 
       // Profile form
-      document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      document.getElementById('profile-form').addEventListener('submit', async e => {
         e.preventDefault();
         showLoading();
         const displayName = document.getElementById('display-name').value.trim();
@@ -1000,6 +1046,7 @@
           hideLoading();
         } catch (error) {
           hideLoading();
+          console.error('Error updating profile:', error);
           showMessage('Error updating profile: ' + error.message, 'error');
         }
       });
@@ -1012,7 +1059,7 @@
       function checkPasswordStrength(password) {
         const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         const moderateRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
-        
+
         if (strongRegex.test(password)) {
           passwordStrength.textContent = 'Strong';
           passwordStrength.className = 'password-strength strong';
@@ -1029,7 +1076,7 @@
         checkPasswordStrength(newPasswordInput.value);
       });
 
-      passwordForm.addEventListener('submit', async (e) => {
+      passwordForm.addEventListener('submit', async e => {
         e.preventDefault();
         showLoading();
         const currentPassword = document.getElementById('current-password').value;
@@ -1051,7 +1098,7 @@
         const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!strongRegex.test(newPassword)) {
           hideLoading();
-          showMessage('Password must be at least 8 characters, with uppercase, lowercase, number, and special character.', 'error');
+          showMessage('Password must be 8+ characters with uppercase, lowercase, number, and special character.', 'error');
           return;
         }
 
@@ -1066,6 +1113,7 @@
           hideLoading();
         } catch (error) {
           hideLoading();
+          console.error('Error updating password:', error);
           if (error.code === 'auth/wrong-password') {
             showMessage('Current password is incorrect.', 'error');
           } else {
@@ -1085,7 +1133,7 @@
         if (theme === 'system') {
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
-        document.body.className = theme;
+        document.body.classList = theme;
         localStorage.setItem('theme', themeSelect.value);
         themeOptions.forEach(opt => opt.classList.remove('selected'));
         document.querySelector(`.theme-option[data-theme="${themeSelect.value}"]`).classList.add('selected');
@@ -1100,17 +1148,11 @@
       themeOptions.forEach(option => {
         option.addEventListener('click', () => {
           themeSelect.value = option.dataset.theme;
-          applyTheme(themeSelect.value);
-        });
-        option.addEventListener('mouseover', () => {
-          document.body.classList.add(option.dataset.theme + '-preview');
-        });
-        option.addEventListener('mouseout', () => {
-          document.body.classList.remove(option.dataset.theme + '-preview');
+          applyTheme(option.dataset.theme);
         });
       });
 
-      // 2FA Setup (Placeholder for Firebase TOTP)
+      // 2FA setup (simulated)
       const twoFAToggle = document.getElementById('2fa-toggle');
       const twoFAStatus = document.getElementById('2fa-status');
       const twoFAQrCode = document.getElementById('2fa-qr-code');
@@ -1119,13 +1161,14 @@
         showLoading();
         if (twoFAToggle.checked) {
           try {
-            // Simulate 2FA setup (Firebase TOTP not available in 9.6.0; requires newer SDK)
             twoFAStatus.textContent = 'Enabled';
             twoFAQrCode.textContent = 'Scan this QR code with your authenticator app (simulated).';
             twoFAQrCode.style.display = 'block';
             showMessage('2FA enabled (simulated).', 'success');
           } catch (error) {
             twoFAToggle.checked = false;
+            hideLoading();
+            console.error('Error enabling 2FA:', error);
             showMessage('Error enabling 2FA: ' + error.message, 'error');
           }
         } else {
@@ -1134,23 +1177,26 @@
           showMessage('2FA disabled (simulated).', 'success');
         }
         hideLoading();
-      });
-
-      // Export account data
+      // Export data
       document.getElementById('export-data').addEventListener('click', () => {
-        const data = {
-          displayName: userData.name,
-          email: userData.email,
-          timestamp: new Date().toISOString()
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'mymemory-data.json';
-        a.click();
-        URL.revokeObjectURL(url);
-        showMessage('Data exported successfully.', 'success');
+        try {
+          const data = {
+            displayName: userData.name,
+            email: userData.email,
+            timestamp: new Date().toISOString()
+          };
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'mymemomory-data.json';
+          a.click();
+          URL.revokeObjectURL(url));
+          showMessage('Data exported successfully!', 'success');
+        } catch (error) {
+          console.error('Error exporting data:', error);
+          showMessage('Error exporting data:', error.message, 'error');
+        }
       });
 
       // Delete account
@@ -1164,7 +1210,8 @@
           window.location.replace('index.html');
         } catch (error) {
           hideLoading();
-          showMessage('Error deleting account: Please re-authenticate.', 'error');
+          console.error('Error deleting account:', error);
+          showMessage('Error deleting account: ' + error.message, 'error');
         }
       });
     }
