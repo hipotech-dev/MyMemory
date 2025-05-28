@@ -17,95 +17,103 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary: #1e3a8a; /* Deep blue */
-      --primary-light: #3b82f6; /* Lighter blue */
-      --secondary: #ef4444; /* Vibrant red */
-      --dark: #111827; /* Dark gray */
-      --light: #f9fafb; /* Light background */
-      --gray: #d1d5db; /* Light gray */
-      --success: #10b981; /* Green */
+      --primary: #003087;
+      --primary-light: #0070ba;
+      --secondary: #ff5a5f;
+      --dark: #2d3748;
+      --light: #f5f7fa;
+      --gray: #e2e8f0;
+      --success: #38a169;
       --white: #ffffff;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      --category-work: #3b82f6; /* Blue */
-      --category-personal: #10b981; /* Green */
-      --category-urgent: #ef4444; /* Red */
-      --warning: #f59e0b; /* Amber */
-      --gradient-todo: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      --gradient-password: linear-gradient(135deg, #ef4444, #f97316);
-      --gradient-document: linear-gradient(135deg, #06b6d4, #3b82f6);
-      --glass-bg: rgba(255, 255, 255, 0.1);
-      --glass-border: 1px solid rgba(255, 255, 255, 0.2);
-      --backdrop-blur: blur(10px);
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      --category-work: #007bff;
+      --category-personal: #28a745;
+      --category-urgent: #dc3545;
+      --warning: #f6ad55;
+      --gradient-todo: linear-gradient(135deg, #667eea, #764ba2);
+      --gradient-password: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      --gradient-document: linear-gradient(135deg, #36d1dc, #5b86e5);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
       background: var(--light);
-      color: var(--dark);
     }
 
     /* Authentication Page Styles */
     .auth-page {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 1.5rem;
+      padding: 1rem;
+      position: relative;
     }
 
     .auth-container {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
+      background: var(--white);
       padding: 2rem;
-      max-width: 420px;
       width: 100%;
-      border-radius: 16px;
+      max-width: 400px;
+      border-radius: 20px;
       box-shadow: var(--shadow);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      margin: 1rem;
+      transition: transform 0.3s ease;
     }
 
     .auth-container:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
     }
 
     .logo {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
     }
 
     .logo img {
-      height: 64px;
+      height: 60px;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
 
     .logo img[src=""] {
       background: url('amnesia.png') no-repeat center;
       background-size: contain;
-      height: 64px;
-      width: 64px;
+      height: 60px;
+      width: 60px;
     }
 
     .logo h1 {
-      color: var(--white);
-      font-size: 2rem;
+      color: var(--primary);
+      font-size: 1.8rem;
       font-weight: 700;
-      letter-spacing: -0.025em;
+      letter-spacing: 1px;
     }
 
     .message {
@@ -113,7 +121,7 @@
       padding: 0.75rem;
       margin-bottom: 1rem;
       border-radius: 8px;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       text-align: center;
       animation: slideIn 0.3s ease;
     }
@@ -130,7 +138,7 @@
 
     .error-text {
       color: var(--secondary);
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       margin-top: 0.5rem;
       display: none;
     }
@@ -151,17 +159,17 @@
     label {
       display: block;
       margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--white);
-      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 0.9rem;
     }
 
     .input-icon {
       position: absolute;
       left: 1rem;
       top: 2.5rem;
-      color: var(--gray);
-      font-size: 1rem;
+      color: #6b7280;
+      font-size: 1.1rem;
     }
 
     input[type="email"],
@@ -170,42 +178,41 @@
       width: 100%;
       padding: 0.75rem 0.75rem 0.75rem 2.5rem;
       border: 1px solid var(--gray);
-      border-radius: 8px;
-      font-size: 0.875rem;
-      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      font-size: 1rem;
       transition: all 0.3s ease;
+      background: #fafafa;
     }
 
     input:focus {
       outline: none;
       border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
       background: var(--white);
     }
 
     .btn {
       width: 100%;
-      padding: 0.875rem;
-      background: linear-gradient(135deg, var(--primary-light), var(--primary));
+      padding: 1rem;
+      background: var(--primary);
       border: none;
       color: var(--white);
-      font-size: 0.875rem;
+      font-size: 1rem;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: var(--shadow);
+      margin-top: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .btn:hover {
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: var(--primary-light);
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
 
     .btn:active {
       transform: translateY(0);
-      box-shadow: var(--shadow);
     }
 
     .social-login {
@@ -216,27 +223,27 @@
     }
 
     .social-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--glass-bg);
-      border: var(--glass-border);
-      backdrop-filter: var(--backdrop-blur);
+      background: var(--white);
+      border: 1px solid var(--gray);
       cursor: pointer;
       transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .social-btn:hover {
-      transform: scale(1.05);
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--light);
+      transform: scale(1.1);
     }
 
     .social-btn i {
-      font-size: 1.25rem;
-      color: var(--white);
+      font-size: 1.3rem;
+      color: var(--dark);
     }
 
     .password-actions {
@@ -246,17 +253,22 @@
       margin-top: 0.75rem;
       margin-bottom: 1rem;
       font-size: 0.85rem;
-      color: var(--white);
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      color: var(--dark);
     }
 
     .remember-me input {
       margin-right: 0.5rem;
-      width: 1.1rem;
-      height: 1.1rem;
+      width: 1.2rem;
+      height: 1.2rem;
     }
 
     .forgot-password a {
-      color: var(--primary-light);
+      color: var(--primary);
       text-decoration: none;
       transition: all 0.3s;
     }
@@ -269,8 +281,8 @@
       display: flex;
       align-items: center;
       margin: 1.5rem 0;
-      color: var(--gray);
-      font-size: 0.85rem;
+      color: #6b7280;
+      font-size: 0.9rem;
     }
 
     .divider::before,
@@ -291,12 +303,12 @@
     .switch {
       text-align: center;
       margin-top: 1.5rem;
-      font-size: 0.875rem;
-      color: var(--white);
+      font-size: 0.95rem;
+      color: var(--dark);
     }
 
     .switch a {
-      color: var(--primary-light);
+      color: var(--primary);
       text-decoration: none;
       font-weight: 600;
       transition: all 0.3s;
@@ -307,14 +319,14 @@
     }
 
     .terms {
-      font-size: 0.75rem;
-      color: var(--gray);
+      font-size: 0.85rem;
+      color: #6b7280;
       margin-top: 1.5rem;
       text-align: center;
     }
 
     .terms a {
-      color: var(--primary-light);
+      color: var(--primary);
       text-decoration: none;
     }
 
@@ -332,8 +344,10 @@
     }
 
     .dashboard {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      background: url('hipo.jpg') no-repeat center center fixed;
+      background-size: cover;
       min-height: 100vh;
+      padding: 0;
       display: flex;
       flex-direction: column;
     }
@@ -357,18 +371,17 @@
     }
 
     .header .logo img {
-      height: 48px;
+      height: 50px;
     }
 
     .header .logo img[src=""] {
-      height: 48px;
-      width: 48px;
+      height: 50px;
+      width: 50px;
     }
 
     .header .logo h1 {
-      font-size: 1.75rem;
+      font-size: 1.6rem;
       color: var(--primary);
-      font-weight: 700;
     }
 
     .user-menu {
@@ -391,12 +404,13 @@
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      border: 2px solid var(--primary-light);
     }
 
     .user-avatar:hover {
       background: var(--primary-light);
       transform: scale(1.05);
-      box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 0 8px rgba(0, 112, 186, 0.3);
     }
 
     .user-popup {
@@ -404,17 +418,16 @@
       flex-direction: column;
       align-items: center;
       padding: 1rem;
-      width: 220px;
+      width: 200px;
       right: 10px;
       top: 50px;
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
+      background: var(--white);
       border-radius: 12px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
       z-index: 1001;
       animation: slideIn 0.2s ease-out;
       position: absolute;
+      border: 1px solid var(--gray);
     }
 
     .user-popup::before {
@@ -448,77 +461,83 @@
     }
 
     .user-popup .user-name {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
-      color: var(--white);
+      color: var(--dark);
+      margin-bottom: 0.25rem;
     }
 
     .user-popup .user-email {
-      font-size: 0.75rem;
-      color: var(--gray);
+      font-size: 0.85rem;
+      color: #6b7280;
       word-break: break-all;
     }
 
     .user-popup .logout-btn {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.6rem;
       background: var(--secondary);
       border: none;
       color: var(--white);
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .user-popup .logout-btn:hover {
-      background: #dc2626;
+      background: #e53e3e;
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .password-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
     }
 
     .password-card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
-      border-radius: 16px;
+      background: var(--light);
+      border-radius: 12px;
       padding: 1.5rem;
       transition: all 0.3s ease;
+      border: 1px solid var(--gray);
       box-shadow: var(--card-shadow);
     }
 
     .password-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
     }
 
     .password-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .password-name {
       font-weight: 600;
-      color: var(--white);
-      font-size: 1.125rem;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .password-card-actions {
+      display: flex;
+      gap: 0.5rem;
     }
 
     .password-card-actions button {
-      background: var(--glass-bg);
-      border: var(--glass-border);
-      color: var(--white);
+      background: none;
+      border: none;
+      color: var(--dark);
       cursor: pointer;
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -527,8 +546,8 @@
     }
 
     .password-card-actions button:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: var(--primary-light);
+      background: var(--gray);
+      color: var(--primary);
     }
 
     .password-details {
@@ -539,20 +558,20 @@
       display: flex;
       margin-bottom: 0.75rem;
       align-items: center;
-      color: var(--white);
     }
 
     .password-label {
       font-weight: 500;
       min-width: 80px;
-      font-size: 0.875rem;
-      color: var(--gray);
+      color: #718096;
+      font-size: 0.9rem;
     }
 
     .password-value {
       flex: 1;
       position: relative;
-      font-size: 0.875rem;
+      font-size: 0.95rem;
+      color: var(--dark);
     }
 
     .password-value input {
@@ -560,8 +579,7 @@
       border: none;
       background: transparent;
       font-family: 'Courier New', monospace;
-      font-size: 0.875rem;
-      color: var(--white);
+      font-size: 0.95rem;
     }
 
     .password-value .masked {
@@ -569,15 +587,19 @@
     }
 
     .toggle-password {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
       background: none;
       border: none;
-      color: var(--gray);
+      color: var(--dark);
       cursor: pointer;
       font-size: 1rem;
     }
 
     .toggle-password:hover {
-      color: var(--primary-light);
+      color: var(--primary);
     }
 
     .password-strength {
@@ -603,52 +625,50 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 1rem;
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
-      border-radius: 12px;
+      padding: 0.75rem;
+      background: var(--light);
+      border-radius: 8px;
       transition: all 0.3s ease;
     }
 
     .todo-item:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--gray);
     }
 
     .todo-item.todo-completed .todo-title {
       text-decoration: line-through;
-      opacity: 0.7;
+      opacity: 0.6;
     }
 
     .todo-checkbox {
-      width: 1.1rem;
-      height: 1.1rem;
+      width: 1.2rem;
+      height: 1.2rem;
       cursor: pointer;
     }
 
     .todo-content {
       flex: 1;
       min-width: 0;
-      color: var(--white);
     }
 
     .todo-title {
       font-weight: 600;
-      margin-bottom: 0.25rem;
+      margin-bottom: 3px;
       word-break: break-word;
+      color: var(--dark);
     }
 
     .todo-due {
-      font-size: 0.75rem;
-      color: var(--gray);
+      font-size: 0.85rem;
+      color: #718096;
       display: flex;
       align-items: center;
       gap: 5px;
     }
 
     .todo-category {
-      font-size: 0.75rem;
-      padding: 3px 10px;
+      font-size: 0.8rem;
+      padding: 2px 8px;
       border-radius: 12px;
       color: var(--white);
       margin-left: 8px;
@@ -666,24 +686,29 @@
       background: var(--category-urgent);
     }
 
+    .todo-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
     .todo-actions button {
-      background: var(--glass-bg);
-      border: var(--glass-border);
-      color: var(--white);
+      background: none;
+      border: none;
       cursor: pointer;
+      color: var(--dark);
       font-size: 1rem;
-      width: 32px;
-      height: 32px;
+      transition: all 0.3s ease;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
     }
 
     .todo-actions button:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: var(--primary-light);
+      background: var(--gray);
+      color: var(--primary);
     }
 
     .priority-high {
@@ -700,13 +725,27 @@
 
     @media (max-width: 768px) {
       .user-popup {
-        width: 200px;
+        width: 180px;
         right: 5px;
         top: 45px;
+        padding: 0.75rem;
       }
 
       .user-popup::before, .user-popup::after {
         right: 10px;
+      }
+
+      .user-popup .user-name {
+        font-size: 1rem;
+      }
+
+      .user-popup .user-email {
+        font-size: 0.8rem;
+      }
+
+      .user-popup .logout-btn {
+        padding: 0.5rem;
+        font-size: 0.85rem;
       }
 
       .password-grid {
@@ -724,6 +763,14 @@
         min-width: 100%;
       }
 
+      .password-name, .password-value {
+        word-break: break-word;
+      }
+
+      .password-strength {
+        display: none;
+      }
+
       .todo-item {
         flex-wrap: wrap;
       }
@@ -736,25 +783,45 @@
         width: 100%;
         justify-content: flex-end;
         padding-top: 8px;
-        border-top: 1px dashed rgba(255, 255, 255, 0.2);
+        border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        margin-top: 8px;
       }
     }
 
     @media (max-width: 480px) {
       .user-popup {
-        width: 180px;
+        width: 160px;
         right: 5px;
         top: 40px;
+        padding: 0.6rem;
+      }
+
+      .user-popup::before, .user-popup::after {
+        right: 10px;
+      }
+
+      .user-popup .user-name {
+        font-size: 0.95rem;
+      }
+
+      .user-popup .user-email {
+        font-size: 0.75rem;
+      }
+
+      .user-popup .logout-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
       }
 
       .user-avatar {
         width: 36px;
         height: 36px;
+        font-size: 0.9rem;
       }
 
       .password-card-actions button {
-        width: 32px;
-        height: 32px;
+        width: 35px;
+        height: 35px;
       }
     }
 
@@ -763,18 +830,16 @@
       flex: 1;
       padding: 2rem;
       gap: 2rem;
-      max-width: 1440px;
+      max-width: 1400px;
       margin: 0 auto;
       width: 100%;
     }
 
     .sidebar {
-      width: 280px;
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
-      border-radius: 16px;
-      padding: 1.5rem;
+      width: 250px;
+      background: var(--primary);
+      border-radius: 12px;
+      padding: 1rem;
       box-shadow: var(--shadow);
     }
 
@@ -796,13 +861,13 @@
       text-decoration: none;
       border-radius: 8px;
       transition: all 0.3s ease;
-      font-size: 0.875rem;
+      font-size: 0.95rem;
       font-weight: 500;
     }
 
     .sidebar-menu a:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateX(4px);
+      background: var(--primary-light);
+      transform: translateX(5px);
     }
 
     .sidebar-menu a.active {
@@ -818,23 +883,22 @@
     .main-content {
       flex: 1;
       background: var(--white);
-      border-radius: 16px;
+      border-radius: 12px;
       padding: 2rem;
       box-shadow: var(--shadow);
     }
 
     .welcome-banner {
-      background: var(--gradient-todo);
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
       color: var(--white);
       padding: 1.5rem;
-      border-radius: 12px;
+      border-radius: 10px;
       margin-bottom: 2rem;
       box-shadow: var(--shadow);
     }
 
     .welcome-banner h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
+      font-size: 1.6rem;
       margin-bottom: 0.5rem;
     }
 
@@ -851,31 +915,50 @@
     }
 
     .card {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
-      border-radius: 16px;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
       padding: 1.5rem;
       transition: all 0.3s ease;
-      box-shadow: var(--card-shadow);
-      color: var(--white);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--gray);
     }
 
     .card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
     }
 
     .card.todo-card {
       background: var(--gradient-todo);
+      color: var(--white);
     }
 
     .card.password-card {
       background: var(--gradient-password);
+      color: var(--white);
     }
 
     .card.document-card {
       background: var(--gradient-document);
+      color: var(--white);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover::before {
+      opacity: 1;
     }
 
     .card-header {
@@ -886,7 +969,7 @@
     }
 
     .card-header h3 {
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       font-weight: 600;
       display: flex;
       align-items: center;
@@ -898,7 +981,7 @@
     }
 
     .card-content {
-      font-size: 0.875rem;
+      font-size: 0.95rem;
       line-height: 1.5;
       margin-bottom: 1rem;
     }
@@ -907,10 +990,23 @@
       margin: 0.5rem 0;
     }
 
+    .card-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
     .card-actions .btn {
       padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       width: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-actions .btn i {
+      font-size: 1rem;
     }
 
     .modal {
@@ -920,7 +1016,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.5);
       align-items: center;
       justify-content: center;
       z-index: 1000;
@@ -928,22 +1024,26 @@
     }
 
     .modal-content {
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border: var(--glass-border);
+      background: var(--white);
       padding: 1.5rem;
-      border-radius: 16px;
+      border-radius: 12px;
       width: 100%;
-      max-width: 520px;
+      max-width: 500px;
       max-height: 90vh;
       overflow-y: auto;
       box-shadow: var(--shadow);
-      color: var(--white);
+      animation: modalFadeIn 0.3s ease;
     }
 
     @keyframes modalFadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .modal-header {
@@ -954,24 +1054,27 @@
     }
 
     .modal-header h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--dark);
     }
 
     .modal-close {
-      background: var(--glass-bg);
-      border: var(--glass-border);
-      font-size: 1.1rem;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
       cursor: pointer;
-      color: var(--white);
-      width: 32px;
-      height: 32px;
+      color: var(--dark);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 50%;
       transition: all 0.3s ease;
     }
 
     .modal-close:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--gray);
       color: var(--secondary);
     }
 
@@ -980,15 +1083,15 @@
       padding: 0.75rem;
       border: 1px solid var(--gray);
       border-radius: 8px;
-      font-size: 0.875rem;
-      background: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
       transition: all 0.3s ease;
+      background: #fafafa;
     }
 
     .form-control:focus {
       outline: none;
       border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
       background: var(--white);
     }
 
@@ -1000,7 +1103,7 @@
 
     .form-row .form-group {
       flex: 1;
-      min-width: 160px;
+      min-width: 150px;
     }
 
     .priority-selector {
@@ -1014,25 +1117,24 @@
       flex: 1;
       padding: 0.75rem;
       text-align: center;
-      border: var(--glass-border);
+      border: 1px solid var(--gray);
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
       min-width: 80px;
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      color: var(--white);
+      background: var(--white);
     }
 
     .priority-option:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: var(--light);
       transform: translateY(-2px);
     }
 
     .priority-option.selected {
-      border-color: var(--primary-light);
-      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--primary);
+      background: var(--light);
       font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .priority-option.high {
@@ -1050,22 +1152,21 @@
     .loading {
       text-align: center;
       padding: 2rem;
-      font-size: 0.875rem;
-      color: var(--white);
+      font-size: 1rem;
+      color: var(--dark);
     }
 
     .empty-state {
       text-align: center;
       padding: 1rem;
-      color: var(--gray);
-      background: var(--glass-bg);
-      backdrop-filter: var(--backdrop-blur);
-      border-radius: 12px;
-      box-shadow: var(--shadow);
+      color: #718096;
+      background: var(--light);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .empty-state i {
-      font-size: 1.5rem;
+      font-size: 2rem;
       margin-bottom: 0.5rem;
       color: var(--gray);
     }
@@ -1078,15 +1179,55 @@
       .auth-container {
         max-width: 95%;
         padding: 1.5rem;
-        border-radius: 12px;
+        border-radius: 16px;
       }
 
       .logo img {
-        height: 48px;
+        height: 50px;
+      }
+
+      .logo img[src=""] {
+        height: 50px;
+        width: 50px;
       }
 
       .logo h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.25rem;
+      }
+
+      input[type="email"],
+      input[type="password"],
+      input[type="text"] {
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+        font-size: 0.95rem;
+      }
+
+      .input-icon {
+        top: 2.4rem;
+      }
+
+      .btn {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+      }
+
+      .social-btn {
+        width: 45px;
+        height: 45px;
+      }
+
+      .social-btn i {
+        font-size: 1.2rem;
+      }
+
+      .password-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
       }
 
       .container {
@@ -1096,7 +1237,7 @@
 
       .sidebar {
         width: 100%;
-        border-radius: 12px;
+        border-radius: 10px;
         padding: 1rem;
       }
 
@@ -1107,9 +1248,14 @@
         gap: 5px;
       }
 
+      .sidebar-menu li {
+        margin-bottom: 0;
+      }
+
       .sidebar-menu a {
+        white-space: nowrap;
         padding: 0.5rem;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
       }
 
       .main-content {
@@ -1128,8 +1274,13 @@
         height: 40px;
       }
 
+      .header .logo img[src=""] {
+        height: 40px;
+        width: 40px;
+      }
+
       .header .logo h1 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
       }
 
       .form-row .form-group {
@@ -1147,16 +1298,29 @@
       }
 
       .logo img {
-        height: 40px;
+        height: 45px;
+      }
+
+      .logo img[src=""] {
+        height: 45px;
+        width: 45px;
       }
 
       .logo h1 {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
       }
 
       .btn {
-        padding: 0.75rem;
-        font-size: 0.85rem;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+      }
+
+      .social-login {
+        gap: 0.75rem;
       }
 
       .social-btn {
@@ -1164,8 +1328,28 @@
         height: 40px;
       }
 
+      .social-btn i {
+        font-size: 1.1rem;
+      }
+
+      .divider {
+        font-size: 0.85rem;
+      }
+
+      .switch {
+        font-size: 0.9rem;
+      }
+
+      .terms {
+        font-size: 0.8rem;
+      }
+
       .welcome-banner h2 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+      }
+
+      .welcome-banner p {
+        font-size: 0.9rem;
       }
 
       .card {
@@ -1173,7 +1357,7 @@
       }
 
       .card-header h3 {
-        font-size: 1.125rem;
+        font-size: 1.2rem;
       }
     }
 
@@ -1190,12 +1374,12 @@
       text-align: center;
       margin: 1rem 0;
       font-size: 0.85rem;
-      color: var(--white);
     }
 
     .resend-verification a {
-      color: var(--primary-light);
+      color: var(--primary);
       text-decoration: none;
+      transition: all 0.3s;
     }
 
     .resend-verification a:hover {
@@ -1547,7 +1731,7 @@
     </div>
   </div>
 <script>
-// Firebase configuration
+  // Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
   authDomain: "mymemory-ddc21.firebaseapp.com",
@@ -1572,8 +1756,8 @@ try {
 }
 
 // Initialize Supabase
-const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k';
+const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co'; // Replace with your Supabase URL
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'; // Replace with your Supabase anon key
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Global error handler
@@ -1693,7 +1877,9 @@ async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
     console.error(`Password stats attempt ${attempt} failed:`, error);
     if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      return calculatePasswordStats(uid, attempt + 1, maxAttempts);
+      return calculatePasswordStats(uid, attempt
+
+ + 1, maxAttempts);
     }
     showMessage('login-message', `Failed to load password stats: ${error.message}`, 'error');
     return {
@@ -2218,26 +2404,26 @@ function createPasswordElement(password) {
     <div class="password-details">
       <div class="password-detail">
         <span class="password-label">Username:</span>
-        <span class="password-value">${password.username || 'N/A'}</span>
+        <div class="password-value">${password.username || 'N/A'}</div>
       </div>
       <div class="password-detail">
         <span class="password-label">Password:</span>
-        <span class="password-value">
+        <div class="password-value">
           <input type="password" value="${decryptPassword(password.password || '')}" class="masked" readonly>
-          <button class="toggle-password" title="Toggle Visibility"><i class="fas fa-eye"></i></button>
-        </span>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">Category:</span>
-        <span class="password-value">${password.category || 'N/A'}</span>
+          <button class="toggle-password"><i class="fas fa-eye"></i></button>
+        </div>
       </div>
       <div class="password-detail">
         <span class="password-label">URL:</span>
-        <span class="password-value"><a href="${password.url || '#'}" target="_blank">${password.url || 'N/A'}</a></span>
+        <div class="password-value">${password.url || 'N/A'}</div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">Category:</span>
+        <div class="password-value">${password.category || 'N/A'}</div>
       </div>
     </div>
     <div class="password-strength">
-      <div class="strength-meter" style="width: ${strength}%; background: ${strengthColor};"></div>
+      <div class="strength-meter" style="width: ${strength}%; background-color: ${strengthColor};"></div>
     </div>
   `;
 
@@ -2248,42 +2434,30 @@ function createPasswordElement(password) {
 function addPasswordEventListeners(card, user) {
   const copyUsernameBtn = card.querySelector('.fa-user').parentNode;
   const copyPasswordBtn = card.querySelector('.fa-key').parentNode;
+  const togglePasswordBtn = card.querySelector('.toggle-password');
   const editBtn = card.querySelector('.fa-edit').parentNode;
   const deleteBtn = card.querySelector('.fa-trash').parentNode;
-  const togglePasswordBtn = card.querySelector('.toggle-password');
   const passwordInput = card.querySelector('.password-value input');
 
   copyUsernameBtn.addEventListener('click', function () {
     const username = card.querySelector('.password-detail:nth-child(1) .password-value').textContent;
     navigator.clipboard.writeText(username).then(() => {
-      showMessage('password-message', 'Username copied to clipboard!', 'success');
-    }).catch(err => {
-      console.error('Failed to copy username:', err);
-      showMessage('password-message', 'Failed to copy username.', 'error');
+      showMessage('login-message', 'Username copied to clipboard!', 'success');
     });
   });
 
   copyPasswordBtn.addEventListener('click', function () {
     const password = decryptPassword(card.dataset.password || '');
     navigator.clipboard.writeText(password).then(() => {
-      showMessage('password-message', 'Password copied to clipboard!', 'success');
-    }).catch(err => {
-      console.error('Failed to copy password:', err);
-      showMessage('password-message', 'Failed to copy password.', 'error');
+      showMessage('login-message', 'Password copied to clipboard!', 'success');
     });
   });
 
   togglePasswordBtn.addEventListener('click', function () {
-    const icon = this.querySelector('i');
-    if (passwordInput.type === 'password') {
-      passwordInput.type = 'text';
-      passwordInput.classList.remove('masked');
-      icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-      passwordInput.type = 'password';
-      passwordInput.classList.add('masked');
-      icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
+    const isMasked = passwordInput.classList.contains('masked');
+    passwordInput.classList.toggle('masked');
+    this.innerHTML = isMasked ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+    passwordInput.type = isMasked ? 'text' : 'password';
   });
 
   editBtn.addEventListener('click', async function () {
@@ -2315,75 +2489,11 @@ function addPasswordEventListeners(card, user) {
       try {
         await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
         card.remove();
-        showMessage('password-message', 'Password deleted successfully!', 'success');
+        showMessage('login-message', 'Password deleted successfully!', 'success');
+        loadDashboard(user);
       } catch (error) {
         console.error('Error deleting password:', error);
-        showMessage('password-message', `Error deleting password: ${error.message}`, 'error');
-      }
-    }
-  });
-}
-
-// Create document element
-function createDocumentElement(document) {
-  const docItem = document.createElement('div');
-  docItem.className = 'document-item';
-  docItem.dataset.id = document.id;
-
-  docItem.innerHTML = `
-    <div class="document-header">
-      <div class="document-name">${document.name || 'Untitled Document'}</div>
-      <div class="document-actions">
-        <button title="Download"><i class="fas fa-download"></i></button>
-        <button title="Delete"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>
-    <div class="document-details">
-      <div><strong>Category:</strong> ${document.category || 'N/A'}</div>
-      <div><strong>Uploaded:</strong> ${document.createdAt?.toDate().toLocaleString() || 'N/A'}</div>
-    </div>
-  `;
-
-  return docItem;
-}
-
-// Add document event listeners
-function addDocumentEventListeners(docItem, user) {
-  const downloadBtn = docItem.querySelector('.fa-download').parentNode;
-  const deleteBtn = docItem.querySelector('.fa-trash').parentNode;
-
-  downloadBtn.addEventListener('click', async function () {
-    const docId = docItem.dataset.id;
-    try {
-      const docRef = await db.collection('users').doc(user.uid).collection('documents').doc(docId).get();
-      const docData = docRef.data();
-      const fileRef = storage.ref(docData.filePath);
-      const url = await fileRef.getDownloadURL();
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = docData.name || 'document';
-      a.click();
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      showMessage('login-message', `Error downloading document: ${error.message}`, 'error');
-    }
-  });
-
-  deleteBtn.addEventListener('click', async function () {
-    if (confirm('Are you sure you want to delete this document?')) {
-      const docId = docItem.dataset.id;
-      try {
-        const docRef = db.collection('users').doc(user.uid).collection('documents').doc(docId);
-        const docData = (await docRef.get()).data();
-        if (docData.filePath) {
-          await storage.ref(docData.filePath).delete();
-        }
-        await docRef.delete();
-        docItem.remove();
-        showMessage('login-message', 'Document deleted successfully!', 'success');
-      } catch (error) {
-        console.error('Error deleting document:', error);
-        showMessage('login-message', `Error deleting document: ${error.message}`, 'error');
+        showMessage('login-message', `Error deleting password: ${error.message}`, 'error');
       }
     }
   });
@@ -2391,103 +2501,207 @@ function addDocumentEventListeners(docItem, user) {
 
 // Load dashboard data
 async function loadDashboard(user) {
-  const todoList = document.getElementById('todo-list');
-  const passwordList = document.getElementById('password-list');
-  const documentList = document.getElementById('document-list');
-
-  // Load todos
   try {
+    // Load password stats
+    const passwordStats = await calculatePasswordStats(user.uid);
+    const passwordCount = document.getElementById('password-count');
+    const passwordRecent = document.getElementById('password-recent');
+
+    if (passwordCount) passwordCount.textContent = passwordStats.total;
+    if (passwordRecent) passwordRecent.textContent = passwordStats.recent;
+
+    // Load document stats
+    const documentStats = await calculateDocumentStats(user.uid);
+    const documentCount = document.getElementById('document-count');
+    const documentRecent = document.getElementById('document-recent');
+
+    if (documentCount) documentCount.textContent = documentStats.total;
+    if (documentRecent) documentRecent.textContent = documentStats.recent;
+
+    // Load todos
     const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
       .orderBy('createdAt', 'desc')
       .limit(5)
       .get();
 
-    todoList.innerHTML = '';
-    if (todoSnapshot.empty) {
+    const todoList = document.getElementById('todo-list');
+    const todoCount = document.getElementById('todo-count');
+    const todoUrgent = document.getElementById('todo-urgent');
+    if (todoList) todoList.innerHTML = '';
+
+    let urgentCount = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    todoSnapshot.forEach(doc => {
+      const todo = { id: doc.id, ...doc.data() };
+      const todoElement = createTodoElement(todo);
+      addTodoEventListeners(todoElement, user);
+      todoList.appendChild(todoElement);
+
+      if (todo.dueDate) {
+        try {
+          const dueDate = new Date(todo.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          if (dueDate.getTime() <= today.getTime() && !todo.completed) {
+            urgentCount++;
+          }
+        } catch (e) {
+          console.warn(`Invalid dueDate for todo ${doc.id}:`, todo.dueDate);
+        }
+      }
+    });
+
+    if (todoCount) todoCount.textContent = todoSnapshot.size;
+    if (todoUrgent) todoUrgent.textContent = urgentCount;
+
+    if (todoSnapshot.empty && todoList) {
       todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
-    } else {
-      todoSnapshot.forEach(doc => {
-        const todo = { id: doc.id, ...doc.data() };
-        const todoItem = createTodoElement(todo);
-        addTodoEventListeners(todoItem, user);
-        todoList.appendChild(todoItem);
+    }
+
+    // Add click event listener to todo card
+    const todoCard = document.querySelector('.dashboard-cards .todo-card');
+    if (todoCard) {
+      todoCard.style.cursor = 'pointer';
+      todoCard.addEventListener('click', function (e) {
+        if (e.target.closest('.todo-checkbox, .todo-actions')) return;
+        window.location.href = 'To do list.html';
       });
     }
-  } catch (error) {
-    console.error('Error loading todos:', error);
-    todoList.innerHTML = '<div class="empty-state"><p>Error loading tasks.</p></div>';
-  }
 
-  // Load passwords
-  try {
+    // Load passwords
     const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
       .orderBy('createdAt', 'desc')
       .limit(3)
       .get();
 
-    passwordList.innerHTML = '';
-    if (passwordSnapshot.empty) {
+    const passwordList = document.getElementById('password-list');
+    if (passwordList) passwordList.innerHTML = '';
+
+    passwordSnapshot.forEach(doc => {
+      const password = { id: doc.id, ...doc.data() };
+      if (!password.title) {
+        password.title = 'Untitled Password';
+      }
+      const passwordElement = createPasswordElement(password);
+      passwordElement.dataset.password = password.password || '';
+      addPasswordEventListeners(passwordElement, user);
+      passwordList.appendChild(passwordElement);
+    });
+
+    if (passwordSnapshot.empty && passwordList) {
       passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
-    } else {
-      passwordSnapshot.forEach(doc => {
-        const password = { id: doc.id, ...doc.data() };
-        const passwordCard = createPasswordElement(password);
-        addPasswordEventListeners(passwordCard, user);
-        passwordList.appendChild(passwordCard);
+    }
+
+    // Add click event listener to password card
+    const passwordCard = document.querySelector('.dashboard-cards .password-card');
+    if (passwordCard) {
+      passwordCard.style.cursor = 'pointer';
+      passwordCard.addEventListener('click', function (e) {
+        if (e.target.closest('.password-card-actions, .toggle-password')) return;
+        window.location.href = 'Password Manager.html';
       });
     }
-  } catch (error) {
-    console.error('Error loading passwords:', error);
-    passwordList.innerHTML = '<div class="empty-state"><p>Error loading passwords.</p></div>';
-  }
 
-  // Load documents
-  try {
+    // Load documents (display at least one)
     const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
       .orderBy('createdAt', 'desc')
-      .limit(3)
+      .limit(1) // Limit to one document for dashboard
       .get();
 
-    documentList.innerHTML = '';
-    if (documentSnapshot.empty) {
-      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file"></i><p>No documents found.</p></div>';
+    const documentList = document.getElementById('document-list');
+    if (documentList) documentList.innerHTML = '';
+
+    if (!documentSnapshot.empty) {
+      const latestDoc = documentSnapshot.docs[0];
+      const docData = { id: latestDoc.id, ...latestDoc.data() };
+      const docElement = document.createElement('div');
+      docElement.className = 'document-item';
+      const createdDate = docData.createdAt?.toDate()?.toLocaleDateString() || 'N/A';
+      const downloadUrl = docData.downloadURL || '#';
+      docElement.innerHTML = `
+        <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
+          <div>
+            <div style="font-weight: 600; color: var(--dark);">${docData.name || 'Untitled'}</div>
+            <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
+            <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${createdDate}</div>
+          </div>
+          <div class="document-actions" style="display: flex; gap: 0.5rem;">
+            <a href="${downloadUrl}" target="_blank" title="Download" style="color: var(--primary);"><i class="fas fa-download"></i></a>
+          </div>
+        </div>
+      `;
+      documentList.appendChild(docElement);
     } else {
-      documentSnapshot.forEach(doc => {
-        const document = { id: doc.id, ...doc.data() };
-        const docItem = createDocumentElement(document);
-        addDocumentEventListeners(docItem, user);
-        documentList.appendChild(docItem);
+      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+    }
+
+    // Add click event listener to document card
+    const documentCard = document.querySelector('.dashboard-cards .document-card');
+    if (documentCard) {
+      documentCard.style.cursor = 'pointer';
+      documentCard.addEventListener('click', function () {
+        window.location.href = 'Documents.html';
       });
     }
+
+    // Hide loading indicators
+    if (document.getElementById('todo-loading')) document.getElementById('todo-loading').style.display = 'none';
+    if (document.getElementById('password-loading')) document.getElementById('password-loading').style.display = 'none';
+    document.querySelector('.document-list .loading')?.remove();
+
   } catch (error) {
-    console.error('Error loading documents:', error);
-    documentList.innerHTML = '<div class="empty-state"><p>Error loading documents.</p></div>';
-  }
-
-  // Update dashboard cards
-  try {
-    const todoStats = await db.collection('users').doc(user.uid).collection('todos')
-      .where('completed', '==', false)
-      .get();
-    const urgentTodos = await db.collection('users').doc(user.uid).collection('todos')
-      .where('dueDate', '<=', new Date().toISOString().split('T')[0])
-      .where('completed', '==', false)
-      .get();
-
-    const passwordStats = await calculatePasswordStats(user.uid);
-    const documentStats = await calculateDocumentStats(user.uid);
-
-    document.getElementById('todo-count').textContent = todoStats.size;
-    document.getElementById('todo-urgent').textContent = urgentTodos.size;
-    document.getElementById('password-count').textContent = passwordStats.total;
-    document.getElementById('password-recent').textContent = passwordStats.recent;
-    document.getElementById('document-count').textContent = documentStats.total;
-    document.getElementById('document-recent').textContent = documentStats.recent;
-  } catch (error) {
-    console.error('Error updating dashboard stats:', error);
-    showMessage('login-message', 'Failed to load dashboard stats.', 'error');
+    console.error('Error loading dashboard:', error);
+    showMessage('login-message', `Error loading dashboard: ${error.message}`, 'error');
   }
 }
+
+// Handle authentication state
+auth.onAuthStateChanged(async user => {
+  const authPage = document.getElementById('auth-page');
+  const dashboard = document.getElementById('dashboard');
+
+  if (user) {
+    if (!user.emailVerified) {
+      showMessage('login-message', 'Please verify your email address to access your account.', 'error');
+      await auth.signOut();
+      authPage.style.display = 'flex';
+      dashboard.style.display = 'none';
+      return;
+    }
+
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || 'User'
+    };
+
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    document.getElementById('user-name').textContent = userData.displayName;
+    document.getElementById('popup-user-name').textContent = userData.displayName;
+    document.getElementById('popup-user-email').textContent = userData.email;
+
+    const avatar = document.getElementById('user-avatar');
+    avatar.textContent = userData.displayName.charAt(0).toUpperCase();
+
+    authPage.style.display = 'none';
+    dashboard.style.display = 'flex';
+
+    setupUserPopup();
+    await loadDashboard(user);
+
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', handleLogout);
+    }
+  } else {
+    localStorage.removeItem('isAuthenticated');
+    authPage.style.display = 'flex';
+    dashboard.style.display = 'none';
+  }
+});
 
 // Handle login form submission
 document.getElementById('login').addEventListener('submit', async function (e) {
@@ -2503,40 +2717,24 @@ document.getElementById('login').addEventListener('submit', async function (e) {
     const user = userCredential.user;
 
     if (!user.emailVerified) {
+      showMessage('login-message', 'Please verify your email address to log in.', 'error');
       await auth.signOut();
-      showMessage('login-message', 'Please verify your email before logging in.', 'error');
       return;
     }
 
     if (remember) {
       localStorage.setItem('rememberMe', 'true');
-    } else {
-      localStorage.removeItem('rememberMe');
     }
-
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userData', JSON.stringify({
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || email.split('@')[0]
-    }));
-
-    document.getElementById('auth-page').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('user-name').textContent = user.displayName || email.split('@')[0];
-    document.getElementById('user-avatar').textContent = (user.displayName || email)[0].toUpperCase();
-    document.getElementById('popup-user-name').textContent = user.displayName || email.split('@')[0];
-    document.getElementById('popup-user-email').textContent = user.email;
-
-    await loadDashboard(user);
-    setupUserPopup();
+    showMessage('login-message', 'Login successful! Welcome back.', 'success');
   } catch (error) {
     console.error('Login error:', error.code, error.message);
-    let errorMessage = 'Login failed. Please try again.';
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-      errorMessage = 'Invalid email or password.';
+    let errorMessage = 'Login failed. Please check your credentials and try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email address.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password. Please try again.';
     } else if (error.code === 'auth/too-many-requests') {
-      errorMessage = 'Too many attempts. Please try again later.';
+      errorMessage = 'Too many login attempts. Please try again later.';
     }
     showMessage('login-message', errorMessage, 'error');
   }
@@ -2553,30 +2751,21 @@ document.getElementById('signup').addEventListener('submit', async function (e) 
 
   try {
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-
-    await user.updateProfile({ displayName: name });
-    await user.sendEmailVerification();
-
-    await db.collection('users').doc(user.uid).set({
-      name,
-      email,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    await supabase.from('users').insert([{ id: user.uid, email, name }]);
-
-    showMessage('signup-message', 'Account created! Please verify your email.', 'success');
-    setTimeout(() => {
-      toggleForms();
-    }, 2000);
+    await userCredential.user.updateProfile({ displayName: name });
+    await userCredential.user.sendEmailVerification();
+    showMessage('signup-message', 'Account created successfully! Please check your email to verify your account.', 'success');
+    await auth.signOut();
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
   } catch (error) {
     console.error('Signup error:', error.code, error.message);
     let errorMessage = 'Signup failed. Please try again.';
     if (error.code === 'auth/email-already-in-use') {
-      errorMessage = 'Email is already in use.';
+      errorMessage = 'This email address is already in use.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
     } else if (error.code === 'auth/weak-password') {
-      errorMessage = 'Password is too weak.';
+      errorMessage = 'Password is too weak. Please use a stronger password.';
     }
     showMessage('signup-message', errorMessage, 'error');
   }
@@ -2595,20 +2784,22 @@ document.getElementById('forgot-password-form').addEventListener('submit', async
   const email = document.getElementById('forgot-email').value;
 
   if (!canSendPasswordReset(email)) {
-    showMessage('forgot-message', 'Please wait before requesting another reset.', 'error');
+    showMessage('forgot-message', 'Please wait 30 seconds before requesting another password reset.', 'error');
     return;
   }
 
   try {
     await auth.sendPasswordResetEmail(email);
     localStorage.setItem(`reset-attempt-${email}`, Date.now());
-    showMessage('forgot-message', 'Password reset email sent!', 'success');
-    setTimeout(() => {
-      document.getElementById('forgot-password-modal').style.display = 'none';
-    }, 2000);
+    showMessage('forgot-message', 'Password reset email sent successfully. Please check your inbox.', 'success');
+    document.getElementById('forgot-password-modal').style.display = 'none';
   } catch (error) {
     console.error('Password reset error:', error.code, error.message);
-    showMessage('forgot-message', `Error: ${error.message}`, 'error');
+    let errorMessage = 'Failed to send password reset email. Please try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email address.';
+    }
+    showMessage('forgot-message', errorMessage, 'error');
   }
 });
 
@@ -2623,7 +2814,7 @@ document.getElementById('resend-verification').addEventListener('click', async f
   }
 
   if (!canResendVerification(email)) {
-    showMessage('login-message', 'Please wait before requesting another verification email.', 'error');
+    showMessage('login-message', 'Please wait 30 seconds before requesting another verification email.', 'error');
     return;
   }
 
@@ -2631,18 +2822,39 @@ document.getElementById('resend-verification').addEventListener('click', async f
     const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
     const user = userCredential.user;
 
-    if (user.emailVerified) {
-      showMessage('login-message', 'Email is already verified.', 'success');
-      return;
+    if (!user.emailVerified) {
+      await user.sendEmailVerification();
+      localStorage.setItem(`verification-attempt-${email}`, Date.now());
+      showMessage('login-message', 'Verification email sent successfully. Please check your inbox.', 'success');
+      await auth.signOut();
+    } else {
+      showMessage('login-message', 'Your email is already verified. Please log in.', 'success');
     }
-
-    await user.sendEmailVerification();
-    localStorage.setItem(`verification-attempt-${email}`, Date.now());
-    showMessage('login-message', 'Verification email sent! Please check your inbox.', 'success');
   } catch (error) {
     console.error('Resend verification error:', error.code, error.message);
-    showMessage('login-message', `Error: ${error.message}`, 'error');
+    let errorMessage = 'Failed to send verification email. Please try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email address.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password. Please try again.';
+    }
+    showMessage('login-message', errorMessage, 'error');
   }
+});
+
+// Close modals
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', function () {
+    this.closest('.modal').style.display = 'none';
+  });
+});
+
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', function (e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+    }
+  });
 });
 
 // Handle todo form submission
@@ -2657,20 +2869,13 @@ document.getElementById('todo-form').addEventListener('submit', async function (
   }
 
   const todoId = document.getElementById('todo-id').value;
-  const title = document.getElementById('todo-title').value;
-  const description = document.getElementById('todo-description').value;
-  const dueDate = document.getElementById('todo-due').value;
-  const time = document.getElementById('todo-time').value;
-  const category = document.getElementById('todo-category').value;
-  const priority = document.getElementById('todo-priority').value;
-
   const todoData = {
-    title,
-    description,
-    dueDate,
-    time,
-    category,
-    priority,
+    title: document.getElementById('todo-title').value,
+    description: document.getElementById('todo-description').value,
+    dueDate: document.getElementById('todo-due').value,
+    time: document.getElementById('todo-time').value,
+    category: document.getElementById('todo-category').value,
+    priority: document.getElementById('todo-priority').value,
     completed: false,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -2681,22 +2886,26 @@ document.getElementById('todo-form').addEventListener('submit', async function (
       showMessage('login-message', 'Task updated successfully!', 'success');
     } else {
       todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      const docRef = await db.collection('users').doc(user.uid).collection('todos').add(todoData);
-      const todoItem = createTodoElement({ id: docRef.id, ...todoData });
-      addTodoEventListeners(todoItem, user);
-      document.getElementById('todo-list').prepend(todoItem);
+      await db.collection('users').doc(user.uid).collection('todos').add(todoData);
       showMessage('login-message', 'Task added successfully!', 'success');
     }
-
     document.getElementById('todo-modal').style.display = 'none';
     document.getElementById('todo-form').reset();
     document.getElementById('todo-id').value = '';
-    document.getElementById('modal-title').textContent = 'Add New Task';
-    await loadDashboard(user);
+    loadDashboard(user);
   } catch (error) {
     console.error('Error saving task:', error);
     showMessage('login-message', `Error saving task: ${error.message}`, 'error');
   }
+});
+
+// Priority selector
+document.querySelectorAll('.priority-option').forEach(option => {
+  option.addEventListener('click', function () {
+    document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+    this.classList.add('selected');
+    document.getElementById('todo-priority').value = this.dataset.priority;
+  });
 });
 
 // Handle password form submission
@@ -2711,20 +2920,13 @@ document.getElementById('password-form').addEventListener('submit', async functi
   }
 
   const passwordId = document.getElementById('password-id').value;
-  const title = document.getElementById('password-title').value;
-  const username = document.getElementById('password-username').value;
-  const passwordValue = encryptPassword(document.getElementById('password-value').value);
-  const url = document.getElementById('password-url').value;
-  const category = document.getElementById('password-category').value;
-  const notes = document.getElementById('password-notes').value;
-
   const passwordData = {
-    title,
-    username,
-    password: passwordValue,
-    url,
-    category,
-    notes,
+    title: document.getElementById('password-title').value,
+    username: document.getElementById('password-username').value,
+    password: encryptPassword(document.getElementById('password-value').value),
+    url: document.getElementById('password-url').value,
+    category: document.getElementById('password-category').value,
+    notes: document.getElementById('password-notes').value,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
@@ -2734,18 +2936,13 @@ document.getElementById('password-form').addEventListener('submit', async functi
       showMessage('password-message', 'Password updated successfully!', 'success');
     } else {
       passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      const docRef = await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
-      const passwordCard = createPasswordElement({ id: docRef.id, ...passwordData });
-      addPasswordEventListeners(passwordCard, user);
-      document.getElementById('password-list').prepend(passwordCard);
+      await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
       showMessage('password-message', 'Password added successfully!', 'success');
     }
-
     document.getElementById('password-modal').style.display = 'none';
     document.getElementById('password-form').reset();
     document.getElementById('password-id').value = '';
-    document.getElementById('modal-title').textContent = 'Add New Password';
-    await loadDashboard(user);
+    loadDashboard(user);
   } catch (error) {
     console.error('Error saving password:', error);
     showMessage('password-message', `Error saving password: ${error.message}`, 'error');
@@ -2763,96 +2960,51 @@ document.getElementById('document-form').addEventListener('submit', async functi
     return;
   }
 
-  const name = document.getElementById('document-name').value;
   const file = document.getElementById('document-file').files[0];
+  const name = document.getElementById('document-name').value;
   const category = document.getElementById('document-category').value;
 
   try {
-    const filePath = `users/${user.uid}/documents/${Date.now()}_${file.name}`;
-    const fileRef = storage.ref(filePath);
-    await fileRef.put(file);
+    const timestamp = Date.now();
+    const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const fileName = `${sanitizedName}_${timestamp}.${file.name.split('.').pop()}`;
+    const storagePath = `users/${user.uid}/documents/${fileName}`;
 
+    // Upload to Supabase
+    const { error } = await supabase.storage
+      .from('public-documents')
+      .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+
+    if (error) throw new Error(`Upload failed: ${error.message}`);
+
+    // Get public URL
+    const { data } = supabase.storage.from('public-documents').getPublicUrl(storagePath);
+    const downloadURL = data.publicUrl;
+
+    // Save metadata to Firestore
     const documentData = {
       name,
       category,
-      filePath,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      storagePath,
+      downloadURL,
+      fileName,
+      size: file.size,
+      type: file.name.split('.').pop().toLowerCase(),
+      owner: user.displayName || user.email.split('.')[0]
     };
 
-    const docRef = await db.collection('users').doc(user.uid).collection('documents').add(documentData);
-    const docItem = createDocumentElement({ id: docRef.id, ...documentData });
-    addDocumentEventListeners(docItem, user);
-    document.getElementById('document-list').prepend(docItem);
+    await db.collection('users').doc(user.uid).collection('documents').add(documentData);
 
+    showMessage('login-message', 'Document uploaded successfully!', 'success');
     document.getElementById('document-modal').style.display = 'none';
     document.getElementById('document-form').reset();
-    showMessage('login-message', 'Document uploaded successfully!', 'success');
     await loadDashboard(user);
   } catch (error) {
     console.error('Error uploading document:', error);
     showMessage('login-message', `Error uploading document: ${error.message}`, 'error');
   }
-});
-
-// Modal close buttons
-document.querySelectorAll('.modal-close').forEach(button => {
-  button.addEventListener('click', function () {
-    this.closest('.modal').style.display = 'none';
-  });
-});
-
-// Priority selector
-document.querySelectorAll('.priority-option').forEach(option => {
-  option.addEventListener('click', function () {
-    document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
-    this.classList.add('selected');
-    document.getElementById('todo-priority').value = this.dataset.priority;
-  });
-});
-
-// Check authentication state
-auth.onAuthStateChanged(async user => {
-  if (user && localStorage.getItem('isAuthenticated') === 'true') {
-    if (!user.emailVerified) {
-      await auth.signOut();
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('userData');
-      document.getElementById('auth-page').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
-      showMessage('login-message', 'Please verify your email to access your account.', 'error');
-      return;
-    }
-
-    document.getElementById('auth-page').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('user-name').textContent = user.displayName || user.email.split('@')[0];
-    document.getElementById('user-avatar').textContent = (user.displayName || user.email)[0].toUpperCase();
-    document.getElementById('popup-user-name').textContent = user.displayName || user.email.split('@')[0];
-    document.getElementById('popup-user-email').textContent = user.email;
-
-    await loadDashboard(user);
-    setupUserPopup();
-  } else {
-    document.getElementById('auth-page').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-  }
-});
-
-// Logout link
-document.getElementById('logout-link').addEventListener('click', handleLogout);
-
-// Open modals from dashboard
-document.querySelectorAll('.card').forEach(card => {
-  card.addEventListener('click', function () {
-    if (this.classList.contains('todo-card')) {
-      document.getElementById('todo-modal').style.display = 'flex';
-    } else if (this.classList.contains('password-card')) {
-      document.getElementById('password-modal').style.display = 'flex';
-    } else if (this.classList.contains('document-card')) {
-      document.getElementById('document-modal').style.display = 'flex';
-    }
-  });
 });
 </script>
 </body>
