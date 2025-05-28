@@ -1,47 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Settings | MyMemory</title>
   <!-- Prevent Caching -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="-1">
-  <meta http-equiv="Vary" content="*">
-  <!-- Firebase Scripts -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="-1" />
+  <meta http-equiv="Vary" content="*" />
+  <!-- Firebase scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <!-- Font Awesome and Google Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #0052cc;
-      --primary-dark: #003087;
-      --primary-light: #2684ff;
-      --secondary: #ff4b5e;
-      --background: #f8fafc;
-      --card-bg: #ffffff;
-      --text-primary: #1a202c;
-      --text-secondary: #4a5a6a;
-      --border: #e2e8f0;
-      --success: #10b981;
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --secondary: #f72585;
+      --secondary-light: #ff70a6;
+      --dark: #2b2d42;
+      --dark-gray: #4a4e69;
+      --medium-gray: #8d99ae;
+      --light-gray: #edf2f4;
+      --light: #f8f9fa;
       --white: #ffffff;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.12);
-      --blue-theme-bg: #f0f5ff;
-      --sepia-theme-bg: #fef8e8;
-    }
-    
-    body.dark {
-      --background: #1f2527;
-      --card-bg: #2a2f32;
-      --text-primary: #e0e6e7;
-      --text-secondary: #a0b4b6;
-      --border: #3a3f42;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.4);
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #ef233c;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+      --border-radius-sm: 0.25rem;
+      --border-radius-md: 0.5rem;
+      --border-radius-lg: 0.75rem;
+      --border-radius-xl: 1rem;
+      --transition: all 0.2s ease-in-out;
     }
     
     * {
@@ -51,24 +47,53 @@
     }
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--background);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
       min-height: 100vh;
-      color: var(--text-primary);
-      transition: background 0.3s, color 0.3s;
+      margin: 0;
+      line-height: 1.5;
+      transition: background-color 0.3s ease;
     }
     
-    body.blue { background: var(--blue-theme-bg); }
-    body.sepia { background: var(--sepia-theme-bg); }
+    body.dark {
+      background-color: #121212;
+      color: rgba(255, 255, 255, 0.87);
+    }
     
+    body.dark .header,
+    body.dark .sidebar,
+    body.dark .main-content {
+      background-color: #1e1e1e;
+      color: rgba(255, 255, 255, 0.87);
+    }
+    
+    body.dark .sidebar {
+      border-right: 1px solid #333;
+    }
+    
+    body.dark .form-control,
+    body.dark .form-select {
+      background-color: #2d2d2d;
+      color: rgba(255, 255, 255, 0.87);
+      border-color: #444;
+    }
+    
+    body.dark .form-control:focus,
+    body.dark .form-select:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 0.25rem rgba(72, 149, 239, 0.25);
+    }
+    
+    /* Header Styles */
     .header {
-      background: var(--card-bg);
-      box-shadow: var(--shadow);
+      background: var(--white);
+      box-shadow: var(--shadow-sm);
       padding: 0 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 64px;
+      height: 70px;
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -78,73 +103,87 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      height: 100%;
+      text-decoration: none;
     }
     
     .logo img {
       height: 40px;
       width: auto;
+      object-fit: contain;
     }
     
     .logo h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
       color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
     }
     
     .user-menu {
       display: flex;
       align-items: center;
+      height: 100%;
       position: relative;
     }
     
     .user-avatar {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-light), var(--primary));
-      color: var(--white);
+      background-color: var(--primary);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: var(--transition);
     }
     
     .user-avatar:hover {
       transform: scale(1.05);
-      box-shadow: var(--shadow-hover);
+      box-shadow: var(--shadow-sm);
     }
     
     .user-popup {
       display: none;
       position: absolute;
-      top: 56px;
+      top: 60px;
       right: 0;
-      background: var(--card-bg);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
+      background: var(--white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-lg);
       width: 240px;
-      padding: 1.25rem;
+      padding: 1rem;
       z-index: 1000;
-      border: 1px solid var(--border);
     }
     
-    .user-popup.active { display: block; }
+    .user-popup.active {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     
     .user-popup .user-info {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--light-gray);
     }
     
     .user-popup .user-info .avatar {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      background: var(--primary-light);
-      color: var(--white);
+      background: var(--primary);
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -153,253 +192,259 @@
     
     .user-popup .user-info .details h4 {
       font-size: 1rem;
+      color: var(--dark);
+      margin: 0;
       font-weight: 600;
-      color: var(--text-primary);
     }
     
     .user-popup .user-info .details p {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
+      font-size: 0.85rem;
+      color: var(--medium-gray);
+      margin: 0;
     }
     
     .user-popup .logout-btn {
       width: 100%;
-      padding: 0.75rem;
-      background: var(--secondary);
-      color: var(--white);
+      padding: 0.5rem;
+      background: var(--danger);
+      color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--border-radius-sm);
       cursor: pointer;
-      font-weight: 500;
       display: flex;
       align-items: center;
       gap: 8px;
       justify-content: center;
-      transition: background 0.2s, transform 0.2s;
+      font-weight: 500;
+      transition: var(--transition);
     }
     
     .user-popup .logout-btn:hover {
-      background: #e63946;
+      background: #d90429;
       transform: translateY(-1px);
     }
     
+    /* Main Container */
     .container {
       display: flex;
-      min-height: calc(100vh - 64px);
-      max-width: 1440px;
+      min-height: calc(100vh - 70px);
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 2.5rem;
+      padding: 2rem;
       gap: 2rem;
     }
     
+    /* Sidebar */
     .sidebar {
-      width: 280px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+      width: 260px;
+      background: var(--white);
+      border-radius: var(--border-radius-lg);
+      padding: 1.5rem 1rem;
+      box-shadow: var(--shadow-md);
+      height: fit-content;
     }
     
-    .sidebar-menu { list-style: none; }
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+    }
     
-    .sidebar-menu li { margin-bottom: 0.75rem; }
+    .sidebar-menu li {
+      margin-bottom: 0.5rem;
+    }
     
     .sidebar-menu a {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 0.875rem 1.25rem;
-      color: var(--text-primary);
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--dark-gray);
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: var(--border-radius-sm);
+      transition: var(--transition);
       font-size: 0.95rem;
       font-weight: 500;
-      transition: all 0.2s;
     }
     
     .sidebar-menu a:hover {
-      background: var(--primary-light);
-      color: var(--white);
-      transform: translateX(4px);
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
     }
     
     .sidebar-menu a.active {
-      background: var(--primary);
-      color: var(--white);
-      box-shadow: 0 2px 6px rgba(0, 82, 204, 0.2);
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      font-weight: 600;
     }
     
     .sidebar-menu i {
-      font-size: 1.2rem;
-      width: 24px;
+      font-size: 1rem;
+      width: 20px;
+      text-align: center;
     }
     
+    /* Main Content Area */
     .main-content {
       flex: 1;
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 2.25rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+      background: var(--white);
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
     }
     
-    .content-wrapper { max-width: 900px; margin: 0; }
+    .content-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+    }
     
-    .page-header { margin-bottom: 2rem; }
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--light-gray);
+    }
     
     .page-title {
-      font-size: 2rem;
-      font-weight: 700;
       color: var(--primary);
-      display: flex;
-      gap: 0.5rem;
+      font-size: 1.8rem;
+      font-weight: 700;
     }
     
-    .page-title i {
-      color: var(--primary-dark);
-      font-size: 1.75rem;
+    /* Settings Form */
+    .settings-section {
+      margin-bottom: 2.5rem;
     }
     
-    .settings {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 2rem;
-      border: 2px solid var(--primary-dark);
-      transition: box-shadow 0.4s;
-    }
-    
-    .settings:hover { box-shadow: var(--shadow-hover); }
-    
-    .settings h3 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--text-primary);
+    .settings-section h3 {
+      color: var(--dark);
       margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 0.5rem;
     }
     
-    .form-group { position: relative; margin-bottom: 1.75rem; }
+    .settings-section h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
     
     .form-group label {
-      position: absolute;
-      top: 0.75rem;
-      left: 1rem;
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      transition: all 0.3s;
-      pointer-events: none;
-    }
-    
-    .form-group input:focus + label,
-    .form-group input:not(:placeholder-shown) + label,
-    .form-group select:focus + label,
-    .form-group select:not(:placeholder-shown) + label {
-      top: -0.75rem;
-      left: 0.75rem;
-      font-size: 0.75rem;
-      color: var(--primary-dark);
-      background: var(--card-bg);
-      padding: 0 0.25rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--dark);
     }
     
     .form-control {
+      display: block;
       width: 100%;
-      padding: 0.875rem;
-      border: 2px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: var(--text-primary);
-      background: var(--card-bg);
-      transition: all 0.3s;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--dark);
+      background-color: var(--white);
+      background-clip: padding-box;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius-sm);
+      transition: var(--transition);
     }
     
     .form-control:focus {
-      outline: none;
-      border-color: var(--primary-dark);
-      box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.1);
+      color: var(--dark);
+      background-color: var(--white);
+      border-color: var(--primary-light);
+      outline: 0;
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
     }
     
-    .form-control:disabled {
-      background: var(--border);
-      cursor: not-allowed;
-    }
-    
-    .form-group select.form-control {
+    .form-select {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 2.25rem 0.75rem 0.75rem;
+      -moz-padding-start: calc(0.75rem - 3px);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--dark);
+      background-color: var(--white);
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234a4e69' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 16px 12px;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius-sm);
+      transition: var(--transition);
       appearance: none;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%234a5a6a" d="M6 9l4-5H2z"/></svg>') no-repeat right 1rem center / 12px 12px;
     }
     
-    .input-icon { position: relative; }
-    
-    .input-icon i {
-      position: absolute;
-      top: 50%;
-      left: 1rem;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
+    .form-select:focus {
+      border-color: var(--primary-light);
+      outline: 0;
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
     }
-    
-    .input-icon input { padding-left: 2.5rem; }
-    
-    .password-strength {
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-      color: var(--text-secondary);
-    }
-    
-    .password-strength.weak { color: var(--secondary); }
-    .password-strength.moderate { color: #f59e0b; }
-    .password-strength.strong { color: var(--success); }
     
     .btn {
-      padding: 0.875rem 1.5rem;
-      background: var(--primary);
-      color: var(--white);
-      border: none;
-      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      vertical-align: middle;
       cursor: pointer;
-      font-size: 0.975rem;
-      font-weight: 600;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
+      user-select: none;
+      background-color: var(--primary);
+      border: 1px solid transparent;
+      border-radius: var(--border-radius-sm);
+      transition: var(--transition);
     }
     
     .btn:hover {
-      background: var(--primary-light);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
     }
     
-    .btn:active { transform: none; }
-    
-    .btn-danger { background: var(--secondary); }
-    
-    .btn-danger:hover { background: #e63946; }
-    
-    .btn::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      transition: width 0.3s, height 0.3s;
+    .btn:active {
+      transform: translateY(0);
     }
     
-    .btn:active::after {
-      width: 200px;
-      height: 200px;
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
     }
     
-    .theme-preview { display: flex; gap: 1rem; margin-top: 0.75rem; }
+    .btn-danger {
+      background-color: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background-color: #d90429;
+    }
+    
+    /* Theme Preview */
+    .theme-preview {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
     
     .theme-option {
       width: 44px;
@@ -407,24 +452,90 @@
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: all 0.3s;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
     }
     
     .theme-option:hover {
       transform: scale(1.1);
-      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
     }
     
     .theme-option.selected {
-      border-color: var(--primary-dark);
-      box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.2);
+      border-color: var(--primary);
+      transform: scale(1.1);
+      box-shadow: 0 0 0 2px var(--primary-light);
     }
     
-    .toggle-container { display: flex; align-items: center; gap: 1rem; }
+    /* Password Strength Indicator */
+    .password-strength {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
     
-    .toggle { position: relative; width: 44px; height: 24px; }
+    .password-strength-meter {
+      height: 4px;
+      flex-grow: 1;
+      background: var(--light-gray);
+      border-radius: 2px;
+      overflow: hidden;
+    }
     
-    .toggle input { opacity: 0; width: 0; height: 0; }
+    .password-strength-meter-fill {
+      height: 100%;
+      width: 0;
+      transition: width 0.3s ease;
+    }
+    
+    .password-strength.weak .password-strength-meter-fill {
+      background: var(--danger);
+      width: 33%;
+    }
+    
+    .password-strength.moderate .password-strength-meter-fill {
+      background: var(--warning);
+      width: 66%;
+    }
+    
+    .password-strength.strong .password-strength-meter-fill {
+      background: var(--success);
+      width: 100%;
+    }
+    
+    .password-strength.weak .password-strength-text {
+      color: var(--danger);
+    }
+    
+    .password-strength.moderate .password-strength-text {
+      color: var(--warning);
+    }
+    
+    .password-strength.strong .password-strength-text {
+      color: var(--success);
+    }
+    
+    /* 2FA Toggle */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    
+    .toggle {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+    
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
     
     .slider {
       position: absolute;
@@ -433,140 +544,225 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: var(--border);
-      transition: 0.3s;
-      border-radius: 24px;
+      background: var(--light-gray);
+      transition: var(--transition);
+      border-radius: 34px;
     }
     
     .slider:before {
       position: absolute;
-      content: '';
+      content: "";
       height: 20px;
       width: 20px;
-      left: 2px;
-      bottom: 2px;
-      background-color: var(--white);
-      transition: 0.3s;
+      left: 3px;
+      bottom: 3px;
+      background: var(--white);
+      transition: var(--transition);
       border-radius: 50%;
+      box-shadow: var(--shadow-sm);
     }
     
-    input:checked + .slider { background-color: var(--success); }
+    input:checked + .slider {
+      background: var(--success);
+    }
     
-    input:checked + .slider:before { transform: translateX(20px); }
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
     
+    /* Message Styles */
     .message {
       display: none;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 1.25rem;
       margin-bottom: 1rem;
-      border-radius: 6px;
+      border-radius: var(--border-radius-sm);
       font-size: 0.9rem;
-      background: var(--secondary);
-      color: var(--white);
+      text-align: center;
+      background: var(--danger);
+      color: white;
       position: fixed;
-      top: 80px;
+      top: 90px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 1000;
-      text-align: center;
-      box-shadow: var(--shadow);
+      z-index: 2000;
+      box-shadow: var(--shadow-md);
+      max-width: 90%;
+      width: fit-content;
     }
     
-    .message.success { background-color: var(--success); }
+    .message.success {
+      background: var(--success);
+    }
     
+    .message.warning {
+      background: var(--warning);
+    }
+    
+    /* Loading Animation */
     .loading-container {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #0077b6;
+      background: var(--primary);
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      z-index: 2000;
+      z-index: 3000;
     }
     
     .loader {
-      width: 40px;
-      aspect-ratio: 1;
-      display: grid;
-      transform: translateY(-50%);
-    }
-    
-    .loader::before,
-    .loader::after {
-      content: '';
-      grid-area: 1/1;
+      width: 48px;
+      height: 48px;
+      border: 5px solid var(--white);
+      border-bottom-color: transparent;
       border-radius: 50%;
-      transform-origin: bottom;
-      position: relative;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
     }
     
-    .loader::before {
-      background: radial-gradient(at 30% 30%, #0000, #000a) red;
-      transform: scaleY(0.65);
-      top: 0;
-      animation: l11-1 0.5s cubic-bezier(0, 400, 1, 400) infinite, l11-2 0.5s ease infinite;
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
     
-    .loader::after {
+    /* Card Styles */
+    .card {
       background: var(--white);
-      filter: blur(8px);
-      transform: scaleY(0.3) translate(0px, 0px);
-      left: 0;
-      animation: l11-3 0.5s cubic-bezier(0, 400, 1, 400) infinite;
+      border-radius: var(--border-radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.5rem;
     }
     
-    @keyframes l11-1 { 100% { top: -0.2px; } }
-    @keyframes l11-2 { 4%, 100% { transform: scaleY(1); } }
-    @keyframes l11-3 { 100% { transform: scaleY(0.3) translate(0.1px, -0.1px); } }
+    .card-header {
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--light-gray);
+    }
     
-    #app-content.hidden { display: none; }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0;
+    }
     
-    .divider { height: 2px; background: var(--border); margin: 2rem 0; }
-    
-    @media (max-width: 600px) {
-      .container { flex-direction: column; padding: 10px; }
-      .sidebar { width: 100%; padding: 10px; }
-      .sidebar-menu {
-        display: flex;
-        overflow-x: auto;
-        gap: 0.5rem;
-        scrollbar-width: none;
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+      .container {
+        flex-direction: column;
       }
-      .sidebar-menu::-webkit-scrollbar { display: none; }
-      .main-content { padding: 10px; }
-      .page-title { font-size: 1.5rem; }
-      .header { padding: 0 10px; }
-      .logo h1 { font-size: 1rem; }
-      .logo img { height: 32px; }
-      .user-popup { width: 220px; top: 50px; }
+      
+      .sidebar {
+        width: 100%;
+        margin-bottom: 1.5rem;
+      }
     }
     
-    @media (max-width: 400px) {
-      .btn { width: 100%; }
-      .page-title { font-size: 1rem; }
-      .settings h3 { font-size: 1rem; }
-      .user-avatar { width: 32px; height: 32px; }
-      .user-popup { width: 180px; top: 45px; }
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .header {
+        padding: 0 1rem;
+        height: 60px;
+      }
+      
+      .logo img {
+        height: 32px;
+      }
+      
+      .logo h1 {
+        font-size: 1.3rem;
+      }
+      
+      .main-content {
+        padding: 1.5rem;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+      
+      .user-popup {
+        width: 220px;
+      }
     }
     
-    html, body { max-width: 100%; overflow-x: hidden; }
+    @media (max-width: 576px) {
+      .theme-preview {
+        flex-wrap: wrap;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .user-popup {
+        width: 200px;
+        top: 55px;
+      }
+    }
     
-    button, a, .theme-option { touch-action: manipulation; min-height: 44px; }
+    /* Utility Classes */
+    .text-muted {
+      color: var(--medium-gray) !important;
+    }
+    
+    .mb-3 {
+      margin-bottom: 1rem !important;
+    }
+    
+    .mt-3 {
+      margin-top: 1rem !important;
+    }
+    
+    .d-flex {
+      display: flex !important;
+    }
+    
+    .align-items-center {
+      align-items: center !important;
+    }
+    
+    .justify-content-between {
+      justify-content: space-between !important;
+    }
+    
+    /* Prevent horizontal scrolling */
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    
+    /* Better touch targets */
+    button, a, .theme-option {
+      touch-action: manipulation;
+      min-height: 44px;
+    }
   </style>
 </head>
 <body>
+  <!-- Message Container -->
   <div class="message" id="auth-message"></div>
+
+  <!-- Loading State -->
   <div id="loading" class="loading-container">
-    <div class="loader"></div>
+    <span class="loader"></span>
   </div>
-  <div id="app-content" class="hidden">
+
+  <!-- Main App Content -->
+  <div id="app-content">
+    <!-- Header -->
     <header class="header">
-      <div class="logo">
-        <img src="https://via.placeholder.com/40" alt="MyMemory Logo">
+      <a href="index.html" class="logo">
+        <img src="amnesia.png" alt="MyMemory Logo">
         <h1>MyMemory</h1>
-      </div>
+      </a>
       <div class="user-menu">
         <div class="user-avatar" id="user-avatar" aria-label="User Menu"></div>
         <div class="user-popup" id="user-popup">
@@ -577,111 +773,153 @@
               <p id="popup-user-email"></p>
             </div>
           </div>
-          <button class="logout-btn" id="logout-btn" aria-label="Logout">
+          <button class="logout-btn" id="popup-logout-btn" aria-label="Logout">
             <i class="fas fa-sign-out-alt"></i> Logout
           </button>
         </div>
       </div>
     </header>
+
+    <!-- Main Container -->
     <div class="container">
+      <!-- Sidebar -->
       <aside class="sidebar">
         <ul class="sidebar-menu">
           <li><a href="index.html" id="dashboard-link"><i class="fas fa-home"></i> Dashboard</a></li>
-          <li><a href="ToDoList.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
-          <li><a href="PasswordManager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
-          <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-alt"></i> Documents</a></li>
+          <li><a href="To do list.html" id="todo-link"><i class="fas fa-tasks"></i> To-Do List</a></li>
+          <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
+          <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" class="active" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
       </aside>
+
+      <!-- Main Content -->
       <main class="main-content">
         <div class="content-wrapper">
           <div class="page-header">
-            <h2 class="page-title"><i class="fas fa-cog"></i> Settings</h2>
+            <h2 class="page-title">Account Settings</h2>
           </div>
-          <div class="settings">
-            <h3><i class="fas fa-user"></i> Profile</h3>
-            <form id="profile-form">
-              <div class="form-group input-icon">
-                <input type="text" id="display-name" class="form-control" placeholder=" " aria-label="Display Name" required>
-                <i class="fas fa-user"></i>
-                <label for="display-name">Display Name</label>
-              </div>
-              <div class="form-group input-icon">
-                <input type="email" id="email" class="form-control" placeholder=" " disabled aria-label="Email">
-                <i class="fas fa-envelope"></i>
-                <label for="email">Email</label>
-              </div>
-              <button type="submit" class="btn" aria-label="Save Profile Changes">Save Changes</button>
-            </form>
-          </div>
-          <div class="divider"></div>
-          <div class="settings">
-            <h3><i class="fas fa-lock"></i> Change Password</h3>
-            <form id="password-form">
-              <div class="form-group input-icon">
-                <input type="password" id="current-password" class="form-control" placeholder=" " aria-label="Current Password" required>
-                <i class="fas fa-key"></i>
-                <label for="current-password">Current Password</label>
-              </div>
-              <div class="form-group input-icon">
-                <input type="password" id="new-password" class="form-control" placeholder=" " aria-label="New Password" required>
-                <i class="fas fa-lock"></i>
-                <label for="new-password">New Password</label>
-                <div class="password-strength" id="password-strength"></div>
-              </div>
-              <div class="form-group input-icon">
-                <input type="password" id="confirm-password" class="form-control" placeholder=" " aria-label="Confirm New Password" required>
-                <i class="fas fa-lock"></i>
-                <label for="confirm-password">Confirm New Password</label>
-              </div>
-              <button type="submit" class="btn" aria-label="Change Password">Change Password</button>
-            </form>
-          </div>
-          <div class="divider"></div>
-          <div class="settings">
-            <h3><i class="fas fa-paint-brush"></i> Appearance</h3>
-            <div class="form-group">
-              <select id="theme" class="form-control" aria-label="Select Theme">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="blue">Blue</option>
-                <option value="sepia">Sepia</option>
-                <option value="system">System</option>
-              </select>
-              <label for="theme">Theme</label>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Profile Information</h3>
             </div>
-            <div class="theme-preview">
-              <div class="theme-option" data-theme="light" style="background: #ffffff; border: 1px solid #e2e8f0;" aria-label="Light Theme"></div>
-              <div class="theme-option" data-theme="dark" style="background: #2a2f32;" aria-label="Dark Theme"></div>
-              <div class="theme-option" data-theme="blue" style="background: #f0f5ff;" aria-label="Blue Theme"></div>
-              <div class="theme-option" data-theme="sepia" style="background: #fef8e8;" aria-label="Sepia Theme"></div>
-              <div class="theme-option" data-theme="system" style="background: linear-gradient(45deg, #ffffff 50%, #2a2f32 50%);" aria-label="System Theme"></div>
+            <div class="card-body">
+              <form id="profile-form">
+                <div class="form-group">
+                  <label for="display-name">Display Name</label>
+                  <input type="text" id="display-name" class="form-control" aria-label="Display Name" required>
+                </div>
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input type="email" id="email" class="form-control" disabled aria-label="Email">
+                  <small class="text-muted">Contact support to change your email address</small>
+                </div>
+                <button type="submit" class="btn mt-3" aria-label="Save Profile Changes">
+                  <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+              </form>
             </div>
           </div>
-          <div class="divider"></div>
-          <div class="settings">
-            <h3><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h3>
-            <div class="form-group">
-              <label for="2fa-toggle">Enable 2FA</label>
-              <div class="toggle-container">
-                <label class="toggle">
-                  <input type="checkbox" id="2fa-toggle" aria-label="Toggle 2FA">
-                  <span class="slider"></span>
-                </label>
-                <span id="2fa-status">Disabled</span>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Change Password</h3>
+            </div>
+            <div class="card-body">
+              <form id="password-form">
+                <div class="form-group">
+                  <label for="current-password">Current Password</label>
+                  <input type="password" id="current-password" class="form-control" aria-label="Current Password" required>
+                </div>
+                <div class="form-group">
+                  <label for="new-password">New Password</label>
+                  <input type="password" id="new-password" class="form-control" aria-label="New Password" required>
+                  <div class="password-strength" id="password-strength">
+                    <span class="password-strength-text">Strength</span>
+                    <span class="password-strength-meter">
+                      <span class="password-strength-meter-fill"></span>
+                    </span>
+                  </div>
+                  <small class="text-muted">Use 8 or more characters with a mix of letters, numbers & symbols</small>
+                </div>
+                <div class="form-group">
+                  <label for="confirm-password">Confirm New Password</label>
+                  <input type="password" id="confirm-password" class="form-control" aria-label="Confirm New Password" required>
+                </div>
+                <button type="submit" class="btn mt-3" aria-label="Change Password">
+                  <i class="fas fa-key mr-2"></i> Change Password
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Appearance</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="theme">Theme Preference</label>
+                <select id="theme" class="form-select" aria-label="Select Theme">
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="system">System Default</option>
+                </select>
+                <small class="text-muted">Choose how MyMemory looks to you</small>
+              </div>
+              <div class="theme-preview">
+                <div class="theme-option" data-theme="light" style="background: #f8f9fa; border: 1px solid #dee2e6;" aria-label="Light Theme" title="Light Theme"></div>
+                <div class="theme-option" data-theme="dark" style="background: #1e1e1e;" aria-label="Dark Theme" title="Dark Theme"></div>
+                <div class="theme-option" data-theme="system" style="background: linear-gradient(135deg, #f8f9fa 50%, #1e1e1e 50%);" aria-label="System Theme" title="System Default"></div>
               </div>
             </div>
-            <div id="2fa-qr-code" style="display: none; margin-top: 1rem; color: var(--text-primary);"></div>
           </div>
-          <div class="divider"></div>
-          <div class="settings">
-            <h3><i class="fas fa-download"></i> Account Data</h3>
-            <button id="export-data" class="btn" aria-label="Export Account Data">Export Data</button>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Two-Factor Authentication</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Security Setting</label>
+                <div class="toggle-container">
+                  <label class="toggle">
+                    <input type="checkbox" id="2fa-toggle" aria-label="Toggle 2FA">
+                    <span class="slider"></span>
+                  </label>
+                  <span id="2fa-status">Disabled</span>
+                </div>
+                <small class="text-muted">Add an extra layer of security to your account</small>
+              </div>
+              <div id="2fa-qr-code" style="display: none; margin-top: 1rem;"></div>
+            </div>
           </div>
-          <div class="divider"></div>
-          <div class="settings">
-            <h3><i class="fas fa-trash"></i> Account</h3>
-            <button id="delete-account" class="btn btn-danger" aria-label="Delete Account">Delete Account</button>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Data Management</h3>
+            </div>
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <h4 class="mb-1">Export Account Data</h4>
+                  <small class="text-muted">Download a copy of your personal data</small>
+                </div>
+                <button id="export-data" class="btn btn-sm" aria-label="Export Account Data">
+                  <i class="fas fa-download mr-2"></i> Export
+                </button>
+              </div>
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 class="mb-1">Delete Account</h4>
+                  <small class="text-muted">Permanently remove your account and all data</small>
+                </div>
+                <button id="delete-account" class="btn btn-sm btn-danger" aria-label="Delete Account">
+                  <i class="fas fa-trash-alt mr-2"></i> Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -689,15 +927,14 @@
   </div>
   <script>
     // Firebase configuration
-    // TODO: Replace with your Firebase project credentials from Firebase Console > Project Settings
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID",
-      measurementId: "YOUR_MEASUREMENT_ID"
+      apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+      authDomain: "mymemory-ddc21.firebaseapp.com",
+      projectId: "mymemory-ddc21",
+      storageBucket: "mymemory-ddc21.firebasestorage.app",
+      messagingSenderId: "875926928384",
+      appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+      measurementId: "G-8XZZNJB0QD"
     };
 
     // Initialize Firebase
@@ -705,119 +942,67 @@
     try {
       firebase.initializeApp(firebaseConfig);
       auth = firebase.auth();
-      console.log('Firebase initialized successfully');
     } catch (error) {
       console.error('Firebase initialization failed:', error);
-      showMessage('Failed to initialize application.', 'error');
+      showMessage('Failed to initialize application. Please try again later.', 'error');
       hideLoading();
-      redirectToLogin();
+      window.location.replace('index.html');
     }
 
+    // Show message
     function showMessage(message, type = 'error') {
       const messageElement = document.getElementById('auth-message');
       messageElement.textContent = message;
       messageElement.className = `message ${type}`;
       messageElement.style.display = 'block';
-      setTimeout(() => messageElement.style.display = 'none', 3000);
+      setTimeout(() => {
+        messageElement.style.display = 'none';
+      }, 5000);
     }
 
+    // Show/hide loading
     function showLoading() {
       document.getElementById('loading').style.display = 'flex';
-      document.getElementById('app-content').classList.add('hidden');
-      console.log('Showing loading state');
+      document.getElementById('app-content').style.display = 'none';
     }
 
     function hideLoading() {
       document.getElementById('loading').style.display = 'none';
-      document.getElementById('app-content').classList.remove('hidden');
-      console.log('Hiding loading state');
+      document.getElementById('app-content').style.display = 'block';
     }
 
-    function redirectToLogin() {
-      showMessage('Please log in to access this page.', 'error');
-      localStorage.clear();
-      console.log('Redirecting to login page');
-      setTimeout(() => window.location.replace('index.html'), 1000);
-    }
-
-    function setupUserPopup(userData) {
-      const userAvatar = document.getElementById('user-avatar');
-      const userPopup = document.getElementById('user-popup');
-      const popupUserAvatar = document.getElementById('popup-user-avatar');
-      const popupUserName = document.getElementById('popup-user-name');
-      const popupUserEmail = document.getElementById('popup-user-email');
-      const logoutBtn = document.getElementById('logout-btn');
-
-      popupUserAvatar.textContent = userData.avatarInitials;
-      popupUserName.textContent = userData.name;
-      popupUserEmail.textContent = userData.email;
-
-      userAvatar.addEventListener('click', e => {
-        e.stopPropagation();
-        userPopup.classList.toggle('active');
-        console.log('Toggled user menu');
-      });
-
-      document.addEventListener('click', e => {
-        if (!userPopup.contains(e.target) && e.target !== userAvatar) {
-          userPopup.classList.remove('active');
-          console.log('Closed user menu');
-        }
-      });
-
-      document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && userPopup.classList.contains('active')) {
-          userPopup.classList.remove('active');
-          console.log('Closed user menu with Escape key');
-        }
-      });
-
-      logoutBtn.addEventListener('click', () => {
-        showLoading();
-        console.log('Initiating logout');
-        auth.signOut().then(() => {
-          console.log('User logged out');
-          redirectToLogin();
-        }).catch(error => {
-          hideLoading();
-          console.error('Logout error:', error);
-          showMessage('Logout error: ' + error.message, 'error');
-        });
-      });
-    }
-
+    // Secure sidebar navigation
     function secureNavigation() {
       let isCheckingAuth = false;
       document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        link.addEventListener('click', async e => {
-          e.preventDefault();
-          const targetUrl = link.getAttribute('href');
-          console.log('Navigating to:', targetUrl);
-          if (isCheckingAuth) {
-            console.warn('Auth check in progress');
+        link.addEventListener('click', async function(e) {
+          if (this.classList.contains('active')) {
+            e.preventDefault();
             return;
           }
+          
+          e.preventDefault();
+          const targetUrl = this.getAttribute('href');
+          if (isCheckingAuth) return;
           isCheckingAuth = true;
           try {
             const user = await new Promise((resolve, reject) => {
               const unsubscribe = auth.onAuthStateChanged(user => {
                 unsubscribe();
-                console.log('Auth state during navigation:', user ? { uid: user.uid, email: user.email, emailVerified: user.emailVerified } : null);
                 resolve(user);
               }, reject);
             });
             if (user && user.emailVerified) {
-              console.log('User authenticated, redirecting to', targetUrl);
               window.location.href = targetUrl;
             } else {
-              console.error('Authentication required or email not verified');
-              showMessage('Authentication required or email not verified.', 'error');
-              redirectToLogin();
+              showMessage('Please log in to access this page.', 'error');
+              localStorage.clear();
+              window.location.replace('index.html');
             }
           } catch (error) {
-            console.error('Navigation error:', error);
-            showMessage('Authentication error: ' + error.message, 'error');
-            redirectToLogin();
+            showMessage('Error verifying authentication.', 'error');
+            localStorage.clear();
+            window.location.replace('index.html');
           } finally {
             isCheckingAuth = false;
           }
@@ -825,289 +1010,360 @@
       });
     }
 
-    function checkAuthState(eventType) {
-      showLoading();
-      console.log('Checking auth state for event:', eventType);
-      const authTimeout = setTimeout(() => {
-        hideLoading();
-        console.error('Authentication timeout');
-        showMessage('Authentication timed out.', 'error');
-        redirectToLogin();
-      }, 5000);
+    // Setup user popup
+    function setupUserPopup(userData) {
+      const userAvatar = document.getElementById('user-avatar');
+      const userPopup = document.getElementById('user-popup');
+      const popupUserAvatar = document.getElementById('popup-user-avatar');
+      const popupUserName = document.getElementById('popup-user-name');
+      const popupUserEmail = document.getElementById('popup-user-email');
+      const logoutBtn = document.getElementById('popup-logout-btn');
 
-      auth.onAuthStateChanged(user => {
-        clearTimeout(authTimeout);
-        console.log('Auth state changed:', user ? { uid: user.uid, email: user.email, emailVerified: user.emailVerified } : null);
-        try {
-          if (user && user.emailVerified) {
-            const userData = {
-              name: user.displayName || user.email.split('@')[0],
-              email: user.email,
-              avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
-            };
-            console.log('User data:', userData);
-            localStorage.setItem('userData', JSON.stringify(userData));
-            localStorage.setItem('isAuthenticated', 'true');
-            hideLoading();
-            initializePage(userData);
-          } else {
-            hideLoading();
-            if (user && !user.emailVerified) {
-              showMessage('Please verify your email.', 'error');
-              console.log('Email not verified, signing out');
-              auth.signOut();
-            }
-            console.error('No authenticated user or email not verified');
-            redirectToLogin();
-          }
-        } catch (error) {
-          console.error('Auth state error:', error);
-          hideLoading();
-          showMessage('Authentication error: ' + error.message, 'error');
-          redirectToLogin();
+      popupUserAvatar.textContent = userData.avatarInitials;
+      popupUserName.textContent = userData.name;
+      popupUserEmail.textContent = userData.email;
+
+      userAvatar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!userPopup.contains(e.target) && e.target !== userAvatar) {
+          userPopup.classList.remove('active');
         }
-      }, error => {
-        console.error('Auth state callback error:', error);
-        clearTimeout(authTimeout);
-        hideLoading();
-        showMessage('Error loading user state: ' + error.message, 'error');
-        redirectToLogin();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && userPopup.classList.contains('active')) {
+          userPopup.classList.remove('active');
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        showLoading();
+        auth.signOut().then(() => {
+          localStorage.clear();
+          window.location.replace('index.html');
+        }).catch(error => {
+          hideLoading();
+          showMessage('Error logging out: ' + error.message, 'error');
+        });
       });
     }
 
-    function initializePage(userData) {
-      console.log('Initializing page with user data:', userData);
-      try {
-        document.getElementById('user-avatar').textContent = userData.avatarInitials;
-        setupUserPopup(userData);
-        document.getElementById('display-name').value = userData.name;
-        document.getElementById('email').value = userData.email;
-
-        secureNavigation();
-
-        document.getElementById('profile-form').addEventListener('submit', async e => {
-          e.preventDefault();
-          showLoading();
-          console.log('Profile form submitted');
-          const displayName = document.getElementById('display-name').value.trim();
-          if (!displayName) {
-            hideLoading();
-            console.error('Display name is required');
-            showMessage('Display name is required.', 'error');
-            return;
-          }
-          try {
-            await auth.currentUser.updateProfile({ displayName });
-            showMessage('Profile updated successfully!', 'success');
-            localStorage.setItem('userData', JSON.stringify({
-              name: displayName,
-              email: userData.email,
-              avatarInitials: displayName.substring(0, 2).toUpperCase()
-            }));
-            document.getElementById('user-avatar').textContent = displayName.substring(0, 2).toUpperCase();
-            setupUserPopup({
-              name: displayName,
-              email: userData.email,
-              avatarInitials: displayName.substring(0, 2).toUpperCase()
-            });
-            hideLoading();
-          } catch (error) {
-            hideLoading();
-            console.error('Error updating profile:', error);
-            showMessage('Error updating profile: ' + error.message, 'error');
-          }
-        });
-
-        const passwordForm = document.getElementById('password-form');
-        const newPasswordInput = document.getElementById('new-password');
-        const passwordStrength = document.getElementById('password-strength');
-
-        function checkPasswordStrength(password) {
-          const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-          const moderateRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
-          if (strongRegex.test(password)) {
-            passwordStrength.textContent = 'Strong';
-            passwordStrength.className = 'password-strength strong';
-          } else if (moderateRegex.test(password)) {
-            passwordStrength.textContent = 'Moderate';
-            passwordStrength.className = 'password-strength moderate';
-          } else {
-            passwordStrength.textContent = 'Weak';
-            passwordStrength.className = 'password-strength weak';
-          }
-        }
-
-        newPasswordInput.addEventListener('input', () => {
-          console.log('Checking password strength');
-          checkPasswordStrength(newPasswordInput.value);
-        });
-
-        passwordForm.addEventListener('submit', async e => {
-          e.preventDefault();
-          showLoading();
-          console.log('Password form submitted');
-          const currentPassword = document.getElementById('current-password').value;
-          const newPassword = document.getElementById('new-password').value;
-          const confirmPassword = document.getElementById('confirm-password').value;
-
-          if (!currentPassword || !newPassword || !confirmPassword) {
-            hideLoading();
-            console.error('Missing required fields');
-            showMessage('All fields are required.', 'error');
-            return;
-          }
-
-          if (newPassword !== confirmPassword) {
-            hideLoading();
-            console.error('Passwords do not match');
-            showMessage('New passwords do not match.', 'error');
-            return;
-          }
-
-          const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-          if (!strongRegex.test(newPassword)) {
-            hideLoading();
-            console.error('Password not strong enough');
-            showMessage('Password must be 8+ chars, uppercase, lowercase, number, special char.', 'error');
-            return;
-          }
-
-          try {
-            const user = auth.currentUser;
-            const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-            await user.reauthenticateWithCredential(credential);
-            await user.updatePassword(newPassword);
-            showMessage('Password updated successfully!', 'success');
-            passwordForm.reset();
-            passwordStrength.textContent = '';
-            hideLoading();
-          } catch (error) {
-            hideLoading();
-            console.error('Error updating password:', error);
-            if (error.code === 'auth/wrong-password') {
-              showMessage('Current password is incorrect.', 'error');
-            } else {
-              showMessage('Error updating password: ' + error.message, 'error');
-            }
-          }
-        });
-
-        const themeSelect = document.getElementById('theme');
-        const themeOptions = document.querySelectorAll('.theme-option');
-        let currentTheme = localStorage.getItem('theme') || 'light';
-        themeSelect.value = currentTheme;
-        document.querySelector(`.theme-option[data-theme="${currentTheme}"]`).classList.add('selected');
-
-        function applyTheme(theme) {
-          console.log('Applying theme:', theme);
-          if (theme === 'system') {
-            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-          document.body.className = theme;
-          localStorage.setItem('theme', themeSelect.value);
-          themeOptions.forEach(opt => opt.classList.remove('selected'));
-          document.querySelector(`.theme-option[data-theme="${themeSelect.value}"]`).classList.add('selected');
-        }
-
-        applyTheme(currentTheme);
-
-        themeSelect.addEventListener('change', () => {
-          console.log('Theme select changed to:', themeSelect.value);
-          applyTheme(themeSelect.value);
-        });
-
-        themeOptions.forEach(option => {
-          option.addEventListener('click', () => {
-            console.log('Theme option clicked:', option.dataset.theme);
-            themeSelect.value = option.dataset.theme;
-            applyTheme(themeSelect.value);
-          });
-        });
-
-        const twoFAToggle = document.getElementById('2fa-toggle');
-        const twoFAStatus = document.getElementById('2fa-status');
-        const twoFAQrCode = document.getElementById('2fa-qr-code');
-
-        twoFAToggle.addEventListener('change', () => {
-          showLoading();
-          console.log('2FA toggle changed:', twoFAToggle.checked);
-          if (twoFAToggle.checked) {
-            try {
-              twoFAStatus.textContent = 'Enabled';
-              twoFAQrCode.textContent = 'Scan this QR code with your authenticator app (simulated).';
-              twoFAQrCode.style.display = 'block';
-              showMessage('2FA enabled (simulated).', 'success');
-            } catch (error) {
-              twoFAToggle.checked = false;
-              console.error('Error enabling 2FA:', error);
-              showMessage('Error enabling 2FA: ' + error.message, 'error');
-            }
-          } else {
-            twoFAStatus.textContent = 'Disabled';
-            twoFAQrCode.style.display = 'none';
-            showMessage('2FA disabled (simulated).', 'success');
-          }
-          hideLoading();
-        });
-
-        document.getElementById('export-data').addEventListener('click', () => {
-          console.log('Exporting data');
-          try {
-            const data = {
-              displayName: userData.name,
-              email: userData.email,
-              timestamp: new Date().toISOString()
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'mymemory-data.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showMessage('Data exported successfully!', 'success');
-          } catch (error) {
-            console.error('Error exporting data:', error);
-            showMessage('Error exporting data: ' + error.message, 'error');
-          }
-        });
-
-        document.getElementById('delete-account').addEventListener('click', async () => {
-          console.log('Delete account initiated');
-          if (!confirm('Are you sure you want to delete your account?')) {
-            console.log('Account deletion cancelled');
-            return;
-          }
-          showLoading();
-          try {
-            await auth.currentUser.delete();
-            console.log('Account deleted successfully');
-            showMessage('Account deleted successfully.', 'success');
-            redirectToLogin();
-          } catch (error) {
-            hideLoading();
-            console.error('Error deleting account:', error);
-            showMessage('Error deleting account: ' + error.message, 'error');
-          }
-        });
-      } catch (error) {
-        console.error('Page initialization error:', error);
-        showMessage('Error initializing page: ' + error.message, 'error');
+    // Check authentication state
+    function checkAuthState(eventType) {
+      showLoading();
+      const authTimeout = setTimeout(() => {
         hideLoading();
-      }
+        showMessage('Authentication timed out. Please try again.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
+      }, 7000);
+
+      auth.onAuthStateChanged((user) => {
+        clearTimeout(authTimeout);
+        if (user && user.emailVerified) {
+          const userData = {
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
+          };
+          localStorage.setItem('userData', JSON.stringify(userData));
+          localStorage.setItem('isAuthenticated', 'true');
+          hideLoading();
+          initializePage(userData);
+        } else {
+          hideLoading();
+          if (user && !user.emailVerified) {
+            showMessage('Please verify your email.', 'error');
+            auth.signOut();
+          }
+          localStorage.clear();
+          window.location.replace('index.html');
+        }
+      }, error => {
+        hideLoading();
+        showMessage('Authentication error.', 'error');
+        localStorage.clear();
+        window.location.replace('index.html');
+      });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOMContentLoaded event');
-      checkAuthState('DOMContentLoaded');
-    });
-
-    window.addEventListener('pageshow', e => {
+    // Handle page load and bfcache restore
+    document.addEventListener('DOMContentLoaded', () => checkAuthState('DOMContentLoaded'));
+    window.addEventListener('pageshow', (e) => {
       if (e.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        console.log('Pageshow event triggered');
         checkAuthState('pageshow');
       }
     });
+
+    // Check password strength
+    function checkPasswordStrength(password) {
+      const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      const moderateRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+      
+      const strengthElement = document.getElementById('password-strength');
+      
+      if (!password) {
+        strengthElement.className = 'password-strength';
+        return;
+      }
+      
+      if (strongRegex.test(password)) {
+        strengthElement.className = 'password-strength strong';
+      } else if (moderateRegex.test(password)) {
+        strengthElement.className = 'password-strength moderate';
+      } else {
+        strengthElement.className = 'password-strength weak';
+      }
+    }
+
+    // Apply theme to the page
+    function applyTheme(theme) {
+      // Remove all theme classes first
+      document.body.classList.remove('light', 'dark');
+      
+      if (theme === 'system') {
+        // Use system preference
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      
+      document.body.classList.add(theme);
+      localStorage.setItem('theme', theme);
+      
+      // Update theme selector
+      document.getElementById('theme').value = theme;
+      
+      // Update theme option selection
+      document.querySelectorAll('.theme-option').forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.theme === theme) {
+          option.classList.add('selected');
+        }
+      });
+    }
+
+    // Initialize page
+    function initializePage(userData) {
+      document.getElementById('user-avatar').textContent = userData.avatarInitials;
+      setupUserPopup(userData);
+      document.getElementById('display-name').value = userData.name;
+      document.getElementById('email').value = userData.email;
+
+      secureNavigation();
+
+      // Initialize password strength checker
+      document.getElementById('new-password').addEventListener('input', (e) => {
+        checkPasswordStrength(e.target.value);
+      });
+
+      // Profile form submission
+      document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoading();
+        
+        const displayName = document.getElementById('display-name').value.trim();
+        if (!displayName) {
+          hideLoading();
+          showMessage('Display name is required.', 'error');
+          return;
+        }
+        
+        try {
+          await auth.currentUser.updateProfile({ displayName });
+          
+          // Update UI with new name
+          const updatedUserData = {
+            name: displayName,
+            email: userData.email,
+            avatarInitials: displayName.substring(0, 2).toUpperCase()
+          };
+          
+          localStorage.setItem('userData', JSON.stringify(updatedUserData));
+          
+          document.getElementById('user-avatar').textContent = updatedUserData.avatarInitials;
+          document.getElementById('popup-user-name').textContent = displayName;
+          document.getElementById('popup-user-avatar').textContent = updatedUserData.avatarInitials;
+          
+          showMessage('Profile updated successfully!', 'success');
+        } catch (error) {
+          showMessage('Error updating profile: ' + error.message, 'error');
+        } finally {
+          hideLoading();
+        }
+      });
+
+      // Password form submission
+      document.getElementById('password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoading();
+        
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        // Validate inputs
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          hideLoading();
+          showMessage('All fields are required.', 'error');
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          hideLoading();
+          showMessage('New passwords do not match.', 'error');
+          return;
+        }
+
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongRegex.test(newPassword)) {
+          hideLoading();
+          showMessage('Password must be at least 8 characters with uppercase, lowercase, number, and special character.', 'error');
+          return;
+        }
+
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+          
+          // Reauthenticate user
+          await user.reauthenticateWithCredential(credential);
+          
+          // Update password
+          await user.updatePassword(newPassword);
+          
+          // Reset form
+          document.getElementById('password-form').reset();
+          document.getElementById('password-strength').className = 'password-strength';
+          
+          showMessage('Password updated successfully!', 'success');
+        } catch (error) {
+          if (error.code === 'auth/wrong-password') {
+            showMessage('Current password is incorrect.', 'error');
+          } else {
+            showMessage('Error updating password: ' + error.message, 'error');
+          }
+        } finally {
+          hideLoading();
+        }
+      });
+
+      // Theme selection
+      const themeSelect = document.getElementById('theme');
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      
+      // Set initial theme
+      themeSelect.value = savedTheme;
+      applyTheme(savedTheme);
+      
+      // Handle theme select change
+      themeSelect.addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+      });
+      
+      // Handle theme option clicks
+      document.querySelectorAll('.theme-option').forEach(option => {
+        option.addEventListener('click', () => {
+          const theme = option.dataset.theme;
+          themeSelect.value = theme;
+          applyTheme(theme);
+        });
+      });
+
+      // 2FA toggle (simulated)
+      const twoFAToggle = document.getElementById('2fa-toggle');
+      const twoFAStatus = document.getElementById('2fa-status');
+      const twoFAQrCode = document.getElementById('2fa-qr-code');
+      
+      twoFAToggle.addEventListener('change', () => {
+        if (twoFAToggle.checked) {
+          twoFAStatus.textContent = 'Enabled';
+          twoFAQrCode.innerHTML = `
+            <div style="text-align: center;">
+              <p>Scan this QR code with your authenticator app:</p>
+              <div style="background: white; padding: 1rem; display: inline-block; margin: 1rem 0;">
+                <!-- Placeholder for QR code -->
+                <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                  <span style="color: #666;">QR Code Placeholder</span>
+                </div>
+              </div>
+              <p>Or enter this code manually: <strong>JBSWY3DPEHPK3PXP</strong></p>
+            </div>
+          `;
+          twoFAQrCode.style.display = 'block';
+          showMessage('Two-factor authentication enabled (simulated).', 'success');
+        } else {
+          twoFAStatus.textContent = 'Disabled';
+          twoFAQrCode.style.display = 'none';
+          showMessage('Two-factor authentication disabled (simulated).', 'success');
+        }
+      });
+
+      // Export data button
+      document.getElementById('export-data').addEventListener('click', () => {
+        const data = {
+          user: {
+            displayName: userData.name,
+            email: userData.email,
+            lastLogin: new Date().toISOString()
+          },
+          metadata: {
+            generatedAt: new Date().toISOString(),
+            appVersion: '1.0.0'
+          }
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mymemory-data-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showMessage('Data export started. Check your downloads.', 'success');
+      });
+
+      // Delete account button
+      document.getElementById('delete-account').addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+          return;
+        }
+        
+        const password = prompt('Please enter your password to confirm account deletion:');
+        if (!password) return;
+        
+        showLoading();
+        
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          
+          // Reauthenticate user
+          await user.reauthenticateWithCredential(credential);
+          
+          // Delete user
+          await user.delete();
+          
+          // Clear local data
+          localStorage.clear();
+          
+          showMessage('Account deleted successfully. Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.replace('index.html');
+          }, 2000);
+        } catch (error) {
+          hideLoading();
+          if (error.code === 'auth/wrong-password') {
+            showMessage('Incorrect password. Account deletion canceled.', 'error');
+          } else {
+            showMessage('Error deleting account: ' + error.message, 'error');
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>
