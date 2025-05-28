@@ -844,6 +844,67 @@
     button, a, input[type="checkbox"] {
       touch-action: manipulation;
     }
+    /* Loading Animation Styles */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #0077B6; /* Oceanic blue background */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2000;
+}
+
+.loader {
+  width: 30px;
+  aspect-ratio: 1;
+  display: grid;
+  transform: translateY(100%);
+}
+
+.loader::before,
+.loader::after {
+  content: "";
+  grid-area: 1/1;
+  border-radius: 50%;
+  transform-origin: bottom;
+  position: relative;
+}
+
+.loader::before {
+  background: radial-gradient(at 30% 30%, #0000, #000a) red; /* Red bouncing ball */
+  transform: scaleY(0.65);
+  top: 0;
+  animation: l11-1 2s cubic-bezier(0, 400, 1, 400) infinite, l11-2 2s ease infinite;
+}
+
+.loader::after {
+  background: var(--white); /* White shadow */
+  filter: blur(8px);
+  transform: scaleY(0.3) translate(0px, 0px);
+  left: 0;
+  animation: l11-3 2s cubic-bezier(0, 400, 1, 400) infinite;
+}
+
+@keyframes l11-1 {
+  100% { top: -0.2px; }
+}
+
+@keyframes l11-2 {
+  4%, 96% { transform: scaleY(1); }
+}
+
+@keyframes l11-3 {
+  100% { transform: scaleY(0.3) translate(0.1px, -0.1px); }
+}
+
+/* Ensure loading container is hidden when not needed */
+#loading[style*="display: none"] {
+  display: none !important;
+}
   </style>
 </head>
 <body>
@@ -851,7 +912,9 @@
   <div class="message" id="auth-message"></div>
 
   <!-- Loading State -->
-  <div id="loading">Loading...</div>
+  <div id="loading" class="loading-container">
+  <div class="loader"></div>
+</div>
 
   <!-- Main App Content (Hidden by Default) -->
   <div id="app-content">
