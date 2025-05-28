@@ -1171,55 +1171,6 @@
       color: var(--gray);
     }
 
-    .document-item .document-details {
-      transition: background 0.3s ease;
-    }
-
-    .document-item .document-details:hover {
-      background: var(--gray);
-    }
-
-    .empty-state .btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      background: var(--primary);
-      color: var(--white);
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .empty-state .btn:hover {
-      background: var(--primary-light);
-    }
-
-    .progress-container {
-      display: none;
-      margin-top: 1rem;
-      width: 100%;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: var(--gray);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--success);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-
-    .progress-text {
-      font-size: 0.85rem;
-      color: var(--dark);
-      margin-top: 0.5rem;
-      text-align: center;
-    }
-
     @media (max-width: 768px) {
       .auth-page {
         padding: 1rem;
@@ -1640,7 +1591,7 @@
               <h3>Recent Documents</h3>
             </div>
             <div class="document-list" id="document-list">
-              <div class="loading" id="document-loading">Loading documents...</div>
+              <div class="loading">Loading documents...</div>
             </div>
           </div>
         </div>
@@ -1774,1289 +1725,1287 @@
               <option value="other">Other</option>
             </select>
           </div>
-          <button type="submit" class="btn" id="upload-submit-btn">Upload Document</button>
-          <div class="progress-container" id="upload-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <div class="progress-text" id="progress-text">0%</div>
-          </div>
+          <button type="submit" class="btn">Upload Document</button>
         </form>
       </div>
     </div>
   </div>
 <script>
   // Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-    authDomain: "mymemory-ddc21.firebaseapp.com",
-    projectId: "mymemory-ddc21",
-    storageBucket: "mymemory-ddc21.firebasestorage.app",
-    messagingSenderId: "875926928384",
-    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-    measurementId: "G-8XZZNJB0QD"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
+  authDomain: "mymemory-ddc21.firebaseapp.com",
+  projectId: "mymemory-ddc21",
+  storageBucket: "mymemory-ddc21.firebasestorage.app",
+  messagingSenderId: "875926928384",
+  appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+  measurementId: "G-8XZZNJB0QD"
+};
 
-  // Initialize Firebase
-  let auth, db, storage;
+// Initialize Firebase
+let auth, db, storage;
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  storage = firebase.storage();
+  auth.useDeviceLanguage();
+} catch (error) {
+  console.error('Firebase initialization failed:', error);
+  showMessage('login-message', 'Failed to connect to services. Please try again later.', 'error');
+}
+
+// Initialize Supabase
+const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co'; // Replace with your Supabase URL
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'; // Replace with your Supabase anon key
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Global error handler
+window.addEventListener('error', function (event) {
+  console.error('Global error:', event.error);
+  showMessage('login-message', 'An unexpected error occurred. Please try again.', 'error');
+});
+
+// Show message (success or error)
+function showMessage(elementId, message, type = 'success') {
+  const messageElement = document.getElementById(elementId);
+  if (!messageElement) {
+    console.error(`Message element ${elementId} not found`);
+    return;
+  }
+  messageElement.textContent = message;
+  messageElement.className = `message ${type}`;
+  messageElement.style.display = 'block';
+  setTimeout(() => {
+    messageElement.style.display = 'none';
+  }, 5000);
+}
+
+// Validate email format
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Validate URL format
+function isValidUrl(url) {
   try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    db = firebase.firestore();
-    storage = firebase.storage();
-    auth.useDeviceLanguage();
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Calculate password strength
+function calculatePasswordStrength(password) {
+  let strength = 0;
+  if (password.length >= 8) strength += 25;
+  if (password.length >= 12) strength += 25;
+  if (/[A-Z]/.test(password)) strength += 15;
+  if (/[0-9]/.test(password)) strength += 15;
+  if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+  return Math.min(strength, 100);
+}
+
+// Encrypt and decrypt password
+function encryptPassword(password) {
+  return btoa(password);
+}
+
+function decryptPassword(encryptedPassword) {
+  try {
+    return atob(encryptedPassword);
+  } catch {
+    return 'Error decrypting';
+  }
+}
+
+// Calculate password statistics
+async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
+  try {
+    const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
+      .orderBy('createdAt', 'desc')
+      .get();
+
+    const now = new Date();
+    const oneWeekAgo = new Date(now);
+    oneWeekAgo.setDate(now.getDate() - 7);
+
+    let recentCount = 0;
+    let strengthData = { weak: 0, medium: 0, strong: 0 };
+
+    passwordSnapshot.forEach(doc => {
+      const password = doc.data();
+      if (!password.createdAt) {
+        console.warn(`Password ${doc.id} missing createdAt`);
+        return;
+      }
+      let createdDate;
+      try {
+        createdDate = password.createdAt.toDate();
+      } catch (e) {
+        console.warn(`Invalid createdAt for password ${doc.id}`);
+        return;
+      }
+      if (createdDate > oneWeekAgo) {
+        recentCount++;
+      }
+      let decryptedPassword;
+      try {
+        decryptedPassword = decryptPassword(password.password || '');
+      } catch (e) {
+        console.warn(`Failed to decrypt password ${doc.id}`);
+        decryptedPassword = '';
+      }
+      const strength = calculatePasswordStrength(decryptedPassword);
+      if (strength < 50) {
+        strengthData.weak++;
+      } else if (strength < 75) {
+        strengthData.medium++;
+      } else {
+        strengthData.strong++;
+      }
+    });
+
+    return {
+      total: passwordSnapshot.size,
+      recent: recentCount,
+      strength: strengthData,
+      lastUpdated: now.toLocaleString()
+    };
   } catch (error) {
-    console.error('Firebase initialization failed:', error);
-    showMessage('login-message', 'Failed to connect to services. Please try again later.', 'error');
-  }
+    console.error(`Password stats attempt ${attempt} failed:`, error);
+    if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return calculatePasswordStats(uid, attempt
 
-  // Initialize Supabase
-  const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k';
-  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-  // Global error handler
-  window.addEventListener('error', function (event) {
-    console.error('Global error:', event.error);
-    showMessage('login-message', 'An unexpected error occurred. Please try again.', 'error');
-  });
-
-  // Show message (success or error)
-  function showMessage(elementId, message, type = 'success') {
-    const messageElement = document.getElementById(elementId);
-    if (!messageElement) {
-      console.error(`Message element ${elementId} not found`);
-      return;
+ + 1, maxAttempts);
     }
-    messageElement.textContent = message;
-    messageElement.className = `message ${type}`;
-    messageElement.style.display = 'block';
-    setTimeout(() => {
-      messageElement.style.display = 'none';
-    }, 5000);
+    showMessage('login-message', `Failed to load password stats: ${error.message}`, 'error');
+    return {
+      total: 0,
+      recent: 0,
+      strength: { weak: 0, medium: 0, strong: 0 },
+      lastUpdated: 'Error'
+    };
   }
+}
 
-  // Validate email format
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+// Calculate document statistics
+async function calculateDocumentStats(uid) {
+  try {
+    const documentSnapshot = await db.collection('users').doc(uid).collection('documents')
+      .orderBy('createdAt', 'desc')
+      .get();
 
-  // Validate URL format
-  function isValidUrl(url) {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    let recentCount = 0;
 
-  // Calculate password strength
-  function calculatePasswordStrength(password) {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (password.length >= 12) strength += 25;
-    if (/[A-Z]/.test(password)) strength += 15;
-    if (/[0-9]/.test(password)) strength += 15;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-    return Math.min(strength, 100);
-  }
-
-  // Encrypt and decrypt password
-  function encryptPassword(password) {
-    return btoa(password);
-  }
-
-  function decryptPassword(encryptedPassword) {
-    try {
-      return atob(encryptedPassword);
-    } catch {
-      return 'Error decrypting';
-    }
-  }
-
-  // Calculate password statistics
-  async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
-    try {
-      const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      const now = new Date();
-      const oneWeekAgo = new Date(now);
-      oneWeekAgo.setDate(now.getDate() - 7);
-
-      let recentCount = 0;
-      let strengthData = { weak: 0, medium: 0, strong: 0 };
-
-      passwordSnapshot.forEach(doc => {
-        const password = doc.data();
-        if (!password.createdAt) {
-          console.warn(`Password ${doc.id} missing createdAt`);
-          return;
-        }
-        let createdDate;
-        try {
-          createdDate = password.createdAt.toDate();
-        } catch (e) {
-          console.warn(`Invalid createdAt for password ${doc.id}`);
-          return;
-        }
-        if (createdDate > oneWeekAgo) {
+    documentSnapshot.forEach(doc => {
+      const docData = doc.data();
+      try {
+        const createdAt = docData.createdAt?.toDate();
+        if (createdAt && createdAt > oneWeekAgo) {
           recentCount++;
         }
-        let decryptedPassword;
-        try {
-          decryptedPassword = decryptPassword(password.password || '');
-        } catch (e) {
-          console.warn(`Failed to decrypt password ${doc.id}`);
-          decryptedPassword = '';
-        }
-        const strength = calculatePasswordStrength(decryptedPassword);
-        if (strength < 50) {
-          strengthData.weak++;
-        } else if (strength < 75) {
-          strengthData.medium++;
-        } else {
-          strengthData.strong++;
-        }
-      });
-
-      return {
-        total: passwordSnapshot.size,
-        recent: recentCount,
-        strength: strengthData,
-        lastUpdated: now.toLocaleString()
-      };
-    } catch (error) {
-      console.error(`Password stats attempt ${attempt} failed:`, error);
-      if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return calculatePasswordStats(uid, attempt + 1, maxAttempts);
-      }
-      showMessage('login-message', `Failed to load password stats: ${error.message}`, 'error');
-      return {
-        total: 0,
-        recent: 0,
-        strength: { weak: 0, medium: 0, strong: 0 },
-        lastUpdated: 'Error'
-      };
-    }
-  }
-
-  // Calculate document statistics
-  async function calculateDocumentStats(uid, attempt = 1, maxAttempts = 3) {
-    try {
-      const documentSnapshot = await db.collection('users').doc(uid).collection('documents')
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      const now = new Date();
-      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      let recentCount = 0;
-
-      documentSnapshot.forEach(doc => {
-        const docData = doc.data();
-        try {
-          const createdAt = docData.createdAt?.toDate();
-          if (createdAt && createdAt > oneWeekAgo) {
-            recentCount++;
-          }
-        } catch (e) {
-          console.warn(`Invalid createdAt for document ${doc.id}:`, docData.createdAt);
-        }
-      });
-
-      return {
-        total: documentSnapshot.size,
-        recent: recentCount
-      };
-    } catch (error) {
-      console.error(`Document stats attempt ${attempt} failed:`, error);
-      if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return calculateDocumentStats(uid, attempt + 1, maxAttempts);
-      }
-      showMessage('login-message', `Failed to load document stats: ${error.message}`, 'error');
-      return { total: 0, recent: 0 };
-    }
-  }
-
-  // Toggle between login and signup forms
-  function toggleForms() {
-    const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
-    const loginMessage = document.getElementById('login-message');
-    const signupMessage = document.getElementById('signup-message');
-
-    if (loginForm.style.display === 'none') {
-      loginForm.style.display = 'block';
-      signupForm.style.display = 'none';
-      signupMessage.style.display = 'none';
-    } else {
-      loginForm.style.display = 'none';
-      signupForm.style.display = 'block';
-      loginMessage.style.display = 'none';
-    }
-
-    const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
-    activeForm.classList.add('fade-in');
-    setTimeout(() => activeForm.classList.remove('fade-in'), 300);
-  }
-
-  // Password strength indicator
-  const passwordInput = document.getElementById('password-signup');
-  const strengthMeter = document.getElementById('strength-meter');
-
-  if (passwordInput && strengthMeter) {
-    passwordInput.addEventListener('input', function () {
-      const password = this.value;
-      let strength = calculatePasswordStrength(password);
-      strengthMeter.style.width = strength + '%';
-      strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' :
-        strength < 75 ? '#f6ad55' : '#38a169';
-    });
-  }
-
-  // Form validation functions
-  function validateLoginForm() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const emailGroup = document.getElementById('email-group');
-    const passwordGroup = document.getElementById('password-group');
-    const emailError = document.getElementById('email-error');
-    const passwordError = document.getElementById('password-error');
-    let isValid = true;
-
-    emailGroup.classList.remove('invalid');
-    passwordGroup.classList.remove('invalid');
-    emailError.style.display = 'none';
-    passwordError.style.display = 'none';
-
-    if (!email) {
-      emailError.textContent = 'Email is required';
-      emailGroup.classList.add('invalid');
-      isValid = false;
-    } else if (!isValidEmail(email)) {
-      emailError.textContent = 'Please enter a valid email address';
-      emailGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (!password) {
-      passwordError.textContent = 'Password is required';
-      passwordGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  function validateSignupForm() {
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email-signup').value;
-    const password = document.getElementById('password-signup').value;
-    const nameGroup = document.getElementById('name-group');
-    const emailGroup = document.getElementById('email-signup-group');
-    const passwordGroup = document.getElementById('password-signup-group');
-    const nameError = document.getElementById('name-error');
-    const emailError = document.getElementById('email-signup-error');
-    const passwordError = document.getElementById('password-signup-error');
-    let isValid = true;
-
-    nameGroup.classList.remove('invalid');
-    emailGroup.classList.remove('invalid');
-    passwordGroup.classList.remove('invalid');
-    nameError.style.display = 'none';
-    emailError.style.display = 'none';
-    passwordError.style.display = 'none';
-
-    if (!name) {
-      nameError.textContent = 'Full name is required';
-      nameGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (!email) {
-      emailError.textContent = 'Email is required';
-      emailGroup.classList.add('invalid');
-      isValid = false;
-    } else if (!isValidEmail(email)) {
-      emailError.textContent = 'Please enter a valid email address';
-      emailGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (!password) {
-      passwordError.textContent = 'Password is required';
-      passwordGroup.classList.add('invalid');
-      isValid = false;
-    } else if (password.length < 8) {
-      passwordError.textContent = 'Password must be at least 8 characters';
-      passwordGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  function validateForgotForm() {
-    const email = document.getElementById('forgot-email').value;
-    const emailGroup = document.getElementById('forgot-email-group');
-    const emailError = document.getElementById('forgot-email-error');
-    let isValid = true;
-
-    emailGroup.classList.remove('invalid');
-    emailError.style.display = 'none';
-
-    if (!email) {
-      emailError.textContent = 'Email is required';
-      emailGroup.classList.add('invalid');
-      isValid = false;
-    } else if (!isValidEmail(email)) {
-      emailError.textContent = 'Please enter a valid email address';
-      emailGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  function validateTodoForm() {
-    const title = document.getElementById('todo-title').value;
-    const titleGroup = document.getElementById('todo-title').parentElement;
-    let isValid = true;
-
-    titleGroup.classList.remove('invalid');
-    titleGroup.querySelector('.error-text')?.remove();
-
-    if (!title.trim()) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Task title is required';
-      titleGroup.appendChild(errorText);
-      titleGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  function validatePasswordForm() {
-    const title = document.getElementById('password-title').value;
-    const username = document.getElementById('password-username').value;
-    const password = document.getElementById('password-value').value;
-    const url = document.getElementById('password-url').value;
-    const titleGroup = document.getElementById('password-title').parentElement;
-    const usernameGroup = document.getElementById('password-username').parentElement;
-    const passwordGroup = document.getElementById('password-value').parentElement;
-    const urlGroup = document.getElementById('password-url').parentElement;
-    let isValid = true;
-
-    [titleGroup, usernameGroup, passwordGroup, urlGroup].forEach(group => {
-      group.classList.remove('invalid');
-      group.querySelector('.error-text')?.remove();
-    });
-
-    if (!title.trim()) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Title is required';
-      titleGroup.appendChild(errorText);
-      titleGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (!username.trim()) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Username or email is required';
-      usernameGroup.appendChild(errorText);
-      usernameGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (!password.trim()) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Password is required';
-      passwordGroup.appendChild(errorText);
-      passwordGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (url && !isValidUrl(url)) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Please enter a valid URL';
-      urlGroup.appendChild(errorText);
-      urlGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  function validateDocumentForm() {
-    const name = document.getElementById('document-name').value;
-    const file = document.getElementById('document-file').files[0];
-    const nameGroup = document.getElementById('document-name').parentElement;
-    const fileGroup = document.getElementById('document-file').parentElement;
-    let isValid = true;
-
-    [nameGroup, fileGroup].forEach(group => {
-      group.classList.remove('invalid');
-      group.querySelector('.error-text')?.remove();
-    });
-
-    if (!name.trim()) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Document name is required';
-      nameGroup.appendChild(errorText);
-      nameGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    if (!file) {
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'Please select a file';
-      fileGroup.appendChild(errorText);
-      fileGroup.classList.add('invalid');
-      isValid = false;
-    } else if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      const errorText = document.createElement('div');
-      errorText.className = 'error-text';
-      errorText.textContent = 'File size must be less than 5MB';
-      fileGroup.appendChild(errorText);
-      fileGroup.classList.add('invalid');
-      isValid = false;
-    }
-
-    return isValid;
-  }
-
-  // Rate limiting for password reset and verification email
-  const RATE_LIMIT_MS = 30 * 1000; // 30 seconds
-
-  function canSendPasswordReset(email) {
-    const lastReset = localStorage.getItem(`reset-attempt-${email}`);
-    if (!lastReset) return true;
-    const timeSinceLast = Date.now() - parseInt(lastReset);
-    return timeSinceLast > RATE_LIMIT_MS;
-  }
-
-  function canResendVerification(email) {
-    const lastAttempt = localStorage.getItem(`verification-attempt-${email}`);
-    if (!lastAttempt) return true;
-    const timeSinceLast = Date.now() - parseInt(lastAttempt);
-    return timeSinceLast > RATE_LIMIT_MS;
-  }
-
-  // Handle user popup functionality
-  function setupUserPopup() {
-    const userAvatar = document.getElementById('user-avatar');
-    const userPopup = document.getElementById('user-popup');
-    const logoutBtn = document.getElementById('popup-logout-btn');
-
-    if (!userAvatar || !userPopup || !logoutBtn) {
-      console.error('User popup elements not found');
-      return;
-    }
-
-    function toggleUserPopup(e) {
-      e.stopPropagation();
-      userPopup.classList.toggle('active');
-    }
-
-    function closeUserPopup() {
-      userPopup.classList.remove('active');
-    }
-
-    userAvatar.addEventListener('click', toggleUserPopup);
-
-    document.addEventListener('click', function (e) {
-      if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-        closeUserPopup();
+      } catch (e) {
+        console.warn(`Invalid createdAt for document ${doc.id}:`, docData.createdAt);
       }
     });
 
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {
-        closeUserPopup();
-      }
-    });
-
-    logoutBtn.addEventListener('click', handleLogout);
-  }
-
-  // Handle logout
-  function handleLogout(e) {
-    e.preventDefault();
-    if (!auth) {
-      console.error('Firebase auth not initialized');
-      showMessage('login-message', 'Authentication service not available', 'error');
-      return;
-    }
-
-    auth.signOut().then(() => {
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('userData');
-      localStorage.removeItem('rememberMe');
-      document.getElementById('auth-page').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
-      showMessage('login-message', 'You have been logged out successfully.', 'success');
-      window.location.href = 'index.html';
-    }).catch(error => {
-      console.error('Logout error:', error.code, error.message);
-      showMessage('login-message', `Logout failed: ${error.message}`, 'error');
-    });
-  }
-
-  // Format due date
-  function formatDueDate(dueDate) {
-    if (!dueDate) return 'No due date';
-    const date = dueDate.toDate ? dueDate.toDate() : new Date(dueDate);
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    if (diffDays < 0) return 'Overdue';
-    return date.toLocaleDateString();
-  }
-
-  // Simulate progress for document upload
-  function simulateProgress(fileName, callback) {
-    const progressFill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-    const progressContainer = document.getElementById('upload-progress');
-    let progress = 0;
-
-    progressContainer.style.display = 'block';
-    progressText.textContent = `Uploading ${fileName}... 0%`;
-
-    const interval = setInterval(() => {
-      progress += Math.random() * 10;
-      if (progress > 100) progress = 100;
-      progressFill.style.width = `${progress}%`;
-      progressText.textContent = `Uploading ${fileName}... ${Math.round(progress)}%`;
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        callback();
-      }
-    }, 500);
-  }
-
-  // Reset progress bar
-  function resetProgress() {
-    const progressFill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-    const progressContainer = document.getElementById('upload-progress');
-    progressFill.style.width = '0%';
-    progressText.textContent = '0%';
-    progressContainer.style.display = 'none';
-  }
-
-  // Load dashboard
-  async function loadDashboard(user) {
-    try {
-      document.getElementById('user-name').textContent = user.displayName || 'User';
-      document.getElementById('popup-user-name').textContent = user.displayName || 'User';
-      document.getElementById('popup-user-email').textContent = user.email || 'No email';
-      const initials = (user.displayName || user.email || 'U').split(' ').map(n => n[0]).join('').toUpperCase();
-      document.getElementById('user-avatar').textContent = initials;
-
-      // Load todo stats
-      const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
-        .orderBy('createdAt', 'desc')
-        .get();
-
-      let todoCount = 0;
-      let urgentCount = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      todoSnapshot.forEach(doc => {
-        const todo = doc.data();
-        if (!todo.completed) {
-          todoCount++;
-          if (todo.dueDate) {
-            let dueDate;
-            try {
-              dueDate = todo.dueDate.toDate();
-              dueDate.setHours(0, 0, 0, 0);
-              if (dueDate.getTime() <= today.getTime() && todo.priority === 'high') {
-                urgentCount++;
-              }
-            } catch (e) {
-              console.warn(`Invalid dueDate for todo ${doc.id}`);
-            }
-          }
-        }
-      });
-
-      const todoCountElement = document.getElementById('todo-count');
-      const todoUrgentElement = document.getElementById('todo-urgent');
-      if (todoCountElement) todoCountElement.textContent = todoCount;
-      if (todoUrgentElement) todoUrgentElement.textContent = urgentCount;
-
-      // Load recent todos
-      const recentTodos = await db.collection('users').doc(user.uid).collection('todos')
-        .orderBy('createdAt', 'desc')
-        .limit(3)
-        .get();
-
-      const todoList = document.getElementById('todo-list');
-      if (todoList) todoList.innerHTML = '';
-
-      if (!recentTodos.empty) {
-        recentTodos.forEach(doc => {
-          const todo = { id: doc.id, ...doc.data() };
-          const todoElement = document.createElement('div');
-          todoElement.className = `todo-item ${todo.completed ? 'todo-completed' : ''} priority-${todo.priority}`;
-          const dueDateText = todo.dueDate ? formatDueDate(todo.dueDate) : 'No due date';
-          const timeText = todo.dueTime || '';
-          todoElement.innerHTML = `
-            <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-id="${todo.id}">
-            <div class="todo-content">
-              <div class="todo-title">${todo.title}</div>
-              <div class="todo-due">
-                <i class="fas fa-calendar-alt"></i>
-                ${dueDateText} ${timeText}
-                <span class="todo-category category-${todo.category}">${todo.category}</span>
-              </div>
-            </div>
-            <div class="todo-actions">
-              <button class="edit-todo" data-id="${todo.id}"><i class="fas fa-edit"></i></button>
-              <button class="delete-todo" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
-            </div>
-          `;
-          todoList.appendChild(todoElement);
-        });
-      } else {
-        todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
-      }
-
-      // Load password stats
-      const passwordStats = await calculatePasswordStats(user.uid);
-      const passwordCount = document.getElementById('password-count');
-      const passwordRecent = document.getElementById('password-recent');
-      if (passwordCount) passwordCount.textContent = passwordStats.total;
-      if (passwordRecent) passwordRecent.textContent = passwordStats.recent;
-
-      // Load recent passwords
-      const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
-        .orderBy('createdAt', 'desc')
-        .limit(2)
-        .get();
-
-      const passwordList = document.getElementById('password-list');
-      if (passwordList) passwordList.innerHTML = '';
-
-      if (!passwordSnapshot.empty) {
-        passwordSnapshot.forEach(doc => {
-          const password = { id: doc.id, ...doc.data() };
-          const passwordElement = document.createElement('div');
-          passwordElement.className = 'password-card';
-          const decryptedPassword = decryptPassword(password.password || '');
-          const strength = calculatePasswordStrength(decryptedPassword);
-          passwordElement.innerHTML = `
-            <div class="password-card-header">
-              <div class="password-name">${password.title}</div>
-              <div class="password-card-actions">
-                <button class="edit-password" data-id="${password.id}"><i class="fas fa-edit"></i></button>
-                <button class="delete-password" data-id="${password.id}"><i class="fas fa-trash"></i></button>
-              </div>
-            </div>
-            <div class="password-details">
-              <div class="password-detail">
-                <span class="password-label">Username:</span>
-                <span class="password-value">${password.username}</span>
-              </div>
-              <div class="password-detail">
-                <span class="password-label">Password:</span>
-                <span class="password-value">
-                  <input type="password" value="${decryptedPassword}" class="masked" readonly>
-                  <button class="toggle-password"><i class="fas fa-eye"></i></button>
-                </span>
-              </div>
-              <div class="password-detail">
-                <span class="password-label">Category:</span>
-                <span class="password-value">${password.category}</span>
-              </div>
-            </div>
-            <div class="password-strength">
-              <div class="strength-meter" style="width: ${strength}%; background: ${strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169'};"></div>
-            </div>
-          `;
-          passwordList.appendChild(passwordElement);
-        });
-      } else {
-        passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
-      }
-
-      // Load document stats
-      const documentStats = await calculateDocumentStats(user.uid);
-      const documentCount = document.getElementById('document-count');
-      const documentRecent = document.getElementById('document-recent');
-      if (documentCount) documentCount.textContent = documentStats.total;
-      if (documentRecent) documentRecent.textContent = documentStats.recent;
-
-      // Load documents (display at least one)
-      const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
-        .orderBy('createdAt', 'desc')
-        .limit(1)
-        .get();
-
-      const documentList = document.getElementById('document-list');
-      if (documentList) documentList.innerHTML = '<div class="loading" id="document-loading">Loading documents...</div>';
-
-      if (!documentSnapshot.empty) {
-        const latestDoc = documentSnapshot.docs[0];
-        const docData = { id: latestDoc.id, ...latestDoc.data() };
-        const docElement = document.createElement('div');
-        docElement.className = 'document-item';
-        const createdDate = docData.createdAt?.toDate()?.toLocaleDateString() || 'N/A';
-        const downloadUrl = docData.downloadURL || '#';
-        docElement.innerHTML = `
-          <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
-            <div>
-              <div style="font-weight: 600; color: var(--dark); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${docData.name || 'Untitled'}">${docData.name || 'Untitled'}</div>
-              <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
-              <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${createdDate}</div>
-            </div>
-            <div class="document-actions" style="display: flex; gap: 0.5rem;">
-              <a href="${downloadUrl}" target="_blank" title="Download" style="color: var(--primary);"><i class="fas fa-download"></i></a>
-            </div>
-          </div>
-        `;
-        documentList.innerHTML = '';
-        documentList.appendChild(docElement);
-      } else {
-        documentList.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-file-contract"></i>
-            <p>No documents found.</p>
-            <button class="btn" style="margin-top: 1rem;" onclick="document.getElementById('document-modal').style.display='flex'">Upload Document</button>
-          </div>
-        `;
-      }
-
-      // Add click event listener to document card
-      const documentCard = document.querySelector('.dashboard-cards .document-card');
-      if (documentCard) {
-        documentCard.style.cursor = 'pointer';
-        documentCard.addEventListener('click', function (e) {
-          if (e.target.tagName !== 'A' && !e.target.closest('a')) {
-            document.getElementById('document-modal').style.display = 'flex';
-          }
-        });
-      }
-
-      // Hide loading indicators
-      if (document.getElementById('todo-loading')) document.getElementById('todo-loading').style.display = 'none';
-      if (document.getElementById('password-loading')) document.getElementById('password-loading').style.display = 'none';
-      if (document.getElementById('document-loading')) document.getElementById('document-loading').style.display = 'none';
-
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
-      showMessage('login-message', `Error loading dashboard: ${error.message}`, 'error');
-    }
-  }
-
-  // Handle login form submission
-  document.getElementById('login').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!validateLoginForm()) return;
-
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const rememberMe = document.getElementById('rememberMe').checked;
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
-        if (!user.emailVerified) {
-          showMessage('login-message', 'Please verify your email address.', 'error');
-          await auth.signOut();
-          return;
-        }
-
-        localStorage.setItem('isAuthenticated', 'true');
-        if (rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
-        } else {
-          localStorage.removeItem('rememberMe');
-        }
-        localStorage.setItem('userData', JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName
-        }));
-
-        document.getElementById('auth-page').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        await loadDashboard(user);
-      })
-      .catch(error => {
-        console.error('Login error:', error.code, error.message);
-        let errorMessage = 'An error occurred during login';
-        switch (error.code) {
-          case 'auth/wrong-password':
-          case 'auth/invalid-credential':
-            errorMessage = 'Invalid email or password';
-            break;
-          case 'auth/user-not-found':
-            errorMessage = 'No user found with this email';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many attempts. Please try again later.';
-            break;
-        }
-        showMessage('login-message', errorMessage, 'error');
-      });
-  });
-
-  // Handle signup form submission
-  document.getElementById('signup').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!validateSignupForm()) return;
-
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email-signup').value;
-    const password = document.getElementById('password-signup').value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(userCredential => {
-        const user = userCredential.user;
-        return user.updateProfile({ displayName: name })
-          .then(() => user.sendEmailVerification())
-          .then(() => {
-            showMessage('signup-message', 'Account created successfully! Please verify your email.', 'success');
-            document.getElementById('signup').reset();
-            toggleForms();
-          });
-      })
-      .catch(error => {
-        console.error('Signup error:', error.code, error.message);
-        let errorMessage = 'An error occurred during signup';
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            errorMessage = 'Email is already in use';
-            break;
-          case 'auth/weak-password':
-            errorMessage = 'Password is too weak';
-            break;
-          case 'auth/invalid-email':
-            errorMessage = 'Invalid email address';
-            break;
-        }
-        showMessage('signup-message', errorMessage, 'error');
-      });
-  });
-
-  // Handle forgot password form submission
-  document.getElementById('forgot-password-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!validateForgotForm()) return;
-
-    const email = document.getElementById('forgot-email').value;
-
-    if (!canSendPasswordReset(email)) {
-      showMessage('forgot-message', 'Please wait before requesting another reset link.', 'error');
-      return;
-    }
-
-    auth.sendPasswordResetEmail(email)
-      .then(() => {
-        localStorage.setItem(`reset-attempt-${email}`, Date.now());
-        showMessage('forgot-message', 'Password reset email sent successfully!', 'success');
-        document.getElementById('forgot-password-modal').style.display = 'none';
-        document.getElementById('forgot-password-form').reset();
-      })
-      .catch(error => {
-        console.error('Error sending password reset email:', error.code, error.message);
-        let errorMessage = 'An error occurred';
-        if (error.code === 'auth/user-not-found') {
-          errorMessage = 'No user found with this email';
-        } else if (error.code === 'auth/invalid-email') {
-          errorMessage = 'Invalid email address';
-        }
-        showMessage('forgot-message', errorMessage, 'error');
-      });
-  });
-
-  // Handle resend verification email
-  document.getElementById('resend-verification').addEventListener('click', function (e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-
-    if (!email || !isValidEmail(email)) {
-      showMessage('login-message', 'Please enter a valid email address.', 'error');
-      return;
-    }
-
-    if (!canResendVerification(email)) {
-      showMessage('login-message', 'Please wait before sending another verification email.', 'error');
-      return;
-    }
-
-    auth.signInWithEmailAndPassword(email, document.getElementById('password').value)
-      .then(userCredential => {
-        const user = userCredential.user;
-        if (user.emailVerified) {
-          showMessage('login-message', 'Your email is already verified.', 'success');
-          return;
-        }
-        return user.sendEmailVerification()
-          .then(() => {
-            localStorage.setItem(`verification-attempt-${email}`, Date.now());
-            showMessage('login-message', 'Verification email sent! Please check your inbox.', 'success');
-          });
-      })
-      .catch(error => {
-        console.error('Error resending verification email:', error.code, error.message);
-        let errorMessage = 'An error occurred';
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          errorMessage = 'Invalid email or password';
-        }
-        showMessage('login-message', errorMessage, 'error');
-      });
-  });
-
-  // Modal close handlers
-  document.querySelectorAll('.modal-close').forEach(button => {
-    button.addEventListener('click', function () {
-      this.closest('.modal').style.display = '';
-      resetProgress();
-    });
-  });
-
-  // Open forgot password modal
-  document.getElementById('forgot-password').addEventListener('click', function (e) {
-    e.preventDefault();
-    document.getElementById('forgot-password-modal').style.display = 'flex';
-  });
-
-  // Handle todo form submission
-  document.getElementById('todo-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    if (!validateTodoForm()) return;
-
-    const user = auth.currentUser;
-    if (!user) {
-      showMessage('login-message', 'You must be logged in to save tasks.', 'error');
-      return;
-    }
-
-    const id = document.getElementById('todo-id').value;
-    const title = document.getElementById('todo-title').value;
-    const description = document.getElementById('todo-description').value;
-    const dueDate = document.getElementById('todo-due').value;
-    const dueTime = document.getElementById('todo-time').value;
-    const category = document.getElementById('todo-category').value;
-    const priority = document.getElementById('todo-priority').value;
-
-    const todoData = {
-      title,
-      description,
-      category,
-      priority,
-      completed: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    return {
+      total: documentSnapshot.size,
+      recent: recentCount
     };
+  } catch (error) {
+    console.error('Error calculating document stats:', error);
+    showMessage('login-message', 'Failed to load document stats.', 'error');
+    return { total: 0, recent: 0 };
+  }
+}
 
-    if (dueDate) {
-      const dateTime = dueTime ? new Date(`${dueDate}T${dueTime}`) : new Date(dueDate);
-      todoData.dueDate = firebase.firestore.Timestamp.fromDate(dateTime);
-      if (dueTime) todoData.dueTime = dueTime;
-    }
+// Toggle between login and signup forms
+function toggleForms() {
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const loginMessage = document.getElementById('login-message');
+  const signupMessage = document.getElementById('signup-message');
 
-    try {
-      if (id) {
-        await db.collection('users').doc(user.uid).collection('todos').doc(id).update(todoData);
-        showMessage('login-message', 'Task updated successfully!', 'success');
-      } else {
-        await db.collection('users').doc(user.uid).collection('todos').add(todoData);
-        showMessage('login-message', 'Task added successfully!', 'success');
-      }
-      document.getElementById('todo-modal').style.display = 'none';
-      document.getElementById('todo-form').reset();
-      document.querySelector('.priority-option.medium').classList.add('selected');
-      document.querySelectorAll('.priority-option.high, .priority-option.low').forEach(opt => opt.classList.remove('selected'));
-      document.getElementById('todo-priority').value = 'medium';
-      await loadDashboard(user);
-    } catch (error) {
-      console.error('Error saving todo:', error);
-      showMessage('login-message', `Failed to save task: ${error.message}`, 'error');
-    }
+  if (loginForm.style.display === 'none') {
+    loginForm.style.display = 'block';
+    signupForm.style.display = 'none';
+    signupMessage.style.display = 'none';
+  } else {
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'block';
+    loginMessage.style.display = 'none';
+  }
+
+  const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
+  activeForm.classList.add('fade-in');
+  setTimeout(() => activeForm.classList.remove('fade-in'), 300);
+}
+
+// Password strength indicator
+const passwordInput = document.getElementById('password-signup');
+const strengthMeter = document.getElementById('strength-meter');
+
+if (passwordInput && strengthMeter) {
+  passwordInput.addEventListener('input', function () {
+    const password = this.value;
+    let strength = calculatePasswordStrength(password);
+    strengthMeter.style.width = strength + '%';
+    strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' :
+      strength < 75 ? '#f6ad55' : '#38a169';
+  });
+}
+
+// Form validation functions
+function validateLoginForm() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const emailGroup = document.getElementById('email-group');
+  const passwordGroup = document.getElementById('password-group');
+  const emailError = document.getElementById('email-error');
+  const passwordError = document.getElementById('password-error');
+  let isValid = true;
+
+  emailGroup.classList.remove('invalid');
+  passwordGroup.classList.remove('invalid');
+  emailError.style.display = 'none';
+  passwordError.style.display = 'none';
+
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    emailError.textContent = 'Please enter a valid email address';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password) {
+    passwordError.textContent = 'Password is required';
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateSignupForm() {
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email-signup').value;
+  const password = document.getElementById('password-signup').value;
+  const nameGroup = document.getElementById('name-group');
+  const emailGroup = document.getElementById('email-signup-group');
+  const passwordGroup = document.getElementById('password-signup-group');
+  const nameError = document.getElementById('name-error');
+  const emailError = document.getElementById('email-signup-error');
+  const passwordError = document.getElementById('password-signup-error');
+  let isValid = true;
+
+  nameGroup.classList.remove('invalid');
+  emailGroup.classList.remove('invalid');
+  passwordGroup.classList.remove('invalid');
+  nameError.style.display = 'none';
+  emailError.style.display = 'none';
+  passwordError.style.display = 'none';
+
+  if (!name) {
+    nameError.textContent = 'Full name is required';
+    nameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    emailError.textContent = 'Please enter a valid email address';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password) {
+    passwordError.textContent = 'Password is required';
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  } else if (password.length < 8) {
+    passwordError.textContent = 'Password must be at least 8 characters';
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateForgotForm() {
+  const email = document.getElementById('forgot-email').value;
+  const emailGroup = document.getElementById('forgot-email-group');
+  const emailError = document.getElementById('forgot-email-error');
+  let isValid = true;
+
+  emailGroup.classList.remove('invalid');
+  emailError.style.display = 'none';
+
+  if (!email) {
+    emailError.textContent = 'Email is required';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  } else if (!isValidEmail(email)) {
+    emailError.textContent = 'Please enter a valid email address';
+    emailGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateTodoForm() {
+  const title = document.getElementById('todo-title').value;
+  const titleGroup = document.getElementById('todo-title').parentElement;
+  let isValid = true;
+
+  titleGroup.classList.remove('invalid');
+  titleGroup.querySelector('.error-text')?.remove();
+
+  if (!title.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Task title is required';
+    titleGroup.appendChild(errorText);
+    titleGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validatePasswordForm() {
+  const title = document.getElementById('password-title').value;
+  const username = document.getElementById('password-username').value;
+  const password = document.getElementById('password-value').value;
+  const url = document.getElementById('password-url').value;
+  const titleGroup = document.getElementById('password-title').parentElement;
+  const usernameGroup = document.getElementById('password-username').parentElement;
+  const passwordGroup = document.getElementById('password-value').parentElement;
+  const urlGroup = document.getElementById('password-url').parentElement;
+  let isValid = true;
+
+  [titleGroup, usernameGroup, passwordGroup, urlGroup].forEach(group => {
+    group.classList.remove('invalid');
+    group.querySelector('.error-text')?.remove();
   });
 
-  // Priority selector
-  document.querySelectorAll('.priority-option').forEach(option => {
-    option.addEventListener('click', function () {
-      document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
-      this.classList.add('selected');
-      document.getElementById('todo-priority').value = this.dataset.priority;
-    });
+  if (!title.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Title is required';
+    titleGroup.appendChild(errorText);
+    titleGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!username.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Username or email is required';
+    usernameGroup.appendChild(errorText);
+    usernameGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (!password.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Password is required';
+    passwordGroup.appendChild(errorText);
+    passwordGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  if (url && !isValidUrl(url)) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Please enter a valid URL';
+    urlGroup.appendChild(errorText);
+    urlGroup.classList.add('invalid');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateDocumentForm() {
+  const name = document.getElementById('document-name').value;
+  const file = document.getElementById('document-file').files[0];
+  const nameGroup = document.getElementById('document-name').parentElement;
+  const fileGroup = document.getElementById('document-file').parentElement;
+  let isValid = true;
+
+  [nameGroup, fileGroup].forEach(group => {
+    group.classList.remove('invalid');
+    group.querySelector('.error-text')?.remove();
   });
 
-  // Handle password form submission
-  document.getElementById('password-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    if (!validatePasswordForm()) return;
+  if (!name.trim()) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Document name is required';
+    nameGroup.appendChild(errorText);
+    nameGroup.classList.add('invalid');
+    isValid = false;
+  }
 
-    const user = auth.currentUser;
-    if (!user) {
-      showMessage('password-message', 'You must be logged in to save passwords.', 'error');
-      return;
-    }
+  if (!file) {
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'Please select a file';
+    fileGroup.appendChild(errorText);
+    fileGroup.classList.add('invalid');
+    isValid = false;
+  } else if (file.size > 5 * 1024 * 1024) { // 5MB limit
+    const errorText = document.createElement('div');
+    errorText.className = 'error-text';
+    errorText.textContent = 'File size must be less than 5MB';
+    fileGroup.appendChild(errorText);
+    fileGroup.classList.add('invalid');
+    isValid = false;
+  }
 
-    const id = document.getElementById('password-id').value;
-    const title = document.getElementById('password-title').value;
-    const username = document.getElementById('password-username').value;
-    const password = encryptPassword(document.getElementById('password-value').value);
-    const url = document.getElementById('password-url').value;
-    const category = document.getElementById('password-category').value;
-    const notes = document.getElementById('password-notes').value;
+  return isValid;
+}
 
-    const passwordData = {
-      title,
-      username,
-      password,
-      url,
-      category,
-      notes,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
+// Rate limiting for password reset and verification email
+const RATE_LIMIT_MS = 30 * 1000; // 30 seconds
 
-    try {
-      if (id) {
-        await db.collection('users').doc(user.uid).collection('passwords').doc(id).update(passwordData);
-        showMessage('password-message', 'Password updated successfully!', 'success');
-      } else {
-        await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
-        showMessage('password-message', 'Password added successfully!', 'success');
-      }
-      document.getElementById('password-modal').style.display = 'none';
-      document.getElementById('password-form').reset();
-      await loadDashboard(user);
-    } catch (error) {
-      console.error('Error saving password:', error);
-      showMessage('password-message', `Failed to save password: ${error.message}`, 'error');
-    }
-  });
+function canSendPasswordReset(email) {
+  const lastReset = localStorage.getItem(`reset-attempt-${email}`);
+  if (!lastReset) return true;
+  const timeSinceLast = Date.now() - parseInt(lastReset);
+  return timeSinceLast > RATE_LIMIT_MS;
+}
 
-  // Handle document form submission
-  document.getElementById('document-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    if (!validateDocumentForm()) return;
+function canResendVerification(email) {
+  const lastAttempt = localStorage.getItem(`verification-attempt-${email}`);
+  if (!lastAttempt) return true;
+  const timeSinceLast = Date.now() - parseInt(lastAttempt);
+  return timeSinceLast > RATE_LIMIT_MS;
+}
 
-    const user = auth.currentUser;
-    if (!user) {
-      showMessage('login-message', 'You must be logged in to upload documents.', 'error');
-      return;
-    }
+// Handle user popup functionality
+function setupUserPopup() {
+  const userAvatar = document.getElementById('user-avatar');
+  const userPopup = document.getElementById('user-popup');
+  const logoutBtn = document.getElementById('popup-logout-btn');
 
-    const name = document.getElementById('document-name').value;
-    const file = document.getElementById('document-file').files[0];
-    const category = document.getElementById('document-category').value;
-    const uploadBtn = document.getElementById('upload-submit-btn');
+  if (!userAvatar || !userPopup || !logoutBtn) {
+    console.error('User popup elements not found');
+    return;
+  }
 
-    try {
-      uploadBtn.disabled = true;
-      const filePath = `users/${user.uid}/documents/${Date.now()}_${file.name}`;
-      simulateProgress(file.name, async () => {
-        try {
-          const { data, error } = await supabase.storage
-            .from('documents')
-            .upload(filePath, file);
+  function toggleUserPopup(e) {
+    e.stopPropagation();
+    userPopup.classList.toggle('active');
+  }
 
-          if (error) throw error;
+  function closeUserPopup() {
+    userPopup.classList.remove('active');
+  }
 
-          const { data: urlData } = supabase.storage
-            .from('documents')
-            .getPublicUrl(filePath);
+  userAvatar.addEventListener('click', toggleUserPopup);
 
-          const documentData = {
-            name,
-            category,
-            fileName: file.name,
-            filePath,
-            downloadURL: urlData.publicUrl,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
-
-          await db.collection('users').doc(user.uid).collection('documents').add(documentData);
-          showMessage('login-message', `Document "${name}" uploaded successfully!`, 'success');
-          document.getElementById('document-modal').style.display = 'none';
-          document.getElementById('document-form').reset();
-          resetProgress();
-          await loadDashboard(user);
-        } catch (error) {
-          console.error('Error uploading document:', error);
-          showMessage('login-message', `Failed to upload document: ${error.message}`, 'error');
-          resetProgress();
-        } finally {
-          uploadBtn.disabled = false;
-        }
-      });
-    } catch (error) {
-      console.error('Error initiating upload:', error);
-      showMessage('login-message', `Failed to upload document: ${error.message}`, 'error');
-      uploadBtn.disabled = false;
-      resetProgress();
-    }
-  });
-
-  // Toggle password visibility
   document.addEventListener('click', function (e) {
-    if (e.target.closest('.toggle-password')) {
-      const button = e.target.closest('.toggle-password');
-      const input = button.previousElementSibling;
-      const icon = button.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        input.classList.remove('masked');
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-      } else {
-        input.type = 'password';
-        input.classList.add('masked');
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-      }
+    if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+      closeUserPopup();
     }
   });
 
-  // Edit and delete todos
-  document.addEventListener('click', async function (e) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    if (e.target.closest('.edit-todo')) {
-      const id = e.target.closest('.edit-todo').dataset.id;
-      const doc = await db.collection('users').doc(user.uid).collection('todos').doc(id).get();
-      if (doc.exists) {
-        const todo = doc.data();
-        document.getElementById('todo-id').value = id;
-        document.getElementById('todo-title').value = todo.title;
-        document.getElementById('todo-description').value = todo.description || '';
-        document.getElementById('todo-category').value = todo.category || 'work';
-        document.getElementById('todo-priority').value = todo.priority || 'medium';
-        document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
-        document.querySelector(`.priority-option.${todo.priority}`).classList.add('selected');
-        if (todo.dueDate) {
-          const date = todo.dueDate.toDate();
-          document.getElementById('todo-due').value = date.toISOString().split('T')[0];
-          document.getElementById('todo-time').value = todo.dueTime || '';
-        }
-        document.getElementById('modal-title').textContent = 'Edit Task';
-        document.getElementById('todo-modal').style.display = 'flex';
-      }
-    } else if (e.target.closest('.delete-todo')) {
-      const id = e.target.closest('.delete-todo').dataset.id;
-      if (confirm('Are you sure you want to delete this task?')) {
-        try {
-          await db.collection('users').doc(user.uid).collection('todos').doc(id).delete();
-          showMessage('login-message', 'Task deleted successfully!', 'success');
-          await loadDashboard(user);
-        } catch (error) {
-          console.error('Error deleting todo:', error);
-          showMessage('login-message', `Failed to delete task: ${error.message}`, 'error');
-        }
-      }
-    } else if (e.target.closest('.todo-checkbox')) {
-      const id = e.target.dataset.id;
-      const completed = e.target.checked;
-      try {
-        await db.collection('users').doc(user.uid).collection('todos').doc(id).update({
-          completed,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        await loadDashboard(user);
-      } catch (error) {
-        console.error('Error updating todo:', error);
-        showMessage('login-message', `Failed to update task: ${error.message}`, 'error');
-      }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeUserPopup();
     }
   });
 
-  // Edit and delete passwords
-  document.addEventListener('click', async function (e) {
-    const user = auth.currentUser;
-    if (!user) return;
+  logoutBtn.addEventListener('click', handleLogout);
+}
 
-    if (e.target.closest('.edit-password')) {
-      const id = e.target.closest('.edit-password').dataset.id;
-      const doc = await db.collection('users').doc(user.uid).collection('passwords').doc(id).get();
-      if (doc.exists) {
-        const password = doc.data();
-        document.getElementById('password-id').value = id;
-        document.getElementById('password-title').value = password.title;
-        document.getElementById('password-username').value = password.username;
-        document.getElementById('password-value').value = decryptPassword(password.password);
-        document.getElementById('password-url').value = password.url || '';
-        document.getElementById('password-category').value = password.category || 'other';
-        document.getElementById('password-notes').value = password.notes || '';
-        document.getElementById('modal-title').textContent = 'Edit Password';
-        document.getElementById('password-modal').style.display = 'flex';
-      }
-    } else if (e.target.closest('.delete-password')) {
-      const id = e.target.closest('.delete-password').dataset.id;
-      if (confirm('Are you sure you want to delete this password?')) {
-        try {
-          await db.collection('users').doc(user.uid).collection('passwords').doc(id).delete();
-          showMessage('login-message', 'Password deleted successfully!', 'success');
-          await loadDashboard(user);
-        } catch (error) {
-          console.error('Error deleting password:', error);
-          showMessage('login-message', `Failed to delete password: ${error.message}`, 'error');
-        }
-      }
-    }
-  });
-
-  // Auth state listener
-  auth.onAuthStateChanged(async user => {
-    if (user && user.emailVerified) {
-      document.getElementById('auth-page').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      await loadDashboard(user);
-      setupUserPopup();
-    } else {
-      document.getElementById('auth-page').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
-      if (user && !user.emailVerified) {
-        showMessage('login-message', 'Please verify your email address.', 'error');
-        await auth.signOut();
-      }
-    }
-  });
-
-  // Logout link handler
-  document.getElementById('logout-link').addEventListener('click', handleLogout);
-
-  // Initialize sidebar active state
-  function setActiveSidebarLink() {
-    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-    const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-    sidebarLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (href === currentPath || (currentPath === 'index.html' && href === 'index.html')) {
-        link.classList.add('active');
-      } else {
-        link.classList.remove('active');
-      }
-    });
+// Handle logout
+function handleLogout(e) {
+  e.preventDefault();
+  if (!auth) {
+    console.error('Firebase auth not initialized');
+    showMessage('login-message', 'Authentication service not available', 'error');
+    return;
   }
 
-  setActiveSidebarLink();
+  auth.signOut().then(() => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('rememberMe');
+    document.getElementById('auth-page').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    showMessage('login-message', 'You have been logged out successfully.', 'success');
+    window.location.href = 'index.html';
+  }).catch(error => {
+    console.error('Logout error:', error.code, error.message);
+    showMessage('login-message', `Logout failed: ${error.message}`, 'error');
+  });
+}
+
+// Format due date
+function formatDueDate(dueDate) {
+  if (!dueDate) return 'No due date';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+
+  const diffTime = due - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Due today';
+  if (diffDays === 1) return 'Due tomorrow';
+  if (diffDays === -1) return 'Due yesterday';
+  if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
+  if (diffDays <= 7) return `Due in ${diffDays} days`;
+
+  return `Due on ${due.toLocaleDateString()}`;
+}
+
+// Create todo element
+function createTodoElement(todo) {
+  const todoItem = document.createElement('div');
+  todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
+  todoItem.dataset.id = todo.id;
+  todoItem.dataset.due = todo.dueDate;
+  todoItem.dataset.completed = todo.completed;
+  todoItem.dataset.category = todo.category;
+
+  const dueText = formatDueDate(todo.dueDate);
+  const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
+
+  todoItem.innerHTML = `
+    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+    <div class="todo-content">
+      <div class="todo-title">${todo.title} ${categoryText}</div>
+      <div class="todo-due">
+        <i class="far fa-calendar-alt"></i> ${dueText}
+      </div>
+    </div>
+    <div class="todo-actions">
+      <button title="Edit"><i class="fas fa-edit"></i></button>
+      <button title="Delete"><i class="fas fa-trash"></i></button>
+    </div>
+  `;
+
+  return todoItem;
+}
+
+// Add todo event listeners
+function addTodoEventListeners(todoItem, user) {
+  const checkbox = todoItem.querySelector('.todo-checkbox');
+  const editBtn = todoItem.querySelector('.fa-edit').parentNode;
+  const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
+
+  checkbox.addEventListener('change', async function (e) {
+    e.stopPropagation();
+    const todoId = todoItem.dataset.id;
+    try {
+      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
+        completed: this.checked,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      todoItem.dataset.completed = this.checked;
+      if (this.checked) {
+        todoItem.classList.add('todo-completed');
+      } else {
+        todoItem.classList.remove('todo-completed');
+      }
+      showMessage('login-message', 'Task updated successfully!', 'success');
+    } catch (error) {
+      console.error('Error updating task:', error);
+      showMessage('login-message', `Error updating task: ${error.message}`, 'error');
+    }
+  });
+
+  editBtn.addEventListener('click', async function (e) {
+    e.stopPropagation();
+    const modal = document.getElementById('todo-modal');
+    const todoId = todoItem.dataset.id;
+    try {
+      const todoDoc = await db.collection('users').doc(user.uid).collection('todos').doc(todoId).get();
+      const todo = todoDoc.data();
+
+      document.getElementById('modal-title').textContent = 'Edit Task';
+      document.getElementById('todo-id').value = todoId;
+      document.getElementById('todo-title').value = todo.title;
+      document.getElementById('todo-description').value = todo.description || '';
+      document.getElementById('todo-due').value = todo.dueDate || '';
+      document.getElementById('todo-time').value = todo.time || '';
+      document.getElementById('todo-category').value = todo.category || 'work';
+
+      document.getElementById('todo-priority').value = todo.priority;
+      document.querySelectorAll('.priority-option').forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.dataset.priority === todo.priority) {
+          opt.classList.add('selected');
+        }
+      });
+
+      modal.style.display = 'flex';
+    } catch (error) {
+      console.error('Error loading task:', error);
+      showMessage('login-message', `Error loading task: ${error.message}`, 'error');
+    }
+  });
+
+  deleteBtn.addEventListener('click', async function (e) {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this task?')) {
+      const todoId = todoItem.dataset.id;
+      try {
+        await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
+        todoItem.remove();
+        showMessage('login-message', 'Task deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        showMessage('login-message', `Error deleting task: ${error.message}`, 'error');
+      }
+    }
+  });
+}
+
+// Create password element
+function createPasswordElement(password) {
+  const card = document.createElement('div');
+  card.className = 'password-card';
+  card.dataset.id = password.id;
+
+  const title = password.title || 'Untitled Password';
+  const strength = calculatePasswordStrength(decryptPassword(password.password || ''));
+  const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
+
+  card.innerHTML = `
+    <div class="password-card-header">
+      <div class="password-name">${title}</div>
+      <div class="password-card-actions">
+        <button title="Copy Username"><i class="fas fa-user"></i></button>
+        <button title="Copy Password"><i class="fas fa-key"></i></button>
+        <button title="Edit"><i class="fas fa-edit"></i></button>
+        <button title="Delete"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="password-details">
+      <div class="password-detail">
+        <span class="password-label">Username:</span>
+        <div class="password-value">${password.username || 'N/A'}</div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">Password:</span>
+        <div class="password-value">
+          <input type="password" value="${decryptPassword(password.password || '')}" class="masked" readonly>
+          <button class="toggle-password"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">URL:</span>
+        <div class="password-value">${password.url || 'N/A'}</div>
+      </div>
+      <div class="password-detail">
+        <span class="password-label">Category:</span>
+        <div class="password-value">${password.category || 'N/A'}</div>
+      </div>
+    </div>
+    <div class="password-strength">
+      <div class="strength-meter" style="width: ${strength}%; background-color: ${strengthColor};"></div>
+    </div>
+  `;
+
+  return card;
+}
+
+// Add password event listeners
+function addPasswordEventListeners(card, user) {
+  const copyUsernameBtn = card.querySelector('.fa-user').parentNode;
+  const copyPasswordBtn = card.querySelector('.fa-key').parentNode;
+  const togglePasswordBtn = card.querySelector('.toggle-password');
+  const editBtn = card.querySelector('.fa-edit').parentNode;
+  const deleteBtn = card.querySelector('.fa-trash').parentNode;
+  const passwordInput = card.querySelector('.password-value input');
+
+  copyUsernameBtn.addEventListener('click', function () {
+    const username = card.querySelector('.password-detail:nth-child(1) .password-value').textContent;
+    navigator.clipboard.writeText(username).then(() => {
+      showMessage('login-message', 'Username copied to clipboard!', 'success');
+    });
+  });
+
+  copyPasswordBtn.addEventListener('click', function () {
+    const password = decryptPassword(card.dataset.password || '');
+    navigator.clipboard.writeText(password).then(() => {
+      showMessage('login-message', 'Password copied to clipboard!', 'success');
+    });
+  });
+
+  togglePasswordBtn.addEventListener('click', function () {
+    const isMasked = passwordInput.classList.contains('masked');
+    passwordInput.classList.toggle('masked');
+    this.innerHTML = isMasked ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+    passwordInput.type = isMasked ? 'text' : 'password';
+  });
+
+  editBtn.addEventListener('click', async function () {
+    const modal = document.getElementById('password-modal');
+    const passwordId = card.dataset.id;
+    try {
+      const passwordDoc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
+      const password = passwordDoc.data();
+
+      document.getElementById('modal-title').textContent = 'Edit Password';
+      document.getElementById('password-id').value = passwordId;
+      document.getElementById('password-title').value = password.title || '';
+      document.getElementById('password-username').value = password.username || '';
+      document.getElementById('password-value').value = decryptPassword(password.password || '');
+      document.getElementById('password-url').value = password.url || '';
+      document.getElementById('password-category').value = password.category || 'other';
+      document.getElementById('password-notes').value = password.notes || '';
+
+      modal.style.display = 'flex';
+    } catch (error) {
+      console.error('Error loading password:', error);
+      showMessage('password-message', `Error loading password: ${error.message}`, 'error');
+    }
+  });
+
+  deleteBtn.addEventListener('click', async function () {
+    if (confirm('Are you sure you want to delete this password?')) {
+      const passwordId = card.dataset.id;
+      try {
+        await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
+        card.remove();
+        showMessage('login-message', 'Password deleted successfully!', 'success');
+        loadDashboard(user);
+      } catch (error) {
+        console.error('Error deleting password:', error);
+        showMessage('login-message', `Error deleting password: ${error.message}`, 'error');
+      }
+    }
+  });
+}
+
+// Load dashboard data
+async function loadDashboard(user) {
+  try {
+    // Load password stats
+    const passwordStats = await calculatePasswordStats(user.uid);
+    const passwordCount = document.getElementById('password-count');
+    const passwordRecent = document.getElementById('password-recent');
+
+    if (passwordCount) passwordCount.textContent = passwordStats.total;
+    if (passwordRecent) passwordRecent.textContent = passwordStats.recent;
+
+    // Load document stats
+    const documentStats = await calculateDocumentStats(user.uid);
+    const documentCount = document.getElementById('document-count');
+    const documentRecent = document.getElementById('document-recent');
+
+    if (documentCount) documentCount.textContent = documentStats.total;
+    if (documentRecent) documentRecent.textContent = documentStats.recent;
+
+    // Load todos
+    const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
+      .orderBy('createdAt', 'desc')
+      .limit(5)
+      .get();
+
+    const todoList = document.getElementById('todo-list');
+    const todoCount = document.getElementById('todo-count');
+    const todoUrgent = document.getElementById('todo-urgent');
+    if (todoList) todoList.innerHTML = '';
+
+    let urgentCount = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    todoSnapshot.forEach(doc => {
+      const todo = { id: doc.id, ...doc.data() };
+      const todoElement = createTodoElement(todo);
+      addTodoEventListeners(todoElement, user);
+      todoList.appendChild(todoElement);
+
+      if (todo.dueDate) {
+        try {
+          const dueDate = new Date(todo.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          if (dueDate.getTime() <= today.getTime() && !todo.completed) {
+            urgentCount++;
+          }
+        } catch (e) {
+          console.warn(`Invalid dueDate for todo ${doc.id}:`, todo.dueDate);
+        }
+      }
+    });
+
+    if (todoCount) todoCount.textContent = todoSnapshot.size;
+    if (todoUrgent) todoUrgent.textContent = urgentCount;
+
+    if (todoSnapshot.empty && todoList) {
+      todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+    }
+
+    // Add click event listener to todo card
+    const todoCard = document.querySelector('.dashboard-cards .todo-card');
+    if (todoCard) {
+      todoCard.style.cursor = 'pointer';
+      todoCard.addEventListener('click', function (e) {
+        if (e.target.closest('.todo-checkbox, .todo-actions')) return;
+        window.location.href = 'To do list.html';
+      });
+    }
+
+    // Load passwords
+    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
+      .orderBy('createdAt', 'desc')
+      .limit(3)
+      .get();
+
+    const passwordList = document.getElementById('password-list');
+    if (passwordList) passwordList.innerHTML = '';
+
+    passwordSnapshot.forEach(doc => {
+      const password = { id: doc.id, ...doc.data() };
+      if (!password.title) {
+        password.title = 'Untitled Password';
+      }
+      const passwordElement = createPasswordElement(password);
+      passwordElement.dataset.password = password.password || '';
+      addPasswordEventListeners(passwordElement, user);
+      passwordList.appendChild(passwordElement);
+    });
+
+    if (passwordSnapshot.empty && passwordList) {
+      passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
+    }
+
+    // Add click event listener to password card
+    const passwordCard = document.querySelector('.dashboard-cards .password-card');
+    if (passwordCard) {
+      passwordCard.style.cursor = 'pointer';
+      passwordCard.addEventListener('click', function (e) {
+        if (e.target.closest('.password-card-actions, .toggle-password')) return;
+        window.location.href = 'Password Manager.html';
+      });
+    }
+
+    // Load documents (display at least one)
+    const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
+      .orderBy('createdAt', 'desc')
+      .limit(1) // Limit to one document for dashboard
+      .get();
+
+    const documentList = document.getElementById('document-list');
+    if (documentList) documentList.innerHTML = '';
+
+    if (!documentSnapshot.empty) {
+      const latestDoc = documentSnapshot.docs[0];
+      const docData = { id: latestDoc.id, ...latestDoc.data() };
+      const docElement = document.createElement('div');
+      docElement.className = 'document-item';
+      const createdDate = docData.createdAt?.toDate()?.toLocaleDateString() || 'N/A';
+      const downloadUrl = docData.downloadURL || '#';
+      docElement.innerHTML = `
+        <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
+          <div>
+            <div style="font-weight: 600; color: var(--dark);">${docData.name || 'Untitled'}</div>
+            <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
+            <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${createdDate}</div>
+          </div>
+          <div class="document-actions" style="display: flex; gap: 0.5rem;">
+            <a href="${downloadUrl}" target="_blank" title="Download" style="color: var(--primary);"><i class="fas fa-download"></i></a>
+          </div>
+        </div>
+      `;
+      documentList.appendChild(docElement);
+    } else {
+      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+    }
+
+    // Add click event listener to document card
+    const documentCard = document.querySelector('.dashboard-cards .document-card');
+    if (documentCard) {
+      documentCard.style.cursor = 'pointer';
+      documentCard.addEventListener('click', function () {
+        window.location.href = 'Documents.html';
+      });
+    }
+
+    // Hide loading indicators
+    if (document.getElementById('todo-loading')) document.getElementById('todo-loading').style.display = 'none';
+    if (document.getElementById('password-loading')) document.getElementById('password-loading').style.display = 'none';
+    document.querySelector('.document-list .loading')?.remove();
+
+  } catch (error) {
+    console.error('Error loading dashboard:', error);
+    showMessage('login-message', `Error loading dashboard: ${error.message}`, 'error');
+  }
+}
+
+// Handle authentication state
+auth.onAuthStateChanged(async user => {
+  const authPage = document.getElementById('auth-page');
+  const dashboard = document.getElementById('dashboard');
+
+  if (user) {
+    if (!user.emailVerified) {
+      showMessage('login-message', 'Please verify your email address to access your account.', 'error');
+      await auth.signOut();
+      authPage.style.display = 'flex';
+      dashboard.style.display = 'none';
+      return;
+    }
+
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || 'User'
+    };
+
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    document.getElementById('user-name').textContent = userData.displayName;
+    document.getElementById('popup-user-name').textContent = userData.displayName;
+    document.getElementById('popup-user-email').textContent = userData.email;
+
+    const avatar = document.getElementById('user-avatar');
+    avatar.textContent = userData.displayName.charAt(0).toUpperCase();
+
+    authPage.style.display = 'none';
+    dashboard.style.display = 'flex';
+
+    setupUserPopup();
+    await loadDashboard(user);
+
+    const logoutLink = document.getElementById('logout-link');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', handleLogout);
+    }
+  } else {
+    localStorage.removeItem('isAuthenticated');
+    authPage.style.display = 'flex';
+    dashboard.style.display = 'none';
+  }
+});
+
+// Handle login form submission
+document.getElementById('login').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!validateLoginForm()) return;
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const remember = document.getElementById('remember').checked;
+
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      showMessage('login-message', 'Please verify your email address to log in.', 'error');
+      await auth.signOut();
+      return;
+    }
+
+    if (remember) {
+      localStorage.setItem('rememberMe', 'true');
+    }
+    showMessage('login-message', 'Login successful! Welcome back.', 'success');
+  } catch (error) {
+    console.error('Login error:', error.code, error.message);
+    let errorMessage = 'Login failed. Please check your credentials and try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email address.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password. Please try again.';
+    } else if (error.code === 'auth/too-many-requests') {
+      errorMessage = 'Too many login attempts. Please try again later.';
+    }
+    showMessage('login-message', errorMessage, 'error');
+  }
+});
+
+// Handle signup form submission
+document.getElementById('signup').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!validateSignupForm()) return;
+
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email-signup').value;
+  const password = document.getElementById('password-signup').value;
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    await userCredential.user.updateProfile({ displayName: name });
+    await userCredential.user.sendEmailVerification();
+    showMessage('signup-message', 'Account created successfully! Please check your email to verify your account.', 'success');
+    await auth.signOut();
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+  } catch (error) {
+    console.error('Signup error:', error.code, error.message);
+    let errorMessage = 'Signup failed. Please try again.';
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'This email address is already in use.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Invalid email address.';
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'Password is too weak. Please use a stronger password.';
+    }
+    showMessage('signup-message', errorMessage, 'error');
+  }
+});
+
+// Handle forgot password
+document.getElementById('forgot-password').addEventListener('click', function (e) {
+  e.preventDefault();
+  document.getElementById('forgot-password-modal').style.display = 'flex';
+});
+
+document.getElementById('forgot-password-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!validateForgotForm()) return;
+
+  const email = document.getElementById('forgot-email').value;
+
+  if (!canSendPasswordReset(email)) {
+    showMessage('forgot-message', 'Please wait 30 seconds before requesting another password reset.', 'error');
+    return;
+  }
+
+  try {
+    await auth.sendPasswordResetEmail(email);
+    localStorage.setItem(`reset-attempt-${email}`, Date.now());
+    showMessage('forgot-message', 'Password reset email sent successfully. Please check your inbox.', 'success');
+    document.getElementById('forgot-password-modal').style.display = 'none';
+  } catch (error) {
+    console.error('Password reset error:', error.code, error.message);
+    let errorMessage = 'Failed to send password reset email. Please try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email address.';
+    }
+    showMessage('forgot-message', errorMessage, 'error');
+  }
+});
+
+// Handle resend verification email
+document.getElementById('resend-verification').addEventListener('click', async function (e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+
+  if (!isValidEmail(email)) {
+    showMessage('login-message', 'Please enter a valid email address.', 'error');
+    return;
+  }
+
+  if (!canResendVerification(email)) {
+    showMessage('login-message', 'Please wait 30 seconds before requesting another verification email.', 'error');
+    return;
+  }
+
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      await user.sendEmailVerification();
+      localStorage.setItem(`verification-attempt-${email}`, Date.now());
+      showMessage('login-message', 'Verification email sent successfully. Please check your inbox.', 'success');
+      await auth.signOut();
+    } else {
+      showMessage('login-message', 'Your email is already verified. Please log in.', 'success');
+    }
+  } catch (error) {
+    console.error('Resend verification error:', error.code, error.message);
+    let errorMessage = 'Failed to send verification email. Please try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No account found with this email address.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password. Please try again.';
+    }
+    showMessage('login-message', errorMessage, 'error');
+  }
+});
+
+// Close modals
+document.querySelectorAll('.modal-close').forEach(btn => {
+  btn.addEventListener('click', function () {
+    this.closest('.modal').style.display = 'none';
+  });
+});
+
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', function (e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+    }
+  });
+});
+
+// Handle todo form submission
+document.getElementById('todo-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!validateTodoForm()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('login-message', 'You must be logged in to add tasks.', 'error');
+    return;
+  }
+
+  const todoId = document.getElementById('todo-id').value;
+  const todoData = {
+    title: document.getElementById('todo-title').value,
+    description: document.getElementById('todo-description').value,
+    dueDate: document.getElementById('todo-due').value,
+    time: document.getElementById('todo-time').value,
+    category: document.getElementById('todo-category').value,
+    priority: document.getElementById('todo-priority').value,
+    completed: false,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    if (todoId) {
+      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update(todoData);
+      showMessage('login-message', 'Task updated successfully!', 'success');
+    } else {
+      todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('users').doc(user.uid).collection('todos').add(todoData);
+      showMessage('login-message', 'Task added successfully!', 'success');
+    }
+    document.getElementById('todo-modal').style.display = 'none';
+    document.getElementById('todo-form').reset();
+    document.getElementById('todo-id').value = '';
+    loadDashboard(user);
+  } catch (error) {
+    console.error('Error saving task:', error);
+    showMessage('login-message', `Error saving task: ${error.message}`, 'error');
+  }
+});
+
+// Priority selector
+document.querySelectorAll('.priority-option').forEach(option => {
+  option.addEventListener('click', function () {
+    document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+    this.classList.add('selected');
+    document.getElementById('todo-priority').value = this.dataset.priority;
+  });
+});
+
+// Handle password form submission
+document.getElementById('password-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!validatePasswordForm()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('password-message', 'You must be logged in to add passwords.', 'error');
+    return;
+  }
+
+  const passwordId = document.getElementById('password-id').value;
+  const passwordData = {
+    title: document.getElementById('password-title').value,
+    username: document.getElementById('password-username').value,
+    password: encryptPassword(document.getElementById('password-value').value),
+    url: document.getElementById('password-url').value,
+    category: document.getElementById('password-category').value,
+    notes: document.getElementById('password-notes').value,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    if (passwordId) {
+      await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
+      showMessage('password-message', 'Password updated successfully!', 'success');
+    } else {
+      passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
+      showMessage('password-message', 'Password added successfully!', 'success');
+    }
+    document.getElementById('password-modal').style.display = 'none';
+    document.getElementById('password-form').reset();
+    document.getElementById('password-id').value = '';
+    loadDashboard(user);
+  } catch (error) {
+    console.error('Error saving password:', error);
+    showMessage('password-message', `Error saving password: ${error.message}`, 'error');
+  }
+});
+
+// Handle document form submission
+document.getElementById('document-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  if (!validateDocumentForm()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    showMessage('login-message', 'You must be logged in to upload documents.', 'error');
+    return;
+  }
+
+  const file = document.getElementById('document-file').files[0];
+  const name = document.getElementById('document-name').value;
+  const category = document.getElementById('document-category').value;
+
+  try {
+    const timestamp = Date.now();
+    const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
+    const fileName = `${sanitizedName}_${timestamp}.${file.name.split('.').pop()}`;
+    const storagePath = `users/${user.uid}/documents/${fileName}`;
+
+    // Upload to Supabase
+    const { error } = await supabase.storage
+      .from('public-documents')
+      .upload(storagePath, file, { cacheControl: '3600', upsert: false });
+
+    if (error) throw new Error(`Upload failed: ${error.message}`);
+
+    // Get public URL
+    const { data } = supabase.storage.from('public-documents').getPublicUrl(storagePath);
+    const downloadURL = data.publicUrl;
+
+    // Save metadata to Firestore
+    const documentData = {
+      name,
+      category,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      storagePath,
+      downloadURL,
+      fileName,
+      size: file.size,
+      type: file.name.split('.').pop().toLowerCase(),
+      owner: user.displayName || user.email.split('.')[0]
+    };
+
+    await db.collection('users').doc(user.uid).collection('documents').add(documentData);
+
+    showMessage('login-message', 'Document uploaded successfully!', 'success');
+    document.getElementById('document-modal').style.display = 'none';
+    document.getElementById('document-form').reset();
+    await loadDashboard(user);
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    showMessage('login-message', `Error uploading document: ${error.message}`, 'error');
+  }
+});
 </script>
 </body>
 </html>
