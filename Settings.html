@@ -24,6 +24,8 @@
       --success: #38a169;
       --white: #ffffff;
       --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --blue-theme-bg: #e6f0fa;
+      --sepia-theme-bg: #f4ecd8;
     }
     
     * {
@@ -38,11 +40,25 @@
       background-size: cover;
       min-height: 100vh;
       margin: 0;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    body.dark {
+      background: #1a202c;
+      color: #f7fafc;
+    }
+    
+    body.blue {
+      background: var(--blue-theme-bg);
+    }
+    
+    body.sepia {
+      background: var(--sepia-theme-bg);
     }
     
     /* Header Styles */
     .header {
-      background: white;
+      background: var(--white);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       padding: 0 2rem;
       display: flex;
@@ -53,21 +69,25 @@
       top: 0;
       z-index: 1000;
     }
-
+    
+    body.dark .header {
+      background: #2d3748;
+    }
+    
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
       height: 100%;
     }
-
+    
     .logo img {
       height: 36px;
       width: auto;
       object-fit: contain;
       vertical-align: middle;
     }
-
+    
     .logo h1 {
       color: var(--primary);
       font-size: 1.5rem;
@@ -75,14 +95,14 @@
       line-height: 1;
       vertical-align: middle;
     }
-
+    
     .user-menu {
       display: flex;
       align-items: center;
       height: 100%;
       position: relative;
     }
-
+    
     .user-avatar {
       width: 36px;
       height: 36px;
@@ -116,6 +136,11 @@
       z-index: 1000;
     }
     
+    body.dark .user-popup {
+      background: #2d3748;
+      color: #f7fafc;
+    }
+    
     .user-popup.active {
       display: block;
     }
@@ -143,6 +168,10 @@
       font-size: 1rem;
       color: var(--dark);
       margin: 0;
+    }
+    
+    body.dark .user-popup .user-info .details h4 {
+      color: #f7fafc;
     }
     
     .user-popup .user-info .details p {
@@ -241,6 +270,11 @@
       box-shadow: var(--shadow);
     }
     
+    body.dark .main-content {
+      background: #2d3748;
+      color: #f7fafc;
+    }
+    
     .content-wrapper {
       max-width: 800px;
       margin: 0 auto;
@@ -269,6 +303,10 @@
       font-size: 1.3rem;
     }
     
+    body.dark .settings-section h3 {
+      color: #f7fafc;
+    }
+    
     .form-group {
       margin-bottom: 1.5rem;
     }
@@ -280,36 +318,49 @@
       color: var(--dark);
     }
     
+    body.dark .form-group label {
+      color: #f7fafc;
+    }
+    
     .form-control {
-      width: 100%;
-      padding: 0.75rem;
+      width: var(--width-content);
+      padding: calc(8px 0.75rem);
+      background-color: var(--white);
       border: 1px solid var(--gray);
-      border-radius: 6px;
-      font-size: 1rem;
+      border-radius: calc(6px);
+      font-size: calc(1rem);
+      color: var(--black);
       transition: all 0.3s ease;
+    }
+    
+    body.dark .form-control {
+      background: #4a4a4a;
+      color: #f7fafc;
+      border-color: #718096;
     }
     
     .form-control:focus {
-      outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
+      outline: calc(0px);
+      border-color: calc(var(--primary-light));
+      box-shadow: inset 0 0 0px calc(var(--primary-light) 0px);
     }
     
     .form-group select.form-control {
-      appearance: none;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%232d3748" d="M6 9l4-5H2z"/></svg>') no-repeat right 0.75rem center/12px 12px;
+        appearance: none;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12px"><path fill="%232d3748" d="M6 9l4-5h-8z"/></svg>') no-repeat right 0.75rem calc(12.5%) calc(12px);
+      }
     }
     
     .btn {
-      padding: 0.75rem 1.5rem;
+      padding: calc(0.75rem 1.5rem);
       background: var(--primary);
       border: none;
-      color: white;
-      border-radius: 6px;
+      color: var(--white);
+      border-radius: calc(6px);
       cursor: pointer;
       transition: all 0.3s ease;
-      font-size: 0.95rem;
-      font-weight: 600;
+      font-size: calc(0.95rem);
+      font-weight: calc(600);
     }
     
     .btn:hover {
@@ -345,9 +396,77 @@
       transition: all 0.3s ease;
     }
     
+    .theme-option:hover {
+      transform: scale(1.1);
+      border-color: var(--primary);
+    }
+    
     .theme-option.selected {
       border-color: var(--dark);
       transform: scale(1.1);
+    }
+    
+    /* Password Strength Indicator */
+    .password-strength {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #718096;
+    }
+    
+    .password-strength.weak { color: var(--secondary); }
+    .password-strength.moderate { color: #dd6b20; }
+    .password-strength.strong { color: var(--success); }
+    
+    /* 2FA Toggle */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 20px;
+    }
+    
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ccc;
+      transition: 0.4s;
+      border-radius: 20px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background: var(--success);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(20px);
     }
     
     /* Message Styles */
@@ -360,20 +479,65 @@
       text-align: center;
       background: var(--secondary);
       color: white;
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
     }
     
     .message.success {
       background: var(--success);
     }
     
-    /* Loading State */
-    #loading {
+    /* Loading Animation */
+    .loading-container {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-size: 1.2rem;
+      background: #0077B6;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 3000;
     }
+    
+    .loader {
+      width: 30px;
+      aspect-ratio: 1;
+      display: grid;
+      transform: translateY(100%);
+    }
+    
+    .loader::before,
+    .loader::after {
+      content: "";
+      grid-area: 1/1;
+      border-radius: 50%;
+      transform-origin: bottom;
+      position: relative;
+    }
+    
+    .loader::before {
+      background: radial-gradient(at 30% 30%, #0000, #000a) red;
+      transform: scaleY(0.65);
+      top: 0;
+      animation: l11-1 2s cubic-bezier(0, 400, 1, 400) infinite, l11-2 2s ease infinite;
+    }
+    
+    .loader::after {
+      background: var(--white);
+      filter: blur(8px);
+      transform: scaleY(0.3) translate(0px, 0px);
+      left: 0;
+      animation: l11-3 2s cubic-bezier(0, 400, 1, 400) infinite;
+    }
+    
+    @keyframes l11-1 { 100% { top: -0.2px; } }
+    @keyframes l11-2 { 4%, 96% { transform: scaleY(1); } }
+    @keyframes l11-3 { 100% { transform: scaleY(0.3) translate(0.1px, -0.1px); } }
     
     #app-content {
       display: none;
@@ -497,7 +661,9 @@
   <div class="message" id="auth-message"></div>
 
   <!-- Loading State -->
-  <div id="loading">Loading...</div>
+  <div id="loading" class="loading-container">
+    <div class="loader"></div>
+  </div>
 
   <!-- Main App Content -->
   <div id="app-content">
@@ -508,7 +674,7 @@
         <h1>MyMemory</h1>
       </div>
       <div class="user-menu">
-        <div class="user-avatar" id="user-avatar"></div>
+        <div class="user-avatar" id="user-avatar" aria-label="User Menu"></div>
         <div class="user-popup" id="user-popup">
           <div class="user-info">
             <div class="avatar" id="popup-user-avatar"></div>
@@ -517,7 +683,7 @@
               <p id="popup-user-email"></p>
             </div>
           </div>
-          <button class="logout-btn" id="popup-logout-btn">
+          <button class="logout-btn" id="popup-logout-btn" aria-label="Logout">
             <i class="fas fa-sign-out-alt"></i> Logout
           </button>
         </div>
@@ -549,13 +715,13 @@
             <form id="profile-form">
               <div class="form-group">
                 <label for="display-name">Display Name</label>
-                <input type="text" id="display-name" class="form-control">
+                <input type="text" id="display-name" class="form-control" aria-label="Display Name" required>
               </div>
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" class="form-control" disabled>
+                <input type="email" id="email" class="form-control" disabled aria-label="Email">
               </div>
-              <button type="submit" class="btn">Save Changes</button>
+              <button type="submit" class="btn" aria-label="Save Profile Changes">Save Changes</button>
             </form>
           </div>
 
@@ -564,17 +730,18 @@
             <form id="password-form">
               <div class="form-group">
                 <label for="current-password">Current Password</label>
-                <input type="password" id="current-password" class="form-control">
+                <input type="password" id="current-password" class="form-control" aria-label="Current Password" required>
               </div>
               <div class="form-group">
                 <label for="new-password">New Password</label>
-                <input type="password" id="new-password" class="form-control">
+                <input type="password" id="new-password" class="form-control" aria-label="New Password" required>
+                <div class="password-strength" id="password-strength"></div>
               </div>
               <div class="form-group">
                 <label for="confirm-password">Confirm New Password</label>
-                <input type="password" id="confirm-password" class="form-control">
+                <input type="password" id="confirm-password" class="form-control" aria-label="Confirm New Password" required>
               </div>
-              <button type="submit" class="btn">Change Password</button>
+              <button type="submit" class="btn" aria-label="Change Password">Change Password</button>
             </form>
           </div>
 
@@ -582,22 +749,46 @@
             <h3>Appearance</h3>
             <div class="form-group">
               <label for="theme">Theme</label>
-              <select id="theme" class="form-control">
+              <select id="theme" class="form-control" aria-label="Select Theme">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
+                <option value="blue">Blue</option>
+                <option value="sepia">Sepia</option>
                 <option value="system">System</option>
               </select>
             </div>
             <div class="theme-preview">
-              <div class="theme-option" data-theme="light" style="background: #ffffff; border: 1px solid #e2e8f0;"></div>
-              <div class="theme-option" data-theme="dark" style="background: #2d3748;"></div>
-              <div class="theme-option" data-theme="system" style="background: linear-gradient(45deg, #ffffff 50%, #2d3748 50%);"></div>
+              <div class="theme-option" data-theme="light" style="background: #ffffff; border: 1px solid #e2e8f0;" aria-label="Light Theme"></div>
+              <div class="theme-option" data-theme="dark" style="background: #2d3748;" aria-label="Dark Theme"></div>
+              <div class="theme-option" data-theme="blue" style="background: #e6f0fa;" aria-label="Blue Theme"></div>
+              <div class="theme-option" data-theme="sepia" style="background: #f4ecd8;" aria-label="Sepia Theme"></div>
+              <div class="theme-option" data-theme="system" style="background: linear-gradient(45deg, #ffffff 50%, #2d3748 50%);" aria-label="System Theme"></div>
             </div>
           </div>
 
           <div class="settings-section">
+            <h3>Two-Factor Authentication</h3>
+            <div class="form-group">
+              <label for="2fa-toggle">Enable 2FA</label>
+              <div class="toggle-container">
+                <label class="toggle">
+                  <input type="checkbox" id="2fa-toggle" aria-label="Toggle 2FA">
+                  <span class="slider"></span>
+                </label>
+                <span id="2fa-status">Disabled</span>
+              </div>
+            </div>
+            <div id="2fa-qr-code" style="display: none; margin-top: 1rem;"></div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Account Data</h3>
+            <button id="export-data" class="btn" aria-label="Export Account Data">Export Data</button>
+          </div>
+
+          <div class="settings-section">
             <h3>Account</h3>
-            <button id="delete-account" class="btn btn-danger">Delete Account</button>
+            <button id="delete-account" class="btn btn-danger" aria-label="Delete Account">Delete Account</button>
           </div>
         </div>
       </main>
@@ -616,7 +807,7 @@
       measurementId: "G-8XZZNJB0QD"
     };
 
-    // Initialize Firebase with error handling
+    // Initialize Firebase
     let auth;
     try {
       firebase.initializeApp(firebaseConfig);
@@ -639,10 +830,15 @@
       }, 5000);
     }
 
-    // Hide loading
+    // Show/hide loading
+    function showLoading() {
+      document.getElementById('loading').style.display = 'flex';
+      document.getElementById('app-content').style.display = 'none';
+    }
+
     function hideLoading() {
-      const loadingElement = document.getElementById('loading');
-      loadingElement.style.display = 'none';
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('app-content').style.display = 'block';
     }
 
     // Secure sidebar navigation
@@ -652,14 +848,8 @@
         link.addEventListener('click', async function(e) {
           e.preventDefault();
           const targetUrl = this.getAttribute('href');
-          console.log(`Navigation attempt to ${targetUrl}`);
-
-          if (isCheckingAuth) {
-            console.log('Auth check already in progress, skipping');
-            return;
-          }
+          if (isCheckingAuth) return;
           isCheckingAuth = true;
-
           try {
             const user = await new Promise((resolve, reject) => {
               const unsubscribe = auth.onAuthStateChanged(user => {
@@ -667,19 +857,15 @@
                 resolve(user);
               }, reject);
             });
-
             if (user && user.emailVerified) {
-              console.log('Navigation allowed, user authenticated:', user.email);
               window.location.href = targetUrl;
             } else {
-              console.log('Navigation blocked, user not authenticated or email not verified');
               showMessage('Please log in to access this page.', 'error');
               localStorage.clear();
               window.location.replace('index.html');
             }
           } catch (error) {
-            console.error('Error checking auth state for navigation:', error);
-            showMessage('Error verifying authentication. Please log in again.', 'error');
+            showMessage('Error verifying authentication.', 'error');
             localStorage.clear();
             window.location.replace('index.html');
           } finally {
@@ -705,44 +891,36 @@
       userAvatar.addEventListener('click', (e) => {
         e.stopPropagation();
         userPopup.classList.toggle('active');
-        console.log('User popup toggled:', userPopup.classList.contains('active') ? 'open' : 'closed');
       });
 
       document.addEventListener('click', (e) => {
         if (!userPopup.contains(e.target) && e.target !== userAvatar) {
           userPopup.classList.remove('active');
-          console.log('User popup closed via outside click');
         }
       });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && userPopup.classList.contains('active')) {
           userPopup.classList.remove('active');
-          console.log('User popup closed via Escape key');
         }
       });
 
       logoutBtn.addEventListener('click', () => {
-        console.log('Logging out via popup');
+        showLoading();
         auth.signOut().then(() => {
           localStorage.clear();
           window.location.replace('index.html');
         }).catch(error => {
-          console.error('Logout error:', error);
+          hideLoading();
           showMessage('Error logging out: ' + error.message, 'error');
         });
       });
     }
 
-    // Check authentication state with timeout
+    // Check authentication state
     function checkAuthState(eventType) {
-      console.log(`Checking auth state on ${eventType}`);
-      const loadingElement = document.getElementById('loading');
-      const appContentElement = document.getElementById('app-content');
-
-      // Set a 7-second timeout for auth check
+      showLoading();
       const authTimeout = setTimeout(() => {
-        console.error('Authentication check timed out');
         hideLoading();
         showMessage('Authentication timed out. Please try again.', 'error');
         localStorage.clear();
@@ -750,52 +928,38 @@
       }, 7000);
 
       auth.onAuthStateChanged((user) => {
-        clearTimeout(authTimeout); // Clear timeout on successful auth state change
-        console.log('Auth state resolved:', user ? 'User found' : 'No user');
-
+        clearTimeout(authTimeout);
         if (user && user.emailVerified) {
-          console.log('User authenticated:', user.email);
           const userData = {
-            name: user.displayName || user.email.split('@')[0],
+            name: user.displayName || user.email.split('.')[0],
             email: user.email,
             avatarInitials: (user.displayName || user.email).substring(0, 2).toUpperCase()
           };
           localStorage.setItem('userData', JSON.stringify(userData));
           localStorage.setItem('isAuthenticated', 'true');
-
-          loadingElement.style.display = 'none';
-          appContentElement.style.display = 'block';
+          hideLoading();
           initializePage(userData);
         } else {
-          console.log('User not authenticated or email not verified, redirecting to login');
           hideLoading();
           if (user && !user.emailVerified) {
-            showMessage('Please verify your email before accessing this page.', 'error');
-            auth.signOut().catch(error => {
-              console.error('Sign out error:', error);
-            });
+            showMessage('Please verify your email.', 'error');
+            auth.signOut();
           }
           localStorage.clear();
           window.location.replace('index.html');
         }
       }, error => {
-        clearTimeout(authTimeout); // Clear timeout on error
-        console.error('Error checking auth state:', error);
         hideLoading();
-        showMessage('Error verifying authentication. Please log in again.', 'error');
+        showMessage('Authentication error.', 'error');
         localStorage.clear();
         window.location.replace('index.html');
       });
     }
 
     // Handle page load and bfcache restore
-    document.addEventListener('DOMContentLoaded', function() {
-      checkAuthState('DOMContentLoaded');
-    });
-
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        console.log('Page restored from bfcache, checking auth');
+    document.addEventListener('DOMContentLoaded', () => checkAuthState('DOMContentLoaded'));
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted || (window.performance && window.performance.navigation.type === 2)) {
         checkAuthState('pageshow');
       }
     });
@@ -810,14 +974,17 @@
       secureNavigation();
 
       // Profile form
-      document.getElementById('profile-form').addEventListener('submit', function(e) {
+      document.getElementById('profile-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        showLoading();
         const displayName = document.getElementById('display-name').value.trim();
         if (!displayName) {
+          hideLoading();
           showMessage('Display name is required.', 'error');
           return;
         }
-        auth.currentUser.updateProfile({ displayName }).then(() => {
+        try {
+          await auth.currentUser.updateProfile({ displayName });
           showMessage('Profile updated successfully!', 'success');
           localStorage.setItem('userData', JSON.stringify({
             name: displayName,
@@ -830,52 +997,84 @@
             email: userData.email,
             avatarInitials: displayName.substring(0, 2).toUpperCase()
           });
-        }).catch(error => {
-          console.error('Error updating profile:', error);
+          hideLoading();
+        } catch (error) {
+          hideLoading();
           showMessage('Error updating profile: ' + error.message, 'error');
-        });
+        }
       });
 
       // Password form
-      document.getElementById('password-form').addEventListener('submit', function(e) {
+      const passwordForm = document.getElementById('password-form');
+      const newPasswordInput = document.getElementById('new-password');
+      const passwordStrength = document.getElementById('password-strength');
+
+      function checkPasswordStrength(password) {
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        const moderateRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+        
+        if (strongRegex.test(password)) {
+          passwordStrength.textContent = 'Strong';
+          passwordStrength.className = 'password-strength strong';
+        } else if (moderateRegex.test(password)) {
+          passwordStrength.textContent = 'Moderate';
+          passwordStrength.className = 'password-strength moderate';
+        } else {
+          passwordStrength.textContent = 'Weak';
+          passwordStrength.className = 'password-strength weak';
+        }
+      }
+
+      newPasswordInput.addEventListener('input', () => {
+        checkPasswordStrength(newPasswordInput.value);
+      });
+
+      passwordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        showLoading();
         const currentPassword = document.getElementById('current-password').value;
         const newPassword = document.getElementById('new-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-          showMessage('All password fields are required.', 'error');
+          hideLoading();
+          showMessage('All fields are required.', 'error');
           return;
         }
 
         if (newPassword !== confirmPassword) {
+          hideLoading();
           showMessage('New passwords do not match.', 'error');
           return;
         }
 
-        if (newPassword.length < 8) {
-          showMessage('New password must be at least 8 characters long.', 'error');
+        const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongRegex.test(newPassword)) {
+          hideLoading();
+          showMessage('Password must be at least 8 characters, with uppercase, lowercase, number, and special character.', 'error');
           return;
         }
 
-        const user = auth.currentUser;
-        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-
-        user.reauthenticateWithCredential(credential).then(() => {
-          user.updatePassword(newPassword).then(() => {
-            showMessage('Password updated successfully!', 'success');
-            document.getElementById('password-form').reset();
-          }).catch(error => {
-            console.error('Error updating password:', error);
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+          await user.reauthenticateWithCredential(credential);
+          await user.updatePassword(newPassword);
+          showMessage('Password updated successfully!', 'success');
+          passwordForm.reset();
+          passwordStrength.textContent = '';
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          if (error.code === 'auth/wrong-password') {
+            showMessage('Current password is incorrect.', 'error');
+          } else {
             showMessage('Error updating password: ' + error.message, 'error');
-          });
-        }).catch(error => {
-          console.error('Error reauthenticating:', error);
-          showMessage('Current password is incorrect.', 'error');
-        });
+          }
+        }
       });
 
-      // Theme selection
+      // Theme switching
       const themeSelect = document.getElementById('theme');
       const themeOptions = document.querySelectorAll('.theme-option');
       let currentTheme = localStorage.getItem('theme') || 'light';
@@ -894,30 +1093,79 @@
 
       applyTheme(currentTheme);
 
-      themeSelect.addEventListener('change', function() {
-        applyTheme(this.value);
+      themeSelect.addEventListener('change', () => {
+        applyTheme(themeSelect.value);
       });
 
       themeOptions.forEach(option => {
-        option.addEventListener('click', function() {
-          themeSelect.value = this.dataset.theme;
-          applyTheme(this.dataset.theme);
+        option.addEventListener('click', () => {
+          themeSelect.value = option.dataset.theme;
+          applyTheme(themeSelect.value);
+        });
+        option.addEventListener('mouseover', () => {
+          document.body.classList.add(option.dataset.theme + '-preview');
+        });
+        option.addEventListener('mouseout', () => {
+          document.body.classList.remove(option.dataset.theme + '-preview');
         });
       });
 
-      // Delete account
-      document.getElementById('delete-account').addEventListener('click', function() {
-        if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return;
+      // 2FA Setup (Placeholder for Firebase TOTP)
+      const twoFAToggle = document.getElementById('2fa-toggle');
+      const twoFAStatus = document.getElementById('2fa-status');
+      const twoFAQrCode = document.getElementById('2fa-qr-code');
 
-        const user = auth.currentUser;
-        user.delete().then(() => {
+      twoFAToggle.addEventListener('change', async () => {
+        showLoading();
+        if (twoFAToggle.checked) {
+          try {
+            // Simulate 2FA setup (Firebase TOTP not available in 9.6.0; requires newer SDK)
+            twoFAStatus.textContent = 'Enabled';
+            twoFAQrCode.textContent = 'Scan this QR code with your authenticator app (simulated).';
+            twoFAQrCode.style.display = 'block';
+            showMessage('2FA enabled (simulated).', 'success');
+          } catch (error) {
+            twoFAToggle.checked = false;
+            showMessage('Error enabling 2FA: ' + error.message, 'error');
+          }
+        } else {
+          twoFAStatus.textContent = 'Disabled';
+          twoFAQrCode.style.display = 'none';
+          showMessage('2FA disabled (simulated).', 'success');
+        }
+        hideLoading();
+      });
+
+      // Export account data
+      document.getElementById('export-data').addEventListener('click', () => {
+        const data = {
+          displayName: userData.name,
+          email: userData.email,
+          timestamp: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mymemory-data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showMessage('Data exported successfully.', 'success');
+      });
+
+      // Delete account
+      document.getElementById('delete-account').addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to delete your account?')) return;
+        showLoading();
+        try {
+          await auth.currentUser.delete();
           showMessage('Account deleted successfully.', 'success');
           localStorage.clear();
           window.location.replace('index.html');
-        }).catch(error => {
-          console.error('Error deleting account:', error);
-          showMessage('Error deleting account: Please re-authenticate and try again.', 'error');
-        });
+        } catch (error) {
+          hideLoading();
+          showMessage('Error deleting account: Please re-authenticate.', 'error');
+        }
       });
     }
   </script>
