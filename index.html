@@ -15,51 +15,50 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #003087;
-      --primary-light: #0070ba;
-      --secondary: #ff5a5f;
-      --dark: #2d3748;
-      --light: #f5f7fa;
-      --gray: #e2e8f0;
-      --success: #38a169;
-      --white: #ffffff;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      --category-work: #007bff;
-      --category-personal: #28a745;
-      --category-urgent: #dc3545;
-      --warning: #f6ad55;
-      --gradient-todo: linear-gradient(135deg, #667eea, #764ba2);
-      --gradient-password: linear-gradient(135deg, #ff6b6b, #ff8e53);
-      --gradient-document: linear-gradient(135deg, #36d1dc, #5b86e5);
+      --primary: #14B8A6;
+      --primary-dark: #0D9488;
+      --secondary: #EF4444;
+      --dark: #111827;
+      --light: #F9FAFB;
+      --gray: #D1D5DB;
+      --success: #10B981;
+      --white: #FFFFFF;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --category-work: #3B82F6;
+      --category-personal: #10B981;
+      --category-urgent: #EF4444;
+      --warning: #F59E0B;
+      --gradient-todo: linear-gradient(135deg, #6EE7B7, #3B82F6);
+      --gradient-password: linear-gradient(135deg, #FCA5A5, #F87171);
+      --gradient-document: linear-gradient(135deg, #A5B4FC, #4F46E5);
+      --sidebar-bg: #1A1A2E;
+      --sidebar-active: #14B8A6;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', sans-serif;
     }
 
     body {
-      margin: 0;
-      padding: 0;
       min-height: 100vh;
-      background: var(--light);
+      background: linear-gradient(135deg, #F9FAFB, #E5E7EB);
+      color: var(--dark);
     }
 
     /* Authentication Page Styles */
     .auth-page {
-      background: url('hipo.jpg') no-repeat center center fixed;
-      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       padding: 1rem;
-      position: relative;
     }
 
     .auth-container {
@@ -67,26 +66,13 @@
       padding: 2rem;
       width: 100%;
       max-width: 400px;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-      margin: 1rem;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
       transition: transform 0.3s ease;
     }
 
     .auth-container:hover {
-      transform: translateY(-5px);
-    }
-
-    .auth-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 8px;
-      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      transform: translateY(-4px);
     }
 
     .logo {
@@ -98,22 +84,22 @@
     }
 
     .logo img {
-      height: 60px;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      height: 48px;
+      width: 48px;
+      object-fit: contain;
     }
 
     .logo img[src=""] {
-      background: url('amnesia.png') no-repeat center;
+      background: url('https://cdn-icons-png.flaticon.com/512/7660/7660733.png') no-repeat center;
       background-size: contain;
-      height: 60px;
-      width: 60px;
+      height: 48px;
+      width: 48px;
     }
 
     .logo h1 {
-      color: var(--primary);
-      font-size: 1.8rem;
+      font-size: 1.75rem;
       font-weight: 700;
-      letter-spacing: 1px;
+      color: var(--dark);
     }
 
     .message {
@@ -121,7 +107,7 @@
       padding: 0.75rem;
       margin-bottom: 1rem;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       text-align: center;
       animation: slideIn 0.3s ease;
     }
@@ -138,12 +124,14 @@
 
     .error-text {
       color: var(--secondary);
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
       display: none;
     }
 
-    .form-group.invalid input {
+    .form-group.invalid input,
+    .form-group.invalid select,
+    .form-group.invalid textarea {
       border-color: var(--secondary);
     }
 
@@ -152,63 +140,72 @@
     }
 
     .form-group {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       position: relative;
     }
 
     label {
       display: block;
       margin-bottom: 0.5rem;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--dark);
-      font-size: 0.9rem;
+      font-size: 0.875rem;
     }
 
     .input-icon {
       position: absolute;
-      left: 1rem;
-      top: 2.5rem;
-      color: #6b7280;
-      font-size: 1.1rem;
+      left: 0.75rem;
+      top: 2.25rem;
+      color: var(--gray);
+      font-size: 1rem;
     }
 
     input[type="email"],
     input[type="password"],
-    input[type="text"] {
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
       width: 100%;
-      padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+      padding: 0.75rem 0.75rem 0.75rem 2.25rem;
       border: 1px solid var(--gray);
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #fafafa;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      background: var(--white);
     }
 
-    input:focus {
+    textarea {
+      padding: 0.75rem;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
       outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
-      background: var(--white);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
     }
 
     .btn {
       width: 100%;
-      padding: 1rem;
+      padding: 0.75rem;
       background: var(--primary);
       border: none;
       color: var(--white);
-      font-size: 1rem;
+      font-size: 0.875rem;
       font-weight: 600;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
     }
 
     .btn:hover {
-      background: var(--primary-light);
-      transform: translateY(-2px);
+      background: var(--primary-dark);
+      transform: translateY(-1px);
     }
 
     .btn:active {
@@ -218,13 +215,13 @@
     .social-login {
       display: flex;
       justify-content: center;
-      gap: 1rem;
-      margin: 1.5rem 0;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
     }
 
     .social-btn {
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -232,17 +229,17 @@
       background: var(--white);
       border: 1px solid var(--gray);
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
     }
 
     .social-btn:hover {
       background: var(--light);
-      transform: scale(1.1);
+      transform: scale(1.05);
     }
 
     .social-btn i {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       color: var(--dark);
     }
 
@@ -250,9 +247,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 0.75rem;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
     }
 
     .remember-me {
@@ -263,14 +259,14 @@
 
     .remember-me input {
       margin-right: 0.5rem;
-      width: 1.2rem;
-      height: 1.2rem;
+      width: 1rem;
+      height: 1rem;
     }
 
     .forgot-password a {
       color: var(--primary);
       text-decoration: none;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
 
     .forgot-password a:hover {
@@ -280,9 +276,9 @@
     .divider {
       display: flex;
       align-items: center;
-      margin: 1.5rem 0;
-      color: #6b7280;
-      font-size: 0.9rem;
+      margin: 1.25rem 0;
+      color: var(--gray);
+      font-size: 0.875rem;
     }
 
     .divider::before,
@@ -293,17 +289,17 @@
     }
 
     .divider::before {
-      margin-right: 1rem;
+      margin-right: 0.75rem;
     }
 
     .divider::after {
-      margin-left: 1rem;
+      margin-left: 0.75rem;
     }
 
     .switch {
       text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.95rem;
+      margin-top: 1.25rem;
+      font-size: 0.875rem;
       color: var(--dark);
     }
 
@@ -311,7 +307,7 @@
       color: var(--primary);
       text-decoration: none;
       font-weight: 600;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
 
     .switch a:hover {
@@ -319,9 +315,9 @@
     }
 
     .terms {
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin-top: 1.25rem;
       text-align: center;
     }
 
@@ -344,17 +340,14 @@
     }
 
     .dashboard {
-      background: url('hipo.jpg') no-repeat center center fixed;
-      background-size: cover;
       min-height: 100vh;
-      padding: 0;
       display: flex;
       flex-direction: column;
     }
 
     .header {
       background: var(--white);
-      padding: 1rem 2rem;
+      padding: 1rem 1.5rem;
       box-shadow: var(--shadow);
       display: flex;
       justify-content: space-between;
@@ -367,33 +360,30 @@
     .header .logo {
       flex-direction: row;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .header .logo img {
-      height: 50px;
-    }
-
-    .header .logo img[src=""] {
-      height: 50px;
-      width: 50px;
+      height: 40px;
+      width: 40px;
     }
 
     .header .logo h1 {
-      font-size: 1.6rem;
-      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
     }
 
     .user-menu {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
       position: relative;
     }
 
     .user-avatar {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       background: var(--primary);
       color: var(--white);
       border-radius: 50%;
@@ -401,33 +391,34 @@
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.875rem;
       cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid var(--primary-light);
+      transition: all 0.2s ease;
     }
 
     .user-avatar:hover {
-      background: var(--primary-light);
+      background: var(--primary-dark);
       transform: scale(1.05);
-      box-shadow: 0 0 8px rgba(0, 112, 186, 0.3);
     }
 
     .user-popup {
       display: none;
       flex-direction: column;
-      align-items: center;
       padding: 1rem;
       width: 200px;
-      right: 10px;
-      top: 50px;
+      right: 0;
+      top: 48px;
       background: var(--white);
       border-radius: 12px;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--card-shadow);
       z-index: 1001;
       animation: slideIn 0.2s ease-out;
       position: absolute;
       border: 1px solid var(--gray);
+    }
+
+    .user-popup.active {
+      display: flex;
     }
 
     .user-popup::before {
@@ -448,10 +439,6 @@
       border-bottom-color: var(--white);
     }
 
-    .user-popup.active {
-      display: flex;
-    }
-
     .user-popup .user-info {
       width: 100%;
       text-align: center;
@@ -461,56 +448,53 @@
     }
 
     .user-popup .user-name {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--dark);
-      margin-bottom: 0.25rem;
     }
 
     .user-popup .user-email {
-      font-size: 0.85rem;
-      color: #6b7280;
+      font-size: 0.75rem;
+      color: var(--gray);
       word-break: break-all;
     }
 
     .user-popup .logout-btn {
       width: 100%;
-      padding: 0.6rem;
+      padding: 0.5rem;
       background: var(--secondary);
       border: none;
       color: var(--white);
-      font-size: 0.9rem;
+      font-size: 0.875rem;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
     }
 
     .user-popup .logout-btn:hover {
-      background: #e53e3e;
+      background: #DC2626;
       transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .password-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
     }
 
     .password-card {
-      background: var(--light);
+      background: var(--white);
       border-radius: 12px;
-      padding: 1.5rem;
-      transition: all 0.3s ease;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
       border: 1px solid var(--gray);
-      box-shadow: var(--card-shadow);
+      box-shadow: var(--shadow);
     }
 
     .password-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
     }
 
     .password-card-header {
@@ -522,8 +506,8 @@
 
     .password-name {
       font-weight: 600;
-      color: var(--primary);
-      font-size: 1.1rem;
+      color: var(--dark);
+      font-size: 1rem;
     }
 
     .password-card-actions {
@@ -534,19 +518,19 @@
     .password-card-actions button {
       background: none;
       border: none;
-      color: var(--dark);
+      color: var(--gray);
       cursor: pointer;
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .password-card-actions button:hover {
-      background: var(--gray);
+      background: var(--light);
       color: var(--primary);
     }
 
@@ -556,21 +540,21 @@
 
     .password-detail {
       display: flex;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
       align-items: center;
     }
 
     .password-label {
       font-weight: 500;
       min-width: 80px;
-      color: #718096;
-      font-size: 0.9rem;
+      color: var(--gray);
+      font-size: 0.875rem;
     }
 
     .password-value {
       flex: 1;
       position: relative;
-      font-size: 0.95rem;
+      font-size: 0.875rem;
       color: var(--dark);
     }
 
@@ -579,7 +563,7 @@
       border: none;
       background: transparent;
       font-family: 'Courier New', monospace;
-      font-size: 0.95rem;
+      font-size: 0.875rem;
     }
 
     .password-value .masked {
@@ -593,7 +577,7 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: var(--dark);
+      color: var(--gray);
       cursor: pointer;
       font-size: 1rem;
     }
@@ -606,7 +590,7 @@
       height: 4px;
       background: var(--gray);
       border-radius: 2px;
-      margin-top: 0.75rem;
+      margin-top: 0.5rem;
       overflow: hidden;
     }
 
@@ -626,13 +610,14 @@
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem;
-      background: var(--light);
+      background: var(--white);
       border-radius: 8px;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
+      border: 1px solid var(--gray);
     }
 
     .todo-item:hover {
-      background: var(--gray);
+      background: var(--light);
     }
 
     .todo-item.todo-completed .todo-title {
@@ -641,8 +626,8 @@
     }
 
     .todo-checkbox {
-      width: 1.2rem;
-      height: 1.2rem;
+      width: 1rem;
+      height: 1rem;
       cursor: pointer;
     }
 
@@ -653,25 +638,26 @@
 
     .todo-title {
       font-weight: 600;
-      margin-bottom: 3px;
+      margin-bottom: 0.25rem;
       word-break: break-word;
       color: var(--dark);
+      font-size: 0.875rem;
     }
 
     .todo-due {
-      font-size: 0.85rem;
-      color: #718096;
+      font-size: 0.75rem;
+      color: var(--gray);
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 0.25rem;
     }
 
     .todo-category {
-      font-size: 0.8rem;
-      padding: 2px 8px;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
       border-radius: 12px;
       color: var(--white);
-      margin-left: 8px;
+      margin-left: 0.5rem;
     }
 
     .category-work {
@@ -695,11 +681,11 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--dark);
+      color: var(--gray);
       font-size: 1rem;
-      transition: all 0.3s ease;
-      width: 30px;
-      height: 30px;
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -707,7 +693,7 @@
     }
 
     .todo-actions button:hover {
-      background: var(--gray);
+      background: var(--light);
       color: var(--primary);
     }
 
@@ -723,124 +709,25 @@
       border-left: 4px solid var(--success);
     }
 
-    @media (max-width: 768px) {
-      .user-popup {
-        width: 180px;
-        right: 5px;
-        top: 45px;
-        padding: 0.75rem;
-      }
-
-      .user-popup::before, .user-popup::after {
-        right: 10px;
-      }
-
-      .user-popup .user-name {
-        font-size: 1rem;
-      }
-
-      .user-popup .user-email {
-        font-size: 0.8rem;
-      }
-
-      .user-popup .logout-btn {
-        padding: 0.5rem;
-        font-size: 0.85rem;
-      }
-
-      .password-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-      .password-detail {
-        flex-direction: column;
-        gap: 0.25rem;
-        align-items: flex-start;
-      }
-
-      .password-label {
-        min-width: 100%;
-      }
-
-      .password-name, .password-value {
-        word-break: break-word;
-      }
-
-      .password-strength {
-        display: none;
-      }
-
-      .todo-item {
-        flex-wrap: wrap;
-      }
-
-      .todo-content {
-        min-width: calc(100% - 44px);
-      }
-
-      .todo-actions {
-        width: 100%;
-        justify-content: flex-end;
-        padding-top: 8px;
-        border-top: 1px dashed rgba(0, 0, 0, 0.1);
-        margin-top: 8px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .user-popup {
-        width: 160px;
-        right: 5px;
-        top: 40px;
-        padding: 0.6rem;
-      }
-
-      .user-popup::before, .user-popup::after {
-        right: 10px;
-      }
-
-      .user-popup .user-name {
-        font-size: 0.95rem;
-      }
-
-      .user-popup .user-email {
-        font-size: 0.75rem;
-      }
-
-      .user-popup .logout-btn {
-        padding: 0.5rem;
-        font-size: 0.8rem;
-      }
-
-      .user-avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-      }
-
-      .password-card-actions button {
-        width: 35px;
-        height: 35px;
-      }
-    }
-
     .container {
       display: flex;
       flex: 1;
-      padding: 2rem;
-      gap: 2rem;
-      max-width: 1400px;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      max-width: 1200px;
       margin: 0 auto;
       width: 100%;
     }
 
     .sidebar {
-      width: 250px;
-      background: var(--primary);
+      width: 240px;
+      background: var(--sidebar-bg);
       border-radius: 12px;
-      padding: 1rem;
+      padding: 1.5rem 1rem;
       box-shadow: var(--shadow);
+      position: sticky;
+      top: 80px;
+      height: fit-content;
     }
 
     .sidebar-menu {
@@ -857,77 +744,84 @@
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem 1rem;
-      color: var(--white);
+      color: #D1D5DB;
       text-decoration: none;
       border-radius: 8px;
-      transition: all 0.3s ease;
-      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      font-size: 0.875rem;
       font-weight: 500;
     }
 
     .sidebar-menu a:hover {
-      background: var(--primary-light);
-      transform: translateX(5px);
+      background: #2D2D44;
+      color: #FFFFFF;
+      transform: translateX(3px);
     }
 
     .sidebar-menu a.active {
-      background: var(--white);
-      color: var(--primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: var(--sidebar-active);
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar-menu a i {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
+    }
+
+    .sidebar-menu .logout-item {
+      border-top: 1px solid #2D2D44;
+      margin-top: 1rem;
+      padding-top: 0.5rem;
     }
 
     .main-content {
       flex: 1;
       background: var(--white);
       border-radius: 12px;
-      padding: 2rem;
+      padding: 1.5rem;
       box-shadow: var(--shadow);
     }
 
     .welcome-banner {
-      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
       color: var(--white);
-      padding: 1.5rem;
-      border-radius: 10px;
-      margin-bottom: 2rem;
+      padding: 1.25rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
       box-shadow: var(--shadow);
     }
 
     .welcome-banner h2 {
-      font-size: 1.6rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
     }
 
     .welcome-banner p {
-      font-size: 1rem;
+      font-size: 0.875rem;
       opacity: 0.9;
     }
 
     .dashboard-cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .card {
       background: var(--white);
       border-radius: 12px;
-      box-shadow: var(--card-shadow);
-      padding: 1.5rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+      transition: all 0.2s ease;
       border: 1px solid var(--gray);
+      position: relative;
     }
 
     .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
     }
 
     .card.todo-card {
@@ -945,31 +839,15 @@
       color: var(--white);
     }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.1);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .card:hover::before {
-      opacity: 1;
-    }
-
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .card-header h3 {
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       font-weight: 600;
       display: flex;
       align-items: center;
@@ -977,36 +855,16 @@
     }
 
     .card-header i {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
     }
 
     .card-content {
-      font-size: 0.95rem;
+      font-size: 0.875rem;
       line-height: 1.5;
-      margin-bottom: 1rem;
     }
 
     .card-content p {
       margin: 0.5rem 0;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
-    }
-
-    .card-actions .btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      width: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .card-actions .btn i {
-      font-size: 1rem;
     }
 
     .modal {
@@ -1016,7 +874,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       align-items: center;
       justify-content: center;
       z-index: 1000;
@@ -1028,21 +886,21 @@
       padding: 1.5rem;
       border-radius: 12px;
       width: 100%;
-      max-width: 500px;
+      max-width: 480px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: var(--shadow);
+      box-shadow: var(--card-shadow);
       animation: modalFadeIn 0.3s ease;
     }
 
     @keyframes modalFadeIn {
       from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: scale(0.95);
       }
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1);
       }
     }
 
@@ -1054,27 +912,25 @@
     }
 
     .modal-header h3 {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
+      font-weight: 600;
       color: var(--dark);
     }
 
     .modal-close {
       background: none;
       border: none;
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       cursor: pointer;
-      color: var(--dark);
+      color: var(--gray);
       width: 36px;
       height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       border-radius: 50%;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
 
     .modal-close:hover {
-      background: var(--gray);
+      background: var(--light);
       color: var(--secondary);
     }
 
@@ -1083,58 +939,52 @@
       padding: 0.75rem;
       border: 1px solid var(--gray);
       border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: #fafafa;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      background: var(--white);
     }
 
     .form-control:focus {
       outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(0, 112, 186, 0.2);
-      background: var(--white);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
     }
 
     .form-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .form-row .form-group {
-      flex: 1;
-      min-width: 150px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
     }
 
     .priority-selector {
       display: flex;
-      gap: 8px;
+      gap: 0.5rem;
       margin-bottom: 1rem;
       flex-wrap: wrap;
     }
 
     .priority-option {
       flex: 1;
-      padding: 0.75rem;
+      padding: 0.5rem;
       text-align: center;
       border: 1px solid var(--gray);
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       min-width: 80px;
       background: var(--white);
+      font-size: 0.875rem;
     }
 
     .priority-option:hover {
       background: var(--light);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
 
     .priority-option.selected {
       border-color: var(--primary);
       background: var(--light);
       font-weight: 600;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .priority-option.high {
@@ -1151,85 +1001,54 @@
 
     .loading {
       text-align: center;
-      padding: 2rem;
-      font-size: 1rem;
-      color: var(--dark);
+      padding: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--gray);
     }
 
     .empty-state {
       text-align: center;
       padding: 1rem;
-      color: #718096;
+      color: var(--gray);
       background: var(--light);
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow);
     }
 
     .empty-state i {
-      font-size: 2rem;
+      font-size: 1.5rem;
       margin-bottom: 0.5rem;
       color: var(--gray);
     }
 
+    .resend-verification {
+      text-align: center;
+      margin: 0.75rem 0;
+      font-size: 0.875rem;
+    }
+
+    .resend-verification a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .resend-verification a:hover {
+      text-decoration: underline;
+    }
+
+    /* Mobile Sidebar Toggle */
+    .sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--dark);
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+
     @media (max-width: 768px) {
-      .auth-page {
-        padding: 1rem;
-      }
-
-      .auth-container {
-        max-width: 95%;
-        padding: 1.5rem;
-        border-radius: 16px;
-      }
-
-      .logo img {
-        height: 50px;
-      }
-
-      .logo img[src=""] {
-        height: 50px;
-        width: 50px;
-      }
-
-      .logo h1 {
-        font-size: 1.5rem;
-      }
-
-      .form-group {
-        margin-bottom: 1.25rem;
-      }
-
-      input[type="email"],
-      input[type="password"],
-      input[type="text"] {
-        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-        font-size: 0.95rem;
-      }
-
-      .input-icon {
-        top: 2.4rem;
-      }
-
-      .btn {
-        padding: 0.9rem;
-        font-size: 0.95rem;
-      }
-
-      .social-btn {
-        width: 45px;
-        height: 45px;
-      }
-
-      .social-btn i {
-        font-size: 1.2rem;
-      }
-
-      .password-actions {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-      }
-
       .container {
         flex-direction: column;
         padding: 1rem;
@@ -1237,127 +1056,87 @@
 
       .sidebar {
         width: 100%;
-        border-radius: 10px;
-        padding: 1rem;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        height: 100vh;
+        z-index: 1001;
+        transition: left 0.3s ease;
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .sidebar-toggle {
+        display: block;
       }
 
       .sidebar-menu {
-        display: flex;
-        overflow-x: auto;
-        padding-bottom: 5px;
-        gap: 5px;
-      }
-
-      .sidebar-menu li {
-        margin-bottom: 0;
-      }
-
-      .sidebar-menu a {
-        white-space: nowrap;
-        padding: 0.5rem;
-        font-size: 0.9rem;
-      }
-
-      .main-content {
-        padding: 1.5rem;
+        padding-bottom: 1rem;
       }
 
       .dashboard-cards {
         grid-template-columns: 1fr;
       }
 
-      .header {
-        padding: 1rem;
+      .password-grid {
+        grid-template-columns: 1fr;
       }
 
-      .header .logo img {
-        height: 40px;
+      .password-detail {
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: flex-start;
       }
 
-      .header .logo img[src=""] {
-        height: 40px;
-        width: 40px;
-      }
-
-      .header .logo h1 {
-        font-size: 1.4rem;
-      }
-
-      .form-row .form-group {
+      .password-label {
         min-width: 100%;
       }
 
-      .priority-option {
-        min-width: calc(33.333% - 6px);
+      .todo-actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--gray);
+      }
+
+      .auth-container {
+        max-width: 90%;
+        padding: 1.5rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 480px) {
       .auth-container {
-        padding: 1.25rem;
-      }
-
-      .logo img {
-        height: 45px;
-      }
-
-      .logo img[src=""] {
-        height: 45px;
-        width: 45px;
-      }
-
-      .logo h1 {
-        font-size: 1.3rem;
-      }
-
-      .form-group {
-        margin-bottom: 1rem;
-      }
-
-      .btn {
-        padding: 0.8rem;
-        font-size: 0.9rem;
-      }
-
-      .social-login {
-        gap: 0.75rem;
-      }
-
-      .social-btn {
-        width: 40px;
-        height: 40px;
-      }
-
-      .social-btn i {
-        font-size: 1.1rem;
-      }
-
-      .divider {
-        font-size: 0.85rem;
-      }
-
-      .switch {
-        font-size: 0.9rem;
-      }
-
-      .terms {
-        font-size: 0.8rem;
-      }
-
-      .welcome-banner h2 {
-        font-size: 1.4rem;
-      }
-
-      .welcome-banner p {
-        font-size: 0.9rem;
-      }
-
-      .card {
         padding: 1rem;
       }
 
-      .card-header h3 {
-        font-size: 1.2rem;
+      .logo img {
+        height: 40px;
+        width: 40px;
+      }
+
+      .logo h1 {
+        font-size: 1.25rem;
+      }
+
+      .btn {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+      }
+
+      .social-btn {
+        width: 36px;
+        height: 36px;
+      }
+
+      .social-btn i {
+        font-size: 1rem;
       }
     }
 
@@ -1368,22 +1147,6 @@
 
     button, a, input[type="checkbox"] {
       touch-action: manipulation;
-    }
-
-    .resend-verification {
-      text-align: center;
-      margin: 1rem 0;
-      font-size: 0.85rem;
-    }
-
-    .resend-verification a {
-      color: var(--primary);
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-
-    .resend-verification a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -1500,6 +1263,7 @@
   <!-- Dashboard Content -->
   <div class="dashboard" id="dashboard" style="display: none;">
     <header class="header">
+      <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
       <div class="logo">
         <img src="amnesia.png" alt="MyMemory Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/7660/7660733.png'">
         <h1>MyMemory</h1>
@@ -1524,7 +1288,7 @@
           <li><a href="Password Manager.html" id="password-link"><i class="fas fa-lock"></i> Password Manager</a></li>
           <li><a href="Documents.html" id="documents-link"><i class="fas fa-file-contract"></i> Documents</a></li>
           <li><a href="Settings.html" id="settings-link"><i class="fas fa-cog"></i> Settings</a></li>
-          <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+          <li class="logout-item"><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
       </aside>
 
@@ -1730,1282 +1494,1260 @@
       </div>
     </div>
   </div>
-<script>
-  // Firebase configuration
+ <script>
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqY4M8VkntAc1678",
-  authDomain: "mymemory-ddc21.firebaseapp.com",
-  projectId: "mymemory-ddc21",
-  storageBucket: "mymemory-ddc21.firebasestorage.app",
-  messagingSenderId: "875926928384",
-  appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
-  measurementId: "G-8XZZNJB0QD"
+    apiKey: "AIzaSyBx6PhrRpMKV4P6MMcWqYQ4M8VkntAc1678",
+    authDomain: "https://mymemory.app",
+    projectId: "mymemory-ddc21",
+    storageBucket: "mymemory-ddc21.appspot.com",
+    messagingSenderId: "875926928384",
+    appId: "1:875926928384:web:57c38b56f24ecb4a3dace5",
+    measurementId: "G-8XZZNJB0QD"
 };
+
+// Supabase configuration
+const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkxytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Initialize Firebase
 let auth, db, storage;
 try {
-  firebase.initializeApp(firebaseConfig);
-  auth = firebase.auth();
-  db = firebase.firestore();
-  storage = firebase.storage();
-  auth.useDeviceLanguage();
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    storage = firebase.storage();
+    auth.setLanguageCode('en");
 } catch (error) {
-  console.error('Firebase initialization failed:', error);
-  showMessage('login-message', 'Failed to connect to services. Please try again later.', 'error');
+    console.error('Firebase initialization failed:', error);
+    showMessage('login-message', 'Failed to connect to services. Please try again.', 'error');
 }
-
-// Initialize Supabase
-const supabaseUrl = 'https://obeeybozdvnpbyjtaflr.supabase.co'; // Replace with your Supabase URL
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZWV5Ym96ZHZucGJ5anRhZmxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMzQ2OTcsImV4cCI6MjA2MzkxMDY5N30.LbrDMkytGXx1644Wn3ogBTczXY25pCr52fR5pfAeW1k'; // Replace with your Supabase anon key
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Global error handler
 window.addEventListener('error', function (event) {
-  console.error('Global error:', event.error);
-  showMessage('login-message', 'An unexpected error occurred. Please try again.', 'error');
+    console.error('Global error:', event.error);
+    showMessage('login-message', 'An unexpected error occurred. Please try again.', 'error');
 });
 
-// Show message (success or error)
+// Utility Functions
 function showMessage(elementId, message, type = 'success') {
-  const messageElement = document.getElementById(elementId);
-  if (!messageElement) {
-    console.error(`Message element ${elementId} not found`);
-    return;
-  }
-  messageElement.textContent = message;
-  messageElement.className = `message ${type}`;
-  messageElement.style.display = 'block';
-  setTimeout(() => {
-    messageElement.style.display = 'none';
-  }, 5000);
+    const messageElement = document.getElementById(elementId);
+    if (!messageElement) return;
+    messageElement.textContent = message;
+    messageElement.className = 'message ${type}';
+    messageElement.style.display = 'block';
+    setTimeout(() => {
+        messageElement.style.display = 'none';
+    }, 5000);
 }
 
-// Validate email format
 function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Validate URL format
 function isValidUrl(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
-// Calculate password strength
 function calculatePasswordStrength(password) {
-  let strength = 0;
-  if (password.length >= 8) strength += 25;
-  if (password.length >= 12) strength += 25;
-  if (/[A-Z]/.test(password)) strength += 15;
-  if (/[0-9]/.test(password)) strength += 15;
-  if (/[^A-Za-z0-9]/.test(password)) strength += 20;
-  return Math.min(strength, 100);
+    let strength = 0;
+    if (password.length >= 8) strength += 25;
+    if (password.length >= 12) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 15;
+    if (/[0-9]/.test(password)) strength += 15;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+    return Math.min(strength, 100);
 }
 
-// Encrypt and decrypt password
 function encryptPassword(password) {
-  return btoa(password);
+    return btoa(password);
 }
 
 function decryptPassword(encryptedPassword) {
-  try {
-    return atob(encryptedPassword);
-  } catch {
-    return 'Error decrypting';
-  }
-}
-
-// Calculate password statistics
-async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
-  try {
-    const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
-      .orderBy('createdAt', 'desc')
-      .get();
-
-    const now = new Date();
-    const oneWeekAgo = new Date(now);
-    oneWeekAgo.setDate(now.getDate() - 7);
-
-    let recentCount = 0;
-    let strengthData = { weak: 0, medium: 0, strong: 0 };
-
-    passwordSnapshot.forEach(doc => {
-      const password = doc.data();
-      if (!password.createdAt) {
-        console.warn(`Password ${doc.id} missing createdAt`);
-        return;
-      }
-      let createdDate;
-      try {
-        createdDate = password.createdAt.toDate();
-      } catch (e) {
-        console.warn(`Invalid createdAt for password ${doc.id}`);
-        return;
-      }
-      if (createdDate > oneWeekAgo) {
-        recentCount++;
-      }
-      let decryptedPassword;
-      try {
-        decryptedPassword = decryptPassword(password.password || '');
-      } catch (e) {
-        console.warn(`Failed to decrypt password ${doc.id}`);
-        decryptedPassword = '';
-      }
-      const strength = calculatePasswordStrength(decryptedPassword);
-      if (strength < 50) {
-        strengthData.weak++;
-      } else if (strength < 75) {
-        strengthData.medium++;
-      } else {
-        strengthData.strong++;
-      }
-    });
-
-    return {
-      total: passwordSnapshot.size,
-      recent: recentCount,
-      strength: strengthData,
-      lastUpdated: now.toLocaleString()
-    };
-  } catch (error) {
-    console.error(`Password stats attempt ${attempt} failed:`, error);
-    if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return calculatePasswordStats(uid, attempt
-
- + 1, maxAttempts);
+    try {
+        return atob(encryptedPassword);
+    } catch {
+        return 'Error decrypting';
     }
-    showMessage('login-message', `Failed to load password stats: ${error.message}`, 'error');
-    return {
-      total: 0,
-      recent: 0,
-      strength: { weak: 0, medium: 0, strong: 0 },
-      lastUpdated: 'Error'
-    };
-  }
 }
 
-// Calculate document statistics
-async function calculateDocumentStats(uid) {
-  try {
-    const documentSnapshot = await db.collection('users').doc(uid).collection('documents')
-      .orderBy('createdAt', 'desc')
-      .get();
+// Password Stats Calculation
+async function calculatePasswordStats(uid, attempt = 1, maxAttempts = 3) {
+    try {
+        const passwordSnapshot = await db.collection('users').doc(uid).collection('passwords')
+            .orderBy('createdAt', 'desc')
+            .get();
 
-    const now = new Date();
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    let recentCount = 0;
+        const now = new Date();
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(now);
+.getDate() - 7);
 
-    documentSnapshot.forEach(doc => {
-      const docData = doc.data();
-      try {
-        const createdAt = docData.createdAt?.toDate();
-        if (createdAt && createdAt > oneWeekAgo) {
-          recentCount++;
+        let recentCount = 0;
+        let strengthData = { weak: 0, medium: 0, strong: 0 };
+
+        passwordSnapshot.forEach(doc => {
+            const docData = doc.data();
+            if (!docData.createdAt) {
+                console.warn('Password ${doc.id} missing createdAt');
+                return;
+            }
+            let createdDate;
+            try {
+                createdDate = docData.createdAt.toDate();
+            } catch (e) {
+                console.warn('Invalid createdAt for id ${doc.id}');
+                return;
+            }
+            if (createdDate > oneWeekAgo) {
+                recentCount++;
+            }
+            let decryptedPassword;
+            try {
+                decryptedPassword = decryptPassword(docData.password || '');
+            } catch (e) {
+                console.warn('Failed to decrypt password ${doc.id}');
+                decryptedPassword = '';
+            }
+            const strength = calculatePasswordStrength(decryptedPassword);
+            if (strength < 50) {
+                strengthData.weak++;
+            } else if (strength < 75) {
+                strengthData.medium++;
+            } else {
+                strengthData.strong++;
+            }
+        });
+
+        return {
+            total: passwordSnapshot.size,
+            recent: recentCount,
+            strength: strengthData,
+            lastUpdated: now.toLocaleString()
+        };
+    } catch (error) {
+        console.error('Password stats attempt ${attempt} failed:', error);
+        if (attempt < maxAttempts && (error.code === 'unavailable' || error.code === 'deadline-exceeded')) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return calculatePasswordStats(uid, attempt + 1, maxAttempts);
         }
-      } catch (e) {
-        console.warn(`Invalid createdAt for document ${doc.id}:`, docData.createdAt);
-      }
-    });
-
-    return {
-      total: documentSnapshot.size,
-      recent: recentCount
-    };
-  } catch (error) {
-    console.error('Error calculating document stats:', error);
-    showMessage('login-message', 'Failed to load document stats.', 'error');
-    return { total: 0, recent: 0 };
-  }
+        showMessage('login-message', 'Failed to load password stats: ${error.message}', 'error');
+        return {
+            total: 0,
+            recent: 0,
+            strength: { weak: 0, medium: 0, strong: 0 },
+            lastUpdated: 'Error'
+        };
+    }
 }
 
-// Toggle between login and signup forms
+// Document Stats Calculation
+async function calculateDocumentStats(uid) {
+    try {
+        const documentSnapshot = await db.collection('users').doc(uid).collection('documents')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        let recentCount = 0;
+
+        documentSnapshot.forEach(doc => {
+            const docData = doc.data();
+            try {
+                const createdAt = docData.createdAt?.toDate();
+                if (createdAt && createdAt > oneWeekAgo) {
+                    recentCount++;
+                }
+            } catch (e) {
+                console.warn('Invalid createdAt for document ${doc.id}:', docData.createdAt);
+            }
+        });
+
+        return {
+            total: documentSnapshot.size,
+            recent: recentCount
+        };
+    } catch (error) {
+        console.error('Error calculating document stats:', error);
+        showMessage('login-message', 'Failed to load document stats.', 'error');
+        return { total: 0, recent: 0 };
+    }
+}
+
+// Form Toggle
 function toggleForms() {
-  const loginForm = document.getElementById('login-form');
-  const signupForm = document.getElementById('signup-form');
-  const loginMessage = document.getElementById('login-message');
-  const signupMessage = document.getElementById('signup-message');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const loginMessage = document.getElementById('login-message');
+    const signupMessage = document.getElementById('signup-message');
 
-  if (loginForm.style.display === 'none') {
-    loginForm.style.display = 'block';
-    signupForm.style.display = 'none';
-    signupMessage.style.display = 'none';
-  } else {
-    loginForm.style.display = 'none';
-    signupForm.style.display = 'block';
-    loginMessage.style.display = 'none';
-  }
+    if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        signupMessage.style.display = 'none';
+    } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        loginMessage.style.display = 'none';
+    }
 
-  const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
-  activeForm.classList.add('fade-in');
-  setTimeout(() => activeForm.classList.remove('fade-in'), 300);
+    const activeForm = loginForm.style.display === 'none' ? signupForm : loginForm;
+    activeForm.classList.add('fade-in');
+    setTimeout(() => activeForm.classList.remove('fade-in'), 300);
 }
 
-// Password strength indicator
+// Password Strength Indicator
 const passwordInput = document.getElementById('password-signup');
 const strengthMeter = document.getElementById('strength-meter');
-
 if (passwordInput && strengthMeter) {
-  passwordInput.addEventListener('input', function () {
-    const password = this.value;
-    let strength = calculatePasswordStrength(password);
-    strengthMeter.style.width = strength + '%';
-    strengthMeter.style.backgroundColor = strength < 50 ? '#ff5a5f' :
-      strength < 75 ? '#f6ad55' : '#38a169';
-  });
+    passwordInput.addEventListener('input', function () {
+        const password = this.value;
+        const strength = calculatePasswordStrength(password);
+        strengthMeter.style.width = '${strength}%';
+        strengthMeter.style.backgroundColor = strength < 50 ? '#EF4444' :
+            strength < 75 ? '#F59E0B' : '#10B981';
+    });
 }
 
-// Form validation functions
+// Form Validations
 function validateLoginForm() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const emailGroup = document.getElementById('email-group');
-  const passwordGroup = document.getElementById('password-group');
-  const emailError = document.getElementById('email-error');
-  const passwordError = document.getElementById('password-error');
-  let isValid = true;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const emailGroup = document.getElementById('email-group');
+    const passwordGroup = document.getElementById('password-group');
+    const emailError = document.getElementById('email-error');
+    const passwordError = document.getElementById('password-error');
+    let isValid = true;
 
-  emailGroup.classList.remove('invalid');
-  passwordGroup.classList.remove('invalid');
-  emailError.style.display = 'none';
-  passwordError.style.display = 'none';
+    emailGroup.classList.remove('invalid');
+    passwordGroup.classList.remove('invalid');
+    emailError.style.display = 'none';
+    passwordError.style.display = 'none';
 
-  if (!email) {
-    emailError.textContent = 'Email is required';
-    emailGroup.classList.add('invalid');
-    isValid = false;
-  } else if (!isValidEmail(email)) {
-    emailError.textContent = 'Please enter a valid email address';
-    emailGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!email) {
+        emailError.textContent = 'Email is required';
+        emailGroup.classList.add('invalid');
+        isValid = false;
+    } else if (!isValidEmail(email)) {
+        emailError.textContent = 'Please enter a valid email address';
+        emailGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (!password) {
-    passwordError.textContent = 'Password is required';
-    passwordGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!password) {
+        passwordError.textContent = 'Password is required';
+        passwordGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  return isValid;
+    return isValid;
 }
 
 function validateSignupForm() {
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email-signup').value;
-  const password = document.getElementById('password-signup').value;
-  const nameGroup = document.getElementById('name-group');
-  const emailGroup = document.getElementById('email-signup-group');
-  const passwordGroup = document.getElementById('password-signup-group');
-  const nameError = document.getElementById('name-error');
-  const emailError = document.getElementById('email-signup-error');
-  const passwordError = document.getElementById('password-signup-error');
-  let isValid = true;
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email-signup').value;
+    const password = document.getElementById('password-signup').value;
+    const nameGroup = document.getElementById('name-group');
+    const emailGroup = document.getElementById('email-signup-group');
+    const passwordGroup = document.getElementById('password-signup-group');
+    const nameError = document.getElementById('name-error');
+    const emailError = document.getElementById('email-signup-error');
+    const passwordError = document.getElementById('password-signup-error');
+    let isValid = true;
 
-  nameGroup.classList.remove('invalid');
-  emailGroup.classList.remove('invalid');
-  passwordGroup.classList.remove('invalid');
-  nameError.style.display = 'none';
-  emailError.style.display = 'none';
-  passwordError.style.display = 'none';
+    nameGroup.classList.remove('invalid');
+    emailGroup.classList.remove('invalid');
+    passwordGroup.classList.remove('invalid');
+    nameError.style.display = 'none';
+    emailError.style.display = 'none';
+    passwordError.style.display = 'none';
 
-  if (!name) {
-    nameError.textContent = 'Full name is required';
-    nameGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!name) {
+        nameError.textContent = 'Full name is required';
+        nameGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (!email) {
-    emailError.textContent = 'Email is required';
-    emailGroup.classList.add('invalid');
-    isValid = false;
-  } else if (!isValidEmail(email)) {
-    emailError.textContent = 'Please enter a valid email address';
-    emailGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!email) {
+        emailError.textContent = 'Email is required';
+        emailGroup.classList.add('invalid');
+        isValid = false;
+    } else if (!isValidEmail(email)) {
+        emailError.textContent = 'Please enter a valid email address';
+        emailGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (!password) {
-    passwordError.textContent = 'Password is required';
-    passwordGroup.classList.add('invalid');
-    isValid = false;
-  } else if (password.length < 8) {
-    passwordError.textContent = 'Password must be at least 8 characters';
-    passwordGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!password) {
+        passwordError.textContent = 'Password is required';
+        passwordGroup.classList.add('invalid');
+        isValid = false;
+    } else if (password.length < 8) {
+        passwordError.textContent = 'Password must be at least 8 characters';
+        passwordGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  return isValid;
+    return isValid;
 }
 
 function validateForgotForm() {
-  const email = document.getElementById('forgot-email').value;
-  const emailGroup = document.getElementById('forgot-email-group');
-  const emailError = document.getElementById('forgot-email-error');
-  let isValid = true;
+    const email = document.getElementById('forgot-email').value;
+    const emailGroup = document.getElementById('forgot-email-group');
+    const emailError = document.getElementById('forgot-email-error');
+    let isValid = true;
 
-  emailGroup.classList.remove('invalid');
-  emailError.style.display = 'none';
+    emailGroup.classList.remove('invalid');
+    emailError.style.display = 'none';
 
-  if (!email) {
-    emailError.textContent = 'Email is required';
-    emailGroup.classList.add('invalid');
-    isValid = false;
-  } else if (!isValidEmail(email)) {
-    emailError.textContent = 'Please enter a valid email address';
-    emailGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!email) {
+        emailError.textContent = 'Email is required';
+        emailGroup.classList.add('invalid');
+        isValid = false;
+    } else if (!isValidEmail(email)) {
+        emailError.textContent = 'Please enter a valid email address';
+        emailGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  return isValid;
+    return isValid;
 }
 
 function validateTodoForm() {
-  const title = document.getElementById('todo-title').value;
-  const titleGroup = document.getElementById('todo-title').parentElement;
-  let isValid = true;
+    const title = document.getElementById('todo-title').value;
+    const titleGroup = document.getElementById('todo-title').parentElement;
+    let isValid = true;
 
-  titleGroup.classList.remove('invalid');
-  titleGroup.querySelector('.error-text')?.remove();
+    titleGroup.classList.remove('invalid');
+    titleGroup.querySelector('.error-text')?.remove();
 
-  if (!title.trim()) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Task title is required';
-    titleGroup.appendChild(errorText);
-    titleGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!title.trim()) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Task title is required';
+        titleGroup.appendChild(errorText);
+        titleGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  return isValid;
+    return isValid;
 }
 
 function validatePasswordForm() {
-  const title = document.getElementById('password-title').value;
-  const username = document.getElementById('password-username').value;
-  const password = document.getElementById('password-value').value;
-  const url = document.getElementById('password-url').value;
-  const titleGroup = document.getElementById('password-title').parentElement;
-  const usernameGroup = document.getElementById('password-username').parentElement;
-  const passwordGroup = document.getElementById('password-value').parentElement;
-  const urlGroup = document.getElementById('password-url').parentElement;
-  let isValid = true;
+    const title = document.getElementById('password-title').value;
+    const username = document.getElementById('password-username').value;
+    const password = document.getElementById('password-value').value;
+    const url = document.getElementById('password-url').value;
+    const titleGroup = document.getElementById('password-title').parentElement;
+    const usernameGroup = document.getElementById('password-username').parentElement;
+    const passwordGroup = document.getElementById('password-value').parentElement;
+    const urlGroup = document.getElementById('password-url').parentElement;
+    let isValid = true;
 
-  [titleGroup, usernameGroup, passwordGroup, urlGroup].forEach(group => {
-    group.classList.remove('invalid');
-    group.querySelector('.error-text')?.remove();
-  });
+    [titleGroup, usernameGroup, passwordGroup, urlGroup].forEach(group => {
+        group.classList.remove('invalid');
+        group.querySelector('.error-text')?.remove();
+    });
 
-  if (!title.trim()) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Title is required';
-    titleGroup.appendChild(errorText);
-    titleGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!title.trim()) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Title is required';
+        titleGroup.appendChild(errorText);
+        titleGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (!username.trim()) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Username or email is required';
-    usernameGroup.appendChild(errorText);
-    usernameGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!username.trim()) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Username or email is required';
+        usernameGroup.appendChild(errorText);
+        usernameGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (!password.trim()) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Password is required';
-    passwordGroup.appendChild(errorText);
-    passwordGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!password.trim()) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Password is required';
+        passwordGroup.appendChild(errorText);
+        passwordGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (url && !isValidUrl(url)) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Please enter a valid URL';
-    urlGroup.appendChild(errorText);
-    urlGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (url && !isValidUrl(url)) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Please enter a valid URL';
+        urlGroup.appendChild(errorText);
+        urlGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  return isValid;
+    return isValid;
 }
 
 function validateDocumentForm() {
-  const name = document.getElementById('document-name').value;
-  const file = document.getElementById('document-file').files[0];
-  const nameGroup = document.getElementById('document-name').parentElement;
-  const fileGroup = document.getElementById('document-file').parentElement;
-  let isValid = true;
+    const name = document.getElementById('document-name').value;
+    const file = document.getElementById('document-file').files[0];
+    const nameGroup = document.getElementById('document-name').parentElement;
+    const fileGroup = document.getElementById('document-file').parentElement;
+    let isValid = true;
 
-  [nameGroup, fileGroup].forEach(group => {
-    group.classList.remove('invalid');
-    group.querySelector('.error-text')?.remove();
-  });
+    [nameGroup, fileGroup].forEach(group => {
+        group.classList.remove('invalid');
+        group.querySelector('.error-text')?.remove();
+    });
 
-  if (!name.trim()) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Document name is required';
-    nameGroup.appendChild(errorText);
-    nameGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!name.trim()) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Document name is required';
+        nameGroup.appendChild(errorText);
+        nameGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  if (!file) {
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'Please select a file';
-    fileGroup.appendChild(errorText);
-    fileGroup.classList.add('invalid');
-    isValid = false;
-  } else if (file.size > 5 * 1024 * 1024) { // 5MB limit
-    const errorText = document.createElement('div');
-    errorText.className = 'error-text';
-    errorText.textContent = 'File size must be less than 5MB';
-    fileGroup.appendChild(errorText);
-    fileGroup.classList.add('invalid');
-    isValid = false;
-  }
+    if (!file) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'Please select a file';
+        fileGroup.appendChild(errorText);
+        fileGroup.classList.add('invalid');
+        isValid = false;
+    } else if (file.size > 5 * 1024 * 1024) {
+        const errorText = document.createElement('div');
+        errorText.className = 'error-text';
+        errorText.textContent = 'File size must be less than 5MB';
+        fileGroup.appendChild(errorText);
+        fileGroup.classList.add('invalid');
+        isValid = false;
+    }
 
-  return isValid;
+    return isValid;
 }
 
-// Rate limiting for password reset and verification email
-const RATE_LIMIT_MS = 30 * 1000; // 30 seconds
+// Rate Limiting
+const RATE_LIMIT_MS = 30 * 1000;
 
 function canSendPasswordReset(email) {
-  const lastReset = localStorage.getItem(`reset-attempt-${email}`);
-  if (!lastReset) return true;
-  const timeSinceLast = Date.now() - parseInt(lastReset);
-  return timeSinceLast > RATE_LIMIT_MS;
+    const lastReset = localStorage.getItem('reset-attempt-${email}');
+    if (!lastReset) return true;
+    const timeSinceLast = Date.now() - parseInt(lastReset);
+    return timeSinceLast > RATE_LIMIT_MS;
 }
 
 function canResendVerification(email) {
-  const lastAttempt = localStorage.getItem(`verification-attempt-${email}`);
-  if (!lastAttempt) return true;
-  const timeSinceLast = Date.now() - parseInt(lastAttempt);
-  return timeSinceLast > RATE_LIMIT_MS;
+    const lastAttempt = localStorage.getItem('verification-attempt-${email}');
+    if (!lastAttempt) return true;
+    const timeSinceLast = Date.now() - parseInt(lastAttempt);
+    return timeSinceLast > RATE_LIMIT_MS;
 }
 
-// Handle user popup functionality
+// User Popup Setup
 function setupUserPopup() {
-  const userAvatar = document.getElementById('user-avatar');
-  const userPopup = document.getElementById('user-popup');
-  const logoutBtn = document.getElementById('popup-logout-btn');
+    const userAvatar = document.getElementById('user-avatar');
+    const userPopup = document.getElementById('user-popup');
+    const logoutBtn = document.getElementById('popup-logout-btn');
 
-  if (!userAvatar || !userPopup || !logoutBtn) {
-    console.error('User popup elements not found');
-    return;
-  }
-
-  function toggleUserPopup(e) {
-    e.stopPropagation();
-    userPopup.classList.toggle('active');
-  }
-
-  function closeUserPopup() {
-    userPopup.classList.remove('active');
-  }
-
-  userAvatar.addEventListener('click', toggleUserPopup);
-
-  document.addEventListener('click', function (e) {
-    if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
-      closeUserPopup();
+    if (!userAvatar || !userPopup || !logoutBtn) {
+        console.error('User popup elements not found');
+        return;
     }
-  });
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      closeUserPopup();
+    function toggleUserPopup(e) {
+        e.stopPropagation();
+        userPopup.classList.toggle('active');
     }
-  });
 
-  logoutBtn.addEventListener('click', handleLogout);
-}
-
-// Handle logout
-function handleLogout(e) {
-  e.preventDefault();
-  if (!auth) {
-    console.error('Firebase auth not initialized');
-    showMessage('login-message', 'Authentication service not available', 'error');
-    return;
-  }
-
-  auth.signOut().then(() => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('rememberMe');
-    document.getElementById('auth-page').style.display = 'flex';
-    document.getElementById('dashboard').style.display = 'none';
-    showMessage('login-message', 'You have been logged out successfully.', 'success');
-    window.location.href = 'index.html';
-  }).catch(error => {
-    console.error('Logout error:', error.code, error.message);
-    showMessage('login-message', `Logout failed: ${error.message}`, 'error');
-  });
-}
-
-// Format due date
-function formatDueDate(dueDate) {
-  if (!dueDate) return 'No due date';
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const due = new Date(dueDate);
-  due.setHours(0, 0, 0, 0);
-
-  const diffTime = due - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return 'Due today';
-  if (diffDays === 1) return 'Due tomorrow';
-  if (diffDays === -1) return 'Due yesterday';
-  if (diffDays < 0) return `Due ${Math.abs(diffDays)} days ago`;
-  if (diffDays <= 7) return `Due in ${diffDays} days`;
-
-  return `Due on ${due.toLocaleDateString()}`;
-}
-
-// Create todo element
-function createTodoElement(todo) {
-  const todoItem = document.createElement('div');
-  todoItem.className = `todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}`;
-  todoItem.dataset.id = todo.id;
-  todoItem.dataset.due = todo.dueDate;
-  todoItem.dataset.completed = todo.completed;
-  todoItem.dataset.category = todo.category;
-
-  const dueText = formatDueDate(todo.dueDate);
-  const categoryText = todo.category ? `<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>` : '';
-
-  todoItem.innerHTML = `
-    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
-    <div class="todo-content">
-      <div class="todo-title">${todo.title} ${categoryText}</div>
-      <div class="todo-due">
-        <i class="far fa-calendar-alt"></i> ${dueText}
-      </div>
-    </div>
-    <div class="todo-actions">
-      <button title="Edit"><i class="fas fa-edit"></i></button>
-      <button title="Delete"><i class="fas fa-trash"></i></button>
-    </div>
-  `;
-
-  return todoItem;
-}
-
-// Add todo event listeners
-function addTodoEventListeners(todoItem, user) {
-  const checkbox = todoItem.querySelector('.todo-checkbox');
-  const editBtn = todoItem.querySelector('.fa-edit').parentNode;
-  const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
-
-  checkbox.addEventListener('change', async function (e) {
-    e.stopPropagation();
-    const todoId = todoItem.dataset.id;
-    try {
-      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
-        completed: this.checked,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      todoItem.dataset.completed = this.checked;
-      if (this.checked) {
-        todoItem.classList.add('todo-completed');
-      } else {
-        todoItem.classList.remove('todo-completed');
-      }
-      showMessage('login-message', 'Task updated successfully!', 'success');
-    } catch (error) {
-      console.error('Error updating task:', error);
-      showMessage('login-message', `Error updating task: ${error.message}`, 'error');
+    function closeUserPopup() {
+        userPopup.classList.remove('active');
     }
-  });
 
-  editBtn.addEventListener('click', async function (e) {
-    e.stopPropagation();
-    const modal = document.getElementById('todo-modal');
-    const todoId = todoItem.dataset.id;
-    try {
-      const todoDoc = await db.collection('users').doc(user.uid).collection('todos').doc(todoId).get();
-      const todo = todoDoc.data();
+    userAvatar.addEventListener('click', toggleUserPopup);
 
-      document.getElementById('modal-title').textContent = 'Edit Task';
-      document.getElementById('todo-id').value = todoId;
-      document.getElementById('todo-title').value = todo.title;
-      document.getElementById('todo-description').value = todo.description || '';
-      document.getElementById('todo-due').value = todo.dueDate || '';
-      document.getElementById('todo-time').value = todo.time || '';
-      document.getElementById('todo-category').value = todo.category || 'work';
-
-      document.getElementById('todo-priority').value = todo.priority;
-      document.querySelectorAll('.priority-option').forEach(opt => {
-        opt.classList.remove('selected');
-        if (opt.dataset.priority === todo.priority) {
-          opt.classList.add('selected');
+    document.addEventListener('click', function (e) {
+        if (!userPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+            closeUserPopup();
         }
-      });
-
-      modal.style.display = 'flex';
-    } catch (error) {
-      console.error('Error loading task:', error);
-      showMessage('login-message', `Error loading task: ${error.message}`, 'error');
-    }
-  });
-
-  deleteBtn.addEventListener('click', async function (e) {
-    e.stopPropagation();
-    if (confirm('Are you sure you want to delete this task?')) {
-      const todoId = todoItem.dataset.id;
-      try {
-        await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
-        todoItem.remove();
-        showMessage('login-message', 'Task deleted successfully!', 'success');
-      } catch (error) {
-        console.error('Error deleting task:', error);
-        showMessage('login-message', `Error deleting task: ${error.message}`, 'error');
-      }
-    }
-  });
-}
-
-// Create password element
-function createPasswordElement(password) {
-  const card = document.createElement('div');
-  card.className = 'password-card';
-  card.dataset.id = password.id;
-
-  const title = password.title || 'Untitled Password';
-  const strength = calculatePasswordStrength(decryptPassword(password.password || ''));
-  const strengthColor = strength < 50 ? '#ff5a5f' : strength < 75 ? '#f6ad55' : '#38a169';
-
-  card.innerHTML = `
-    <div class="password-card-header">
-      <div class="password-name">${title}</div>
-      <div class="password-card-actions">
-        <button title="Copy Username"><i class="fas fa-user"></i></button>
-        <button title="Copy Password"><i class="fas fa-key"></i></button>
-        <button title="Edit"><i class="fas fa-edit"></i></button>
-        <button title="Delete"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>
-    <div class="password-details">
-      <div class="password-detail">
-        <span class="password-label">Username:</span>
-        <div class="password-value">${password.username || 'N/A'}</div>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">Password:</span>
-        <div class="password-value">
-          <input type="password" value="${decryptPassword(password.password || '')}" class="masked" readonly>
-          <button class="toggle-password"><i class="fas fa-eye"></i></button>
-        </div>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">URL:</span>
-        <div class="password-value">${password.url || 'N/A'}</div>
-      </div>
-      <div class="password-detail">
-        <span class="password-label">Category:</span>
-        <div class="password-value">${password.category || 'N/A'}</div>
-      </div>
-    </div>
-    <div class="password-strength">
-      <div class="strength-meter" style="width: ${strength}%; background-color: ${strengthColor};"></div>
-    </div>
-  `;
-
-  return card;
-}
-
-// Add password event listeners
-function addPasswordEventListeners(card, user) {
-  const copyUsernameBtn = card.querySelector('.fa-user').parentNode;
-  const copyPasswordBtn = card.querySelector('.fa-key').parentNode;
-  const togglePasswordBtn = card.querySelector('.toggle-password');
-  const editBtn = card.querySelector('.fa-edit').parentNode;
-  const deleteBtn = card.querySelector('.fa-trash').parentNode;
-  const passwordInput = card.querySelector('.password-value input');
-
-  copyUsernameBtn.addEventListener('click', function () {
-    const username = card.querySelector('.password-detail:nth-child(1) .password-value').textContent;
-    navigator.clipboard.writeText(username).then(() => {
-      showMessage('login-message', 'Username copied to clipboard!', 'success');
     });
-  });
 
-  copyPasswordBtn.addEventListener('click', function () {
-    const password = decryptPassword(card.dataset.password || '');
-    navigator.clipboard.writeText(password).then(() => {
-      showMessage('login-message', 'Password copied to clipboard!', 'success');
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeUserPopup();
+        }
     });
-  });
 
-  togglePasswordBtn.addEventListener('click', function () {
-    const isMasked = passwordInput.classList.contains('masked');
-    passwordInput.classList.toggle('masked');
-    this.innerHTML = isMasked ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
-    passwordInput.type = isMasked ? 'text' : 'password';
-  });
-
-  editBtn.addEventListener('click', async function () {
-    const modal = document.getElementById('password-modal');
-    const passwordId = card.dataset.id;
-    try {
-      const passwordDoc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
-      const password = passwordDoc.data();
-
-      document.getElementById('modal-title').textContent = 'Edit Password';
-      document.getElementById('password-id').value = passwordId;
-      document.getElementById('password-title').value = password.title || '';
-      document.getElementById('password-username').value = password.username || '';
-      document.getElementById('password-value').value = decryptPassword(password.password || '');
-      document.getElementById('password-url').value = password.url || '';
-      document.getElementById('password-category').value = password.category || 'other';
-      document.getElementById('password-notes').value = password.notes || '';
-
-      modal.style.display = 'flex';
-    } catch (error) {
-      console.error('Error loading password:', error);
-      showMessage('password-message', `Error loading password: ${error.message}`, 'error');
-    }
-  });
-
-  deleteBtn.addEventListener('click', async function () {
-    if (confirm('Are you sure you want to delete this password?')) {
-      const passwordId = card.dataset.id;
-      try {
-        await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
-        card.remove();
-        showMessage('login-message', 'Password deleted successfully!', 'success');
-        loadDashboard(user);
-      } catch (error) {
-        console.error('Error deleting password:', error);
-        showMessage('login-message', `Error deleting password: ${error.message}`, 'error');
-      }
-    }
-  });
+    logoutBtn.addEventListener('click', handleLogout);
 }
 
-// Load dashboard data
-async function loadDashboard(user) {
-  try {
-    // Load password stats
-    const passwordStats = await calculatePasswordStats(user.uid);
-    const passwordCount = document.getElementById('password-count');
-    const passwordRecent = document.getElementById('password-recent');
+// Logout Handler
+function handleLogout(e) {
+    e.preventDefault();
+    if (!auth) {
+        console.error('Firebase auth not initialized');
+        showMessage('login-message', 'Authentication service not available', 'error');
+        return;
+    }
 
-    if (passwordCount) passwordCount.textContent = passwordStats.total;
-    if (passwordRecent) passwordRecent.textContent = passwordStats.recent;
+    auth.signOut().then(() => {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userData');
+        localStorage.removeItem('rememberMe');
+        document.getElementById('auth-page').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+        showMessage('login-message', 'You have been logged out successfully.', 'success');
+        window.location.href = 'index.html';
+    }).catch(error => {
+        console.error('Logout error:', error.code, error.message);
+        showMessage('login-message', 'Logout failed: ${error.message}', 'error');
+    });
+}
 
-    // Load document stats
-    const documentStats = await calculateDocumentStats(user.uid);
-    const documentCount = document.getElementById('document-count');
-    const documentRecent = document.getElementById('document-recent');
+// Format Due Date
+function formatDueDate(dueDate) {
+    if (!dueDate) return 'No due date';
 
-    if (documentCount) documentCount.textContent = documentStats.total;
-    if (documentRecent) documentRecent.textContent = documentStats.recent;
-
-    // Load todos
-    const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
-      .orderBy('createdAt', 'desc')
-      .limit(5)
-      .get();
-
-    const todoList = document.getElementById('todo-list');
-    const todoCount = document.getElementById('todo-count');
-    const todoUrgent = document.getElementById('todo-urgent');
-    if (todoList) todoList.innerHTML = '';
-
-    let urgentCount = 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
 
-    todoSnapshot.forEach(doc => {
-      const todo = { id: doc.id, ...doc.data() };
-      const todoElement = createTodoElement(todo);
-      addTodoEventListeners(todoElement, user);
-      todoList.appendChild(todoElement);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      if (todo.dueDate) {
-        try {
-          const dueDate = new Date(todo.dueDate);
-          dueDate.setHours(0, 0, 0, 0);
-          if (dueDate.getTime() <= today.getTime() && !todo.completed) {
-            urgentCount++;
-          }
-        } catch (e) {
-          console.warn(`Invalid dueDate for todo ${doc.id}:`, todo.dueDate);
-        }
-      }
-    });
+    if (diffDays === 0) return 'Due today';
+    if (diffDays === 1) return 'Due tomorrow';
+    if (diffDays === -1) return 'Due yesterday';
+    if (diffDays < 0) return 'Due ${Math.abs(diffDays)} days ago';
+    if (diffDays <= 7) return 'Due in ${diffDays} days';
 
-    if (todoCount) todoCount.textContent = todoSnapshot.size;
-    if (todoUrgent) todoUrgent.textContent = urgentCount;
-
-    if (todoSnapshot.empty && todoList) {
-      todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
-    }
-
-    // Add click event listener to todo card
-    const todoCard = document.querySelector('.dashboard-cards .todo-card');
-    if (todoCard) {
-      todoCard.style.cursor = 'pointer';
-      todoCard.addEventListener('click', function (e) {
-        if (e.target.closest('.todo-checkbox, .todo-actions')) return;
-        window.location.href = 'To do list.html';
-      });
-    }
-
-    // Load passwords
-    const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
-      .orderBy('createdAt', 'desc')
-      .limit(3)
-      .get();
-
-    const passwordList = document.getElementById('password-list');
-    if (passwordList) passwordList.innerHTML = '';
-
-    passwordSnapshot.forEach(doc => {
-      const password = { id: doc.id, ...doc.data() };
-      if (!password.title) {
-        password.title = 'Untitled Password';
-      }
-      const passwordElement = createPasswordElement(password);
-      passwordElement.dataset.password = password.password || '';
-      addPasswordEventListeners(passwordElement, user);
-      passwordList.appendChild(passwordElement);
-    });
-
-    if (passwordSnapshot.empty && passwordList) {
-      passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
-    }
-
-    // Add click event listener to password card
-    const passwordCard = document.querySelector('.dashboard-cards .password-card');
-    if (passwordCard) {
-      passwordCard.style.cursor = 'pointer';
-      passwordCard.addEventListener('click', function (e) {
-        if (e.target.closest('.password-card-actions, .toggle-password')) return;
-        window.location.href = 'Password Manager.html';
-      });
-    }
-
-    // Load documents (display at least one)
-    const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
-      .orderBy('createdAt', 'desc')
-      .limit(1) // Limit to one document for dashboard
-      .get();
-
-    const documentList = document.getElementById('document-list');
-    if (documentList) documentList.innerHTML = '';
-
-    if (!documentSnapshot.empty) {
-      const latestDoc = documentSnapshot.docs[0];
-      const docData = { id: latestDoc.id, ...latestDoc.data() };
-      const docElement = document.createElement('div');
-      docElement.className = 'document-item';
-      const createdDate = docData.createdAt?.toDate()?.toLocaleDateString() || 'N/A';
-      const downloadUrl = docData.downloadURL || '#';
-      docElement.innerHTML = `
-        <div class="document-details" style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--gray);">
-          <div>
-            <div style="font-weight: 600; color: var(--dark);">${docData.name || 'Untitled'}</div>
-            <div style="font-size: 0.85rem; color: #718096;">Category: ${docData.category || 'N/A'}</div>
-            <div style="font-size: 0.85rem; color: #718096;">Uploaded: ${createdDate}</div>
-          </div>
-          <div class="document-actions" style="display: flex; gap: 0.5rem;">
-            <a href="${downloadUrl}" target="_blank" title="Download" style="color: var(--primary);"><i class="fas fa-download"></i></a>
-          </div>
-        </div>
-      `;
-      documentList.appendChild(docElement);
-    } else {
-      documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
-    }
-
-    // Add click event listener to document card
-    const documentCard = document.querySelector('.dashboard-cards .document-card');
-    if (documentCard) {
-      documentCard.style.cursor = 'pointer';
-      documentCard.addEventListener('click', function () {
-        window.location.href = 'Documents.html';
-      });
-    }
-
-    // Hide loading indicators
-    if (document.getElementById('todo-loading')) document.getElementById('todo-loading').style.display = 'none';
-    if (document.getElementById('password-loading')) document.getElementById('password-loading').style.display = 'none';
-    document.querySelector('.document-list .loading')?.remove();
-
-  } catch (error) {
-    console.error('Error loading dashboard:', error);
-    showMessage('login-message', `Error loading dashboard: ${error.message}`, 'error');
-  }
+    return 'Due on ${due.toLocaleDateString()}';
 }
 
-// Handle authentication state
-auth.onAuthStateChanged(async user => {
-  const authPage = document.getElementById('auth-page');
-  const dashboard = document.getElementById('dashboard');
+// Create Todo Element
+function createTodoElement(todo) {
+    const todoItem = document.createElement('div');
+    todoItem.className = 'todo-item priority-${todo.priority} ${todo.completed ? 'todo-completed' : ''}';
+    todoItem.dataset.id = todo.id;
+    todoItem.dataset.due = todo.dueDate;
+    todoItem.dataset.completed = todo.completed;
+    todoItem.dataset.category = todo.category;
 
-  if (user) {
-    if (!user.emailVerified) {
-      showMessage('login-message', 'Please verify your email address to access your account.', 'error');
-      await auth.signOut();
-      authPage.style.display = 'flex';
-      dashboard.style.display = 'none';
-      return;
-    }
+    const dueText = formatDueDate(todo.dueDate);
+    const categoryText = todo.category ? '<span class="todo-category category-${todo.category}">${todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}</span>' : '';
 
-    const userData = {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName || 'User'
-    };
+    todoItem.innerHTML = '
+        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''}>
+        <div class="todo-content">
+            <div class="todo-title">${todo.title} ${categoryText}</div>
+            <div class="todo-due">
+                <i class="far fa-calendar-alt"></i> ${dueText}
+            </div>
+        </div>
+        <div class="todo-actions">
+            <button title="Edit"><i class="fas fa-edit"></i></button>
+            <button title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+    ';
 
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('userData', JSON.stringify(userData));
+    return todoItem;
+}
 
-    document.getElementById('user-name').textContent = userData.displayName;
-    document.getElementById('popup-user-name').textContent = userData.displayName;
-    document.getElementById('popup-user-email').textContent = userData.email;
+// Add Todo Event Listeners
+function addTodoEventListeners(todoItem, user) {
+    const checkbox = todoItem.querySelector('.todo-checkbox');
+    const editBtn = todoItem.querySelector('.fa-edit').parentNode;
+    const deleteBtn = todoItem.querySelector('.fa-trash').parentNode;
 
-    const avatar = document.getElementById('user-avatar');
-    avatar.textContent = userData.displayName.charAt(0).toUpperCase();
+    checkbox.addEventListener('change', async function (e) {
+        e.stopPropagation();
+        const todoId = todoItem.dataset.id;
+        try {
+            await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update({
+                completed: this.checked,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            todoItem.dataset.completed = this.checked;
+            if (this.checked) {
+                todoItem.classList.add('todo-completed');
+            } else {
+                todoItem.classList.remove('todo-completed');
+            }
+            showMessage('login-message', 'Task updated successfully!', 'success');
+        } catch (error) {
+            console.error('Error updating task:', error);
+            showMessage('login-message', 'Error updating task: ${error.message}', 'error');
+        }
+    });
 
-    authPage.style.display = 'none';
-    dashboard.style.display = 'flex';
+    editBtn.addEventListener('click', async function (e) {
+        e.stopPropagation();
+        const modal = document.getElementById('todo-modal');
+        const todoId = todoItem.dataset.id;
+        try {
+            const todoDoc = await db.collection('users').doc(user.uid).collection('todos').doc(todoId).get();
+            const todo = todoDoc.data();
 
-    setupUserPopup();
-    await loadDashboard(user);
+            document.getElementById('modal-title').textContent = 'Edit Task';
+            document.getElementById('todo-id').value = todoId;
+            document.getElementById('todo-title').value = todo.title;
+            document.getElementById('todo-description').value = todo.description || '';
+            document.getElementById('todo-due').value = todo.dueDate || '';
+            document.getElementById('todo-time').value = todo.time || '';
+            document.getElementById('todo-category').value = todo.category || 'work';
 
-    const logoutLink = document.getElementById('logout-link');
-    if (logoutLink) {
-      logoutLink.addEventListener('click', handleLogout);
-    }
-  } else {
-    localStorage.removeItem('isAuthenticated');
-    authPage.style.display = 'flex';
-    dashboard.style.display = 'none';
-  }
-});
+            const priorityOptions = document.querySelectorAll('.priority-option');
+            priorityOptions.forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.priority === todo.priority);
+            });
+            document.getElementById('todo-priority').value = todo.priority || 'medium';
 
-// Handle login form submission
+            modal.style.display = 'flex';
+        } catch (error) {
+            console.error('Error loading task:', error);
+            showMessage('login-message', 'Error loading task: ${error.message}', 'error');
+        }
+    });
+
+    deleteBtn.addEventListener('click', async function (e) {
+        e.stopPropagation();
+        if (!confirm('Are you sure you want to delete this task?')) return;
+        const todoId = todoItem.dataset.id;
+        try {
+            await db.collection('users').doc(user.uid).collection('todos').doc(todoId).delete();
+            todoItem.remove();
+            showMessage('login-message', 'Task deleted successfully!', 'success');
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            showMessage('login-message', 'Error deleting task: ${error.message}', 'error');
+        }
+    });
+}
+
+// Create Password Element
+function createPasswordElement(password) {
+    const card = document.createElement('div');
+    card.className = 'password-card';
+    card.dataset.id = password.id;
+
+    card.innerHTML = '
+        <div class="password-card-header">
+            <div class="password-name">${password.title}</div>
+            <div class="password-card-actions">
+                <button title="Edit"><i class="fas fa-edit"></i></button>
+                <button title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+        <div class="password-details">
+            <div class="password-detail">
+                <span class="password-label">Username:</span>
+                <span class="password-value">${password.username}</span>
+            </div>
+            <div class="password-detail">
+                <span class="password-label">Password:</span>
+                <span class="password-value">
+                    <input type="password" value="${decryptPassword(password.password)}" readonly class="masked">
+                    <button class="toggle-password"><i class="fas fa-eye"></i></button>
+                </span>
+            </div>
+            ${password.url ? '<div class="password-detail"><span class="password-label">URL:</span><span class="password-value"><a href="${password.url}" target="_blank">${password.url}</a></span></div>' : ''}
+            <div class="password-detail">
+                <span class="password-label">Category:</span>
+                <span class="password-value">${password.category}</span>
+            </div>
+            ${password.notes ? '<div class="password-detail"><span class="password-label">Notes:</span><span class="password-value">${password.notes}</span></div>' : ''}
+        </div>
+    ';
+
+    return card;
+}
+
+// Add Password Event Listeners
+function addPasswordEventListeners(card, user) {
+    const editBtn = card.querySelector('.fa-edit').parentNode;
+    const deleteBtn = card.querySelector('.fa-trash').parentNode;
+    const toggleBtn = card.querySelector('.toggle-password');
+    const passwordInput = card.querySelector('.password-value input');
+
+    toggleBtn.addEventListener('click', function () {
+        const isMasked = passwordInput.type === 'password';
+        passwordInput.type = isMasked ? 'text' : 'password';
+        toggleBtn.querySelector('i').className = isMasked ? 'fas fa-eye-slash' : 'fas fa-eye';
+    });
+
+    editBtn.addEventListener('click', async function () {
+        const modal = document.getElementById('password-modal');
+        const passwordId = card.dataset.id;
+        try {
+            const passwordDoc = await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).get();
+            const password = passwordDoc.data();
+
+            document.getElementById('modal-title').textContent = 'Edit Password';
+            document.getElementById('password-id').value = passwordId;
+            document.getElementById('password-title').value = password.title;
+            document.getElementById('password-username').value = password.username;
+            document.getElementById('password-value').value = decryptPassword(password.password);
+            document.getElementById('password-url').value = password.url || '';
+            document.getElementById('password-category').value = password.category || 'other';
+            document.getElementById('password-notes').value = password.notes || '';
+
+            modal.style.display = 'flex';
+        } catch (error) {
+            console.error('Error loading password:', error);
+            showMessage('password-message', 'Error loading password: ${error.message}', 'error');
+        }
+    });
+
+    deleteBtn.addEventListener('click', async function () {
+        if (!confirm('Are you sure you want to delete this password?')) return;
+        const passwordId = card.dataset.id;
+        try {
+            await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).delete();
+            card.remove();
+            showMessage('password-message', 'Password deleted successfully!', 'success');
+        } catch (error) {
+            console.error('Error deleting password:', error);
+            showMessage('password-message', 'Error deleting password: ${error.message}', 'error');
+        }
+    });
+}
+
+// Create Document Element
+function createDocumentElement(document) {
+    const docItem = document.createElement('div');
+    docItem.className = 'document-item';
+    docItem.dataset.id = document.id;
+
+    docItem.innerHTML = '
+        <div class="document-header">
+            <div class="document-name">${document.name}</div>
+            <div class="document-actions">
+                <button title="Download"><i class="fas fa-download"></i></button>
+                <button title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+        <div class="document-details">
+            <div class="document-detail">
+                <span class="document-label">Category:</span>
+                <span class="document-value">${document.category}</span>
+            </div>
+            <div class="document-detail">
+                <span class="document-label">Uploaded:</span>
+                <span class="document-value">${document.createdAt.toDate().toLocaleDateString()}</span>
+            </div>
+        </div>
+    ';
+
+    return docItem;
+}
+
+// Add Document Event Listeners
+function addDocumentEventListeners(docItem, user) {
+    const downloadBtn = docItem.querySelector('.fa-download').parentNode;
+    const deleteBtn = docItem.querySelector('.fa-trash').parentNode;
+
+    downloadBtn.addEventListener('click', async function () {
+        const docId = docItem.dataset.id;
+        try {
+            const docRef = await db.collection('users').doc(user.uid).collection('documents').doc(docId).get();
+            const docData = docRef.data();
+            const fileRef = storage.ref(docData.filePath);
+            const url = await fileRef.getDownloadURL();
+            window.open(url, '_blank');
+        } catch (error) {
+            console.error('Error downloading document:', error);
+            showMessage('login-message', 'Error downloading document: ${error.message}', 'error');
+        }
+    });
+
+    deleteBtn.addEventListener('click', async function () {
+        if (!confirm('Are you sure you want to delete this document?')) return;
+        const docId = docItem.dataset.id;
+        try {
+            const docRef = await db.collection('users').doc(user.uid).collection('documents').doc(docId).get();
+            const docData = docRef.data();
+            await storage.ref(docData.filePath).delete();
+            await db.collection('users').doc(user.uid).collection('documents').doc(docId).delete();
+            docItem.remove();
+            showMessage('login-message', 'Document deleted successfully!', 'success');
+        } catch (error) {
+            console.error('Error deleting document:', error);
+            showMessage('login-message', 'Error deleting document: ${error.message}', 'error');
+        }
+    });
+}
+
+// Authentication Handlers
 document.getElementById('login').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validateLoginForm()) return;
+    e.preventDefault();
+    if (!validateLoginForm()) return;
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const remember = document.getElementById('remember').checked;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('remember').checked;
 
-  try {
-    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-    const user = userCredential.user;
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
 
-    if (!user.emailVerified) {
-      showMessage('login-message', 'Please verify your email address to log in.', 'error');
-      await auth.signOut();
-      return;
+        if (!user.emailVerified) {
+            await auth.signOut();
+            showMessage('login-message', 'Please verify your email before logging in.', 'error');
+            return;
+        }
+
+        localStorage.setItem('isAuthenticated', 'true');
+        if (remember) {
+            localStorage.setItem('rememberMe', 'true');
+        }
+
+        document.getElementById('auth-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        showMessage('login-message', 'Login successful!', 'success');
+    } catch (error) {
+        console.error('Login error:', error.code, error.message);
+        showMessage('login-message', 'Login failed: ${error.message}', 'error');
     }
-
-    if (remember) {
-      localStorage.setItem('rememberMe', 'true');
-    }
-    showMessage('login-message', 'Login successful! Welcome back.', 'success');
-  } catch (error) {
-    console.error('Login error:', error.code, error.message);
-    let errorMessage = 'Login failed. Please check your credentials and try again.';
-    if (error.code === 'auth/user-not-found') {
-      errorMessage = 'No account found with this email address.';
-    } else if (error.code === 'auth/wrong-password') {
-      errorMessage = 'Incorrect password. Please try again.';
-    } else if (error.code === 'auth/too-many-requests') {
-      errorMessage = 'Too many login attempts. Please try again later.';
-    }
-    showMessage('login-message', errorMessage, 'error');
-  }
 });
 
-// Handle signup form submission
 document.getElementById('signup').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validateSignupForm()) return;
+    e.preventDefault();
+    if (!validateSignupForm()) return;
 
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email-signup').value;
-  const password = document.getElementById('password-signup').value;
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email-signup').value;
+    const password = document.getElementById('password-signup').value;
 
-  try {
-    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    await userCredential.user.updateProfile({ displayName: name });
-    await userCredential.user.sendEmailVerification();
-    showMessage('signup-message', 'Account created successfully! Please check your email to verify your account.', 'success');
-    await auth.signOut();
-    document.getElementById('signup-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-  } catch (error) {
-    console.error('Signup error:', error.code, error.message);
-    let errorMessage = 'Signup failed. Please try again.';
-    if (error.code === 'auth/email-already-in-use') {
-      errorMessage = 'This email address is already in use.';
-    } else if (error.code === 'auth/invalid-email') {
-      errorMessage = 'Invalid email address.';
-    } else if (error.code === 'auth/weak-password') {
-      errorMessage = 'Password is too weak. Please use a stronger password.';
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        await user.updateProfile({ displayName: name });
+        await user.sendEmailVerification();
+
+        await db.collection('users').doc(user.uid).set({
+            name: name,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await auth.signOut();
+        showMessage('signup-message', 'Sign up successful! Please verify your email.', 'success');
+        toggleForms();
+    } catch (error) {
+        console.error('Signup error:', error.code, error.message);
+        showMessage('signup-message', 'Signup failed: ${error.message}', 'error');
     }
-    showMessage('signup-message', errorMessage, 'error');
-  }
 });
 
-// Handle forgot password
 document.getElementById('forgot-password').addEventListener('click', function (e) {
-  e.preventDefault();
-  document.getElementById('forgot-password-modal').style.display = 'flex';
+    e.preventDefault();
+    document.getElementById('forgot-password-modal').style.display = 'flex';
 });
 
 document.getElementById('forgot-password-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validateForgotForm()) return;
+    e.preventDefault();
+    if (!validateForgotForm()) return;
 
-  const email = document.getElementById('forgot-email').value;
+    const email = document.getElementById('forgot-email').value;
 
-  if (!canSendPasswordReset(email)) {
-    showMessage('forgot-message', 'Please wait 30 seconds before requesting another password reset.', 'error');
-    return;
-  }
-
-  try {
-    await auth.sendPasswordResetEmail(email);
-    localStorage.setItem(`reset-attempt-${email}`, Date.now());
-    showMessage('forgot-message', 'Password reset email sent successfully. Please check your inbox.', 'success');
-    document.getElementById('forgot-password-modal').style.display = 'none';
-  } catch (error) {
-    console.error('Password reset error:', error.code, error.message);
-    let errorMessage = 'Failed to send password reset email. Please try again.';
-    if (error.code === 'auth/user-not-found') {
-      errorMessage = 'No account found with this email address.';
+    if (!canSendPasswordReset(email)) {
+        showMessage('forgot-message', 'Please wait 30 seconds before trying again.', 'error');
+        return;
     }
-    showMessage('forgot-message', errorMessage, 'error');
-  }
+
+    try {
+        await auth.sendPasswordResetEmail(email);
+        localStorage.setItem('reset-attempt-${email}', Date.now());
+        showMessage('forgot-message', 'Password reset email sent!', 'success');
+        document.getElementById('forgot-password-modal').style.display = 'none';
+    } catch (error) {
+        console.error('Password reset error:', error.code, error.message);
+        showMessage('forgot-message', 'Error sending reset email: ${error.message}', 'error');
+    }
 });
 
-// Handle resend verification email
 document.getElementById('resend-verification').addEventListener('click', async function (e) {
-  e.preventDefault();
-  const email = document.getElementById('email').value;
+    e.preventDefault();
+    const email = document.getElementById('email').value;
 
-  if (!isValidEmail(email)) {
-    showMessage('login-message', 'Please enter a valid email address.', 'error');
-    return;
-  }
-
-  if (!canResendVerification(email)) {
-    showMessage('login-message', 'Please wait 30 seconds before requesting another verification email.', 'error');
-    return;
-  }
-
-  try {
-    const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
-    const user = userCredential.user;
-
-    if (!user.emailVerified) {
-      await user.sendEmailVerification();
-      localStorage.setItem(`verification-attempt-${email}`, Date.now());
-      showMessage('login-message', 'Verification email sent successfully. Please check your inbox.', 'success');
-      await auth.signOut();
-    } else {
-      showMessage('login-message', 'Your email is already verified. Please log in.', 'success');
+    if (!isValidEmail(email)) {
+        showMessage('login-message', 'Please enter a valid email address.', 'error');
+        return;
     }
-  } catch (error) {
-    console.error('Resend verification error:', error.code, error.message);
-    let errorMessage = 'Failed to send verification email. Please try again.';
-    if (error.code === 'auth/user-not-found') {
-      errorMessage = 'No account found with this email address.';
-    } else if (error.code === 'auth/wrong-password') {
-      errorMessage = 'Incorrect password. Please try again.';
+
+    if (!canResendVerification(email)) {
+        showMessage('login-message', 'Please wait 30 seconds before trying again.', 'error');
+        return;
     }
-    showMessage('login-message', errorMessage, 'error');
-  }
+
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, document.getElementById('password').value);
+        const user = userCredential.user;
+
+        if (!user.emailVerified) {
+            await user.sendEmailVerification();
+            localStorage.setItem('verification-attempt-${email}', Date.now());
+            showMessage('login-message', 'Verification email resent!', 'success');
+        } else {
+            showMessage('login-message', 'Email is already verified.', 'success');
+        }
+    } catch (error) {
+        console.error('Resend verification error:', error.code, error.message);
+        showMessage('login-message', 'Error resending verification: ${error.message}', 'error');
+    }
 });
 
-// Close modals
+// Google Sign-In
+document.querySelectorAll('.social-btn').forEach(btn => {
+    btn.addEventListener('click', async function () {
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const result = await auth.signInWithPopup(provider);
+            const user = result.user;
+
+            await db.collection('users').doc(user.uid).set({
+                name: user.displayName,
+                email: user.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            localStorage.setItem('isAuthenticated', 'true');
+            document.getElementById('auth-page').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'flex';
+            showMessage('login-message', 'Google login successful!', 'success');
+        } catch (error) {
+            console.error('Google login error:', error.code, error.message);
+            showMessage('login-message', 'Google login failed: ${error.message}', 'error');
+        }
+    });
+});
+
+// Modal Close Handlers
 document.querySelectorAll('.modal-close').forEach(btn => {
-  btn.addEventListener('click', function () {
-    this.closest('.modal').style.display = 'none';
-  });
+    btn.addEventListener('click', function () {
+        this.closest('.modal').style.display = 'none';
+    });
 });
 
 document.querySelectorAll('.modal').forEach(modal => {
-  modal.addEventListener('click', function (e) {
-    if (e.target === this) {
-      this.style.display = 'none';
-    }
-  });
+    modal.addEventListener('click', function (e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
 });
 
-// Handle todo form submission
+// Todo Form Handler
 document.getElementById('todo-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validateTodoForm()) return;
+    e.preventDefault();
+    if (!validateTodoForm()) return;
 
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage('login-message', 'You must be logged in to add tasks.', 'error');
-    return;
-  }
-
-  const todoId = document.getElementById('todo-id').value;
-  const todoData = {
-    title: document.getElementById('todo-title').value,
-    description: document.getElementById('todo-description').value,
-    dueDate: document.getElementById('todo-due').value,
-    time: document.getElementById('todo-time').value,
-    category: document.getElementById('todo-category').value,
-    priority: document.getElementById('todo-priority').value,
-    completed: false,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    if (todoId) {
-      await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update(todoData);
-      showMessage('login-message', 'Task updated successfully!', 'success');
-    } else {
-      todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection('users').doc(user.uid).collection('todos').add(todoData);
-      showMessage('login-message', 'Task added successfully!', 'success');
+    const user = auth.currentUser;
+    if (!user) {
+        showMessage('login-message', 'Please log in to add tasks.', 'error');
+        return;
     }
-    document.getElementById('todo-modal').style.display = 'none';
-    document.getElementById('todo-form').reset();
-    document.getElementById('todo-id').value = '';
-    loadDashboard(user);
-  } catch (error) {
-    console.error('Error saving task:', error);
-    showMessage('login-message', `Error saving task: ${error.message}`, 'error');
-  }
-});
 
-// Priority selector
-document.querySelectorAll('.priority-option').forEach(option => {
-  option.addEventListener('click', function () {
-    document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
-    this.classList.add('selected');
-    document.getElementById('todo-priority').value = this.dataset.priority;
-  });
-});
+    const todoId = document.getElementById('todo-id').value;
+    const title = document.getElementById('todo-title').value;
+    const description = document.getElementById('todo-description').value;
+    const dueDate = document.getElementById('todo-due').value;
+    const time = document.getElementById('todo-time').value;
+    const category = document.getElementById('todo-category').value;
+    const priority = document.getElementById('todo-priority').value;
 
-// Handle password form submission
-document.getElementById('password-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validatePasswordForm()) return;
-
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage('password-message', 'You must be logged in to add passwords.', 'error');
-    return;
-  }
-
-  const passwordId = document.getElementById('password-id').value;
-  const passwordData = {
-    title: document.getElementById('password-title').value,
-    username: document.getElementById('password-username').value,
-    password: encryptPassword(document.getElementById('password-value').value),
-    url: document.getElementById('password-url').value,
-    category: document.getElementById('password-category').value,
-    notes: document.getElementById('password-notes').value,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-  try {
-    if (passwordId) {
-      await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
-      showMessage('password-message', 'Password updated successfully!', 'success');
-    } else {
-      passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
-      showMessage('password-message', 'Password added successfully!', 'success');
-    }
-    document.getElementById('password-modal').style.display = 'none';
-    document.getElementById('password-form').reset();
-    document.getElementById('password-id').value = '';
-    loadDashboard(user);
-  } catch (error) {
-    console.error('Error saving password:', error);
-    showMessage('password-message', `Error saving password: ${error.message}`, 'error');
-  }
-});
-
-// Handle document form submission
-document.getElementById('document-form').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  if (!validateDocumentForm()) return;
-
-  const user = auth.currentUser;
-  if (!user) {
-    showMessage('login-message', 'You must be logged in to upload documents.', 'error');
-    return;
-  }
-
-  const file = document.getElementById('document-file').files[0];
-  const name = document.getElementById('document-name').value;
-  const category = document.getElementById('document-category').value;
-
-  try {
-    const timestamp = Date.now();
-    const sanitizedName = name.replace(/[^a-zA-Z0-9-_]/g, '_');
-    const fileName = `${sanitizedName}_${timestamp}.${file.name.split('.').pop()}`;
-    const storagePath = `users/${user.uid}/documents/${fileName}`;
-
-    // Upload to Supabase
-    const { error } = await supabase.storage
-      .from('public-documents')
-      .upload(storagePath, file, { cacheControl: '3600', upsert: false });
-
-    if (error) throw new Error(`Upload failed: ${error.message}`);
-
-    // Get public URL
-    const { data } = supabase.storage.from('public-documents').getPublicUrl(storagePath);
-    const downloadURL = data.publicUrl;
-
-    // Save metadata to Firestore
-    const documentData = {
-      name,
-      category,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      storagePath,
-      downloadURL,
-      fileName,
-      size: file.size,
-      type: file.name.split('.').pop().toLowerCase(),
-      owner: user.displayName || user.email.split('.')[0]
+    const todoData = {
+        title,
+        description,
+        dueDate,
+        time,
+        category,
+        priority,
+        completed: false,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    await db.collection('users').doc(user.uid).collection('documents').add(documentData);
-
-    showMessage('login-message', 'Document uploaded successfully!', 'success');
-    document.getElementById('document-modal').style.display = 'none';
-    document.getElementById('document-form').reset();
-    await loadDashboard(user);
-  } catch (error) {
-    console.error('Error uploading document:', error);
-    showMessage('login-message', `Error uploading document: ${error.message}`, 'error');
-  }
+    try {
+        if (todoId) {
+            await db.collection('users').doc(user.uid).collection('todos').doc(todoId).update(todoData);
+            showMessage('login-message', 'Task updated successfully!', 'success');
+        } else {
+            todoData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('users').doc(user.uid).collection('todos').add(todoData);
+            showMessage('login-message', 'Task added successfully!', 'success');
+        }
+        document.getElementById('todo-modal').style.display = 'none';
+        document.getElementById('todo-form').reset();
+    } catch (error) {
+        console.error('Error saving task:', error);
+        showMessage('login-message', 'Error saving task: ${error.message}', 'error');
+    }
 });
+
+// Password Form Handler
+document.getElementById('password-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (!validatePasswordForm()) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+        showMessage('password-message', 'Please log in to add passwords.', 'error');
+        return;
+    }
+
+    const passwordId = document.getElementById('password-id').value;
+    const title = document.getElementById('password-title').value;
+    const username = document.getElementById('password-username').value;
+    const password = encryptPassword(document.getElementById('password-value').value);
+    const url = document.getElementById('password-url').value;
+    const category = document.getElementById('password-category').value;
+    const notes = document.getElementById('password-notes').value;
+
+    const passwordData = {
+        title,
+        username,
+        password,
+        url,
+        category,
+        notes,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (passwordId) {
+            await db.collection('users').doc(user.uid).collection('passwords').doc(passwordId).update(passwordData);
+            showMessage('password-message', 'Password updated successfully!', 'success');
+        } else {
+            passwordData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('users').doc(user.uid).collection('passwords').add(passwordData);
+            showMessage('password-message', 'Password added successfully!', 'success');
+        }
+        document.getElementById('password-modal').style.display = 'none';
+        document.getElementById('password-form').reset();
+    } catch (error) {
+        console.error('Error saving password:', error);
+        showMessage('password-message', 'Error saving password: ${error.message}', 'error');
+    }
+});
+
+// Document Form Handler
+document.getElementById('document-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    if (!validateDocumentForm()) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+        showMessage('login-message', 'Please log in to upload documents.', 'error');
+        return;
+    }
+
+    const name = document.getElementById('document-name').value;
+    const file = document.getElementById('document-file').files[0];
+    const category = document.getElementById('document-category').value;
+
+    try {
+        const filePath = 'users/${user.uid}/documents/${Date.now()}_${file.name}';
+        const fileRef = storage.ref(filePath);
+        await fileRef.put(file);
+        const fileURL = await fileRef.getDownloadURL();
+
+        const documentData = {
+            name,
+            category,
+            filePath,
+            fileURL,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('users').doc(user.uid).collection('documents').add(documentData);
+        showMessage('login-message', 'Document uploaded successfully!', 'success');
+        document.getElementById('document-modal').style.display = 'none';
+        document.getElementById('document-form').reset();
+    } catch (error) {
+        console.error('Error uploading document:', error);
+        showMessage('login-message', 'Error uploading document: ${error.message}', 'error');
+    }
+});
+
+// Priority Selector
+document.querySelectorAll('.priority-option').forEach(option => {
+    option.addEventListener('click', function () {
+        document.querySelectorAll('.priority-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        document.getElementById('todo-priority').value = this.dataset.priority;
+    });
+});
+
+// Load Dashboard Data
+async function loadDashboard(user) {
+    document.getElementById('user-name').textContent = user.displayName || 'User';
+    document.getElementById('popup-user-name').textContent = user.displayName || 'User';
+    document.getElementById('popup-user-email').textContent = user.email;
+    document.getElementById('user-avatar').textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U';
+
+    // Load Todos
+    const todoList = document.getElementById('todo-list');
+    todoList.innerHTML = '<div class="loading" id="todo-loading">Loading tasks...</div>';
+
+    try {
+        const todoSnapshot = await db.collection('users').doc(user.uid).collection('todos')
+            .orderBy('createdAt', 'desc')
+            .limit(5)
+            .get();
+
+        todoList.innerHTML = '';
+        if (todoSnapshot.empty) {
+            todoList.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found.</p></div>';
+        } else {
+            todoSnapshot.forEach(doc => {
+                const todo = { id: doc.id, ...doc.data() };
+                const todoElement = createTodoElement(todo);
+                addTodoEventListeners(todoElement, user);
+                todoList.appendChild(todoElement);
+            });
+        }
+
+        const todoCount = todoSnapshot.size;
+        const urgentCount = todoSnapshot.docs.filter(doc => {
+            const dueDate = doc.data().dueDate;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return dueDate && new Date(dueDate).setHours(0, 0, 0, 0) === today.getTime() && doc.data().priority === 'high';
+        }).length;
+
+        document.getElementById('todo-count').textContent = todoCount;
+        document.getElementById('todo-urgent').textContent = urgentCount;
+    } catch (error) {
+        console.error('Error loading todos:', error);
+        todoList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading tasks.</p></div>';
+    }
+
+    // Load Passwords
+    const passwordList = document.getElementById('password-list');
+    passwordList.innerHTML = '<div class="loading" id="password-loading">Loading passwords...</div>';
+
+    try {
+        const passwordStats = await calculatePasswordStats(user.uid);
+        const passwordSnapshot = await db.collection('users').doc(user.uid).collection('passwords')
+            .orderBy('createdAt', 'desc')
+            .limit(5)
+            .get();
+
+        passwordList.innerHTML = '';
+        if (passwordSnapshot.empty) {
+            passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>No passwords found.</p></div>';
+        } else {
+            passwordSnapshot.forEach(doc => {
+                const password = { id: doc.id, ...doc.data() };
+                const passwordElement = createPasswordElement(password);
+                addPasswordEventListeners(passwordElement, user);
+                passwordList.appendChild(passwordElement);
+            });
+        }
+
+        document.getElementById('password-count').textContent = passwordStats.total;
+        document.getElementById('password-recent').textContent = passwordStats.recent;
+    } catch (error) {
+        console.error('Error loading passwords:', error);
+        passwordList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading passwords.</p></div>';
+    }
+
+    // Load Documents
+    const documentList = document.getElementById('document-list');
+    documentList.innerHTML = '<div class="loading">Loading documents...</div>';
+
+    try {
+        const documentStats = await calculateDocumentStats(user.uid);
+        const documentSnapshot = await db.collection('users').doc(user.uid).collection('documents')
+            .orderBy('createdAt', 'desc')
+            .limit(5)
+            .get();
+
+        documentList.innerHTML = '';
+        if (documentSnapshot.empty) {
+            documentList.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents found.</p></div>';
+        } else {
+            documentSnapshot.forEach(doc => {
+                const document = { id: doc.id, ...doc.data() };
+                const documentElement = createDocumentElement(document);
+                addDocumentEventListeners(documentElement, user);
+                documentList.appendChild(documentElement);
+            });
+        }
+
+        document.getElementById('document-count').textContent = documentStats.total;
+        document.getElementById('document-recent').textContent = documentStats.recent;
+    } catch (error) {
+        console.error('Error loading documents:', error);
+        documentList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading documents.</p></div>';
+    }
+}
+
+// Auth State Listener
+auth.onAuthStateChanged(async user => {
+    if (user && user.emailVerified) {
+        document.getElementById('auth-page').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        setupUserPopup();
+        await loadDashboard(user);
+    } else {
+        document.getElementById('auth-page').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+    }
+});
+
+// Sidebar Toggle for Mobile
+document.querySelector('.sidebar-toggle').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.toggle('active');
+});
+
+document.querySelector('.main-content').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.remove('active');
+});
+
+// Sidebar Navigation
+document.querySelectorAll('.sidebar-menu a').forEach(link => {
+    link.addEventListener('click', function (e) {
+        document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
+
+// Open Modals
+document.getElementById('todo-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('todo-modal').style.display = 'flex';
+    document.getElementById('modal-title').textContent = 'Add New Task';
+    document.getElementById('todo-form').reset();
+    document.querySelector('.priority-option.medium').classList.add('selected');
+    document.getElementById('todo-priority').value = 'medium';
+});
+
+document.getElementById('password-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('password-modal').style.display = 'flex';
+    document.getElementById('modal-title').textContent = 'Add New Password';
+    document.getElementById('password-form').reset();
+});
+
+document.getElementById('documents-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('document-modal').style.display = 'flex';
+    document.getElementById('document-form').reset();
+});
+
+document.getElementById('logout-link').addEventListener('click', handleLogout);
 </script>
 </body>
 </html>
