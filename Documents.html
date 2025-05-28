@@ -709,7 +709,7 @@
     }
     html, body { max-width: 100%; overflow-x: hidden; }
     button, a, .category-btn, .folder-item, .document-row { touch-action: manipulation; }
-    /* Loading Animation Styles */
+  /* Loading Animation Styles */
 .loading-container {
   display: flex;
   justify-content: center;
@@ -740,14 +740,14 @@
 }
 
 .loader::before {
-  background: radial-gradient(at 30% 30%, #0000, #000a) var(--primary); /* Use --primary instead of red */
+  background: radial-gradient(at 30% 30%, #0000, #000a) red; /* Red bouncing ball */
   transform: scaleY(0.65);
   top: 0;
   animation: l11-1 2s cubic-bezier(0, 400, 1, 400) infinite, l11-2 2s ease infinite;
 }
 
 .loader::after {
-  background: var(--white); /* Use --white instead of #ccc */
+  background: var(--white); /* White shadow */
   filter: blur(8px);
   transform: scaleY(0.3) translate(0px, 0px);
   left: 0;
